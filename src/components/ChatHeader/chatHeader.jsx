@@ -1,14 +1,20 @@
 import React from 'react';
-import styles from './chatHeader.module.css';
+import styles from './chatHeader.module.scss';
+import menuIcon from '../../assets/img/menu-icon.png';
+import defaultProfilePic from '../../assets/img/default-profile-img.png';
+
 
 function ChatHeader() {
     return (
         <header className={styles.header}>
-            <h1 className={styles.title}>Chat Messenger</h1>
-            <div className={styles.actions}>
-                <button className={styles.button}>Settings</button>
-                <button className={styles.button}>Logout</button>
+            <div className={styles.profileContainer}>
+            <img src={defaultProfilePic} className={styles.profilePic} />
+                <div className={styles.profileInfo}>
+                    <div>Denise</div>
+                    <div>online</div>
+                </div>
             </div>
+            <img className={styles.menuIcon} src={menuIcon} />
         </header>
     );
 }

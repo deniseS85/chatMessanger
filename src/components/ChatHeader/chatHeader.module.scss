@@ -1,0 +1,40 @@
+@import '../../index.scss';
+
+.header {
+    padding: 10px 10px 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: $itemColor;
+    border-radius: 30px;
+    margin-top: 20px;
+    box-shadow: 0 0 3px $purple;
+    .profileContainer {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        .profilePic {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .profileInfo {
+            display: flex;
+            flex-direction: column;
+            > div:first-child {
+                font-size: 18px;
+                font-weight: bold;
+            }
+        }
+    }
+    .menuIcon {
+        width: 30px;
+        cursor: pointer;
+        transition: transform 0.3s;
+        &:hover {
+            transform: scale(1.2);
+        }
+    }
+}
+  

@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './messageList.module.css';
+import styles from './messageList.module.scss';
 
 function MessageList() {
     return (

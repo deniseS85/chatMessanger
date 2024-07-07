@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './chatInput.module.css';
+import styles from './chatInput.module.scss';
 
 function ChatInput() {
     return (

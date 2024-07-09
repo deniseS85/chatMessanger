@@ -28,11 +28,16 @@ function UserList({ onUserClick }) {
     useEffect(() => {
         const listItems = document.querySelectorAll(`.${styles.item}`);
         listItems.forEach(item => {
+            const profilePic = item.getElementsByClassName(styles.profilePic)[0];
             if (item.dataset.userid === selectedUser?.id.toString()) {
-                item.style.backgroundColor = '#665DFE';
+                item.style.backgroundColor = '#7F76FF';
                 item.style.borderRadius = '50px';
+                if (profilePic) {
+                    profilePic.style.border = '1px solid rgb(223, 223, 250)';
+                }
             } else {
                 item.style.backgroundColor = '';
+                profilePic.style.border = '';
             }
         });
     }, [selectedUser]);

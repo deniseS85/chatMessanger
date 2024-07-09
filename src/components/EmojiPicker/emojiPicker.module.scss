@@ -1,0 +1,40 @@
+@import '../../index.scss';
+
+.emojiContainer {
+    background-color: $itemColor;
+    display: flex;
+    border-radius: 30px;
+    margin-top: 20px;
+    height: 100%;
+    width: 100%;
+    margin-bottom: 20px;
+    box-shadow: 0 0 3px $purple;
+    position: relative;
+    overflow: hidden;
+    aside {
+        position: absolute;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: transparent;
+        border: none;
+        h2 {
+            background-color: $itemColor;
+            color: $fontColor;
+        }
+        input {
+            background-color: transparent;
+            border: 1px solid $purple;
+            border-radius: 25px;
+            color: $fontColor;
+            &::placeholder {
+                color: rgb(165, 163, 163);
+            }
+            &:focus {
+                background-color: transparent;
+                border: 1px solid $turquise;
+            }
+        }
+    }
+   
+}
+

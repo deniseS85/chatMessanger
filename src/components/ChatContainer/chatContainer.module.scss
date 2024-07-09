@@ -2,11 +2,17 @@
 
 .chatContainer {
     background-color: $itemColor;
-    padding: 10px 10px 10px 20px;
+    padding: 10px;
     display: flex;
     border-radius: 30px;
     margin-top: 20px;
     height: 100%;
     margin-bottom: 20px;
     box-shadow: 0 0 3px $purple;
+    justify-content: space-between;
+    flex-direction: column;
+    flex-grow: 3;
+    .emoji-hidden & {
+        flex-grow: 1;
+    }
 }

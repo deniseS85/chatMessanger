@@ -1,6 +1,7 @@
 $fontColor: rgb(223, 223, 250);
-$purple: #665DFE;
+$purple: #7F76FF;
 $itemColor: #221F36;
+$turquise: #2BB8EE;
 
 body {
 	background: linear-gradient(90deg, rgba(22,19,43,1) 0%, rgba(32,31,69,1) 53%, rgba(22,18,44,1) 100%);
@@ -22,6 +23,51 @@ body {
 			display: flex;
 			flex-direction: column;
 			padding: 0 20px;
+			.chat-layout {
+                display: flex;
+                flex: 1;
+                .chat-container {
+                    flex: 3;
+                    display: flex;
+                    flex-direction: column;
+					transition: flex 0.5s ease, max-width 0.5s ease-in-out;
+                }
+                .emoji-container {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+					transition: flex 0.5s ease, max-width 0.5s ease-in-out;
+                    max-width: 0;
+					will-change: flex, max-width;
+					&.emoji-visible {
+						flex: 1;
+						max-width: 100%;
+						min-width: 280px;
+					}
+                }
+            }
 		}
 	}
+}
+
+
+/* .epr_-mpla0i img:hover {
+	background-color: $purple;
+}
+ */
+.epr-skin-tones {
+	display: none !important;
+}
+
+::-webkit-scrollbar {
+	width: 6px;
+}
+::-webkit-scrollbar-thumb {
+	background-color: $purple;
+	border-radius: 5px;
+}
+
+::-webkit-scrollbar-track {
+	background-color: $itemColor;
+	border-radius: 5px;
 }

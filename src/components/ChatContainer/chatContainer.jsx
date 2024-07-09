@@ -1,10 +1,12 @@
 import React from 'react';
 import styles from './chatContainer.module.scss';
+import ChatInput from '../ChatInput/chatInput';
 
-function ChatContainer() {
+function ChatContainer({ toggleEmojiPicker, emojiPickerVisible }) {
     return (
-        <div className={styles.chatContainer}>
+        <div className={`${styles.chatContainer} ${!emojiPickerVisible ? styles['emoji-hidden'] : ''}`}>
             <h1>ChatContainer</h1>
+            <ChatInput toggleEmojiPicker={toggleEmojiPicker}/>
         </div>
     );
 }

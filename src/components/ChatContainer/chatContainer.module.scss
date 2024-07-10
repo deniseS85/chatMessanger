@@ -12,6 +12,7 @@
     justify-content: space-between;
     flex-direction: column;
     flex-grow: 3;
+    transition: flex-grow 0.3s ease-in-out;
     .emoji-hidden & {
         flex-grow: 1;
     }

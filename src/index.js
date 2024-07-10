@@ -10,9 +10,14 @@ import EmojiPickerComponent from './components/EmojiPicker/emojiPicker';
 const App = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
+    const [selectedEmoji, setSelectedEmoji] = useState(null);
 
     const toggleEmojiPicker = () => {
         setEmojiPickerVisible(prev => !prev);
+    };
+
+    const handleEmojiClick = (emojiObject) => {
+        setSelectedEmoji(emojiObject);
     };
    
     return (
@@ -27,10 +32,11 @@ const App = () => {
                         <ChatContainer 
                             toggleEmojiPicker={toggleEmojiPicker}
                             emojiPickerVisible={emojiPickerVisible}
+                            selectedEmoji={selectedEmoji} 
                         />
                     </div>
                     <div className={`emoji-container ${emojiPickerVisible ? 'emoji-visible' : ''}`}>
-                        <EmojiPickerComponent />
+                        <EmojiPickerComponent onEmojiClick={handleEmojiClick} />
                     </div>
                 </div>
             </div>

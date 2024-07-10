@@ -3,8 +3,7 @@ import styles from './chatInput.module.scss';
 import sendMessage from '../../assets/img/send-message-icon.png';
 import smileyIcon from '../../assets/img/smiley-icon.png';
 
-
-function ChatInput({ toggleEmojiPicker }) {
+function ChatInput({ toggleEmojiPicker, selectedEmoji }) {
     const textAreaRef = useRef(null);
     const [textAreaHeight, setTextAreaHeight] = useState('auto');
     const [textValue, setTextValue] = useState('');
@@ -36,6 +35,29 @@ function ChatInput({ toggleEmojiPicker }) {
         };
     }, []);
 
+    useEffect(() => {
+        insertEmoji();
+    }, [selectedEmoji]);
+
+    const insertEmoji = () => {
+        if (selectedEmoji) {
+            if (selectedEmoji) {
+                const needsLeadingSpace = textValue.trim().length === 0 || textValue.trim().endsWith(' ');
+                const hasTrailingSpace = textValue.endsWith(' ');
+
+                setTextValue(prevValue => {
+                    if (needsLeadingSpace) {
+                        return prevValue + selectedEmoji.emoji + ' ';
+                    } else if (hasTrailingSpace) {
+                        return prevValue + selectedEmoji.emoji + ' ';
+                    } else {
+                        return prevValue + ' ' + selectedEmoji.emoji + ' ';
+                    }
+                });
+            }
+        }
+    };
+
     const buttonStyle = parseInt(textAreaHeight) > 67 ? '10px' : 'auto';
     const isSendDisabled = textValue.trim() === ''; 
     const sendIconStyle = {
@@ -51,6 +73,8 @@ function ChatInput({ toggleEmojiPicker }) {
                 className={styles.chatInput}
                 placeholder="Type your message here..."
                 rows="1"
+                value={textValue}
+                onChange={(e) => setTextValue(e.target.value)}
             />
             <div className={styles.inputButton}>
                 <img 

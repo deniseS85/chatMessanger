@@ -10,13 +10,35 @@ body {
 	user-select: none;
 	.app {
 		display: flex;
+		height: 100vh;
 		.sidebar {
 			width: 280px;
-			height: 100vh;
 			overflow-y: auto;
 			padding-top: 20px;
 			padding-bottom: 20px;
 			margin-left: 10px;
+			position: relative;
+			transition: width 0.3s ease;
+			&.showOnlyProfilePics {
+				width: 80px;
+				.toggleUserList {
+					top: 35px;
+    				right: 25px;
+				}
+			}
+			.toggleUserList {
+				position: absolute;
+				top: 20px;
+				right: 10px;
+				width: 30px;
+				height: 30px;
+				cursor: pointer;
+				transition: transform 0.3s ease, filter 0.3s ease;
+				&:hover {
+					transform: scale(1.1);
+        			filter: brightness(1.2);
+				}
+			}
 		}
 		.main-content {
 			flex: 1;
@@ -49,10 +71,6 @@ body {
 	}
 }
 
-.epr-skin-tones {
-	display: none !important;
-}
-
 ::-webkit-scrollbar {
 	width: 6px;
 }
@@ -62,6 +80,6 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-	background-color: $itemColor;
+	background-color: transparent;
 	border-radius: 5px;
 }

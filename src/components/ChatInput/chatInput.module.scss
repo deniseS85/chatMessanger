@@ -31,7 +31,6 @@
             width: 30px;
             background: $purple;
             border-radius: 50%;
-            padding: 2px;
             transition: background-color 0.3s ease;
             &:hover {
                 background-color: #665DFE;
@@ -39,6 +38,7 @@
         }
         .sendIcon {
             right: 9px;
+            border: 2.4px solid $fontColor;
         }
         .smileyIcon {
             right: 50px;

@@ -3,7 +3,7 @@ import styles from './chatInput.module.scss';
 import sendMessage from '../../assets/img/send-message-icon.png';
 import smileyIcon from '../../assets/img/smiley-icon.png';
 
-function ChatInput({ toggleEmojiPicker, selectedEmoji }) {
+function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
     const textAreaRef = useRef(null);
     const [textAreaHeight, setTextAreaHeight] = useState('auto');
     const [textValue, setTextValue] = useState('');
@@ -44,7 +44,7 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji }) {
             if (selectedEmoji) {
                 const needsLeadingSpace = textValue.trim().length === 0 || textValue.trim().endsWith(' ');
                 const hasTrailingSpace = textValue.endsWith(' ');
-
+                
                 setTextValue(prevValue => {
                     if (needsLeadingSpace) {
                         return prevValue + selectedEmoji.emoji + ' ';
@@ -55,6 +55,18 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji }) {
                     }
                 });
             }
+        }
+    };
+
+    const sendNewMessage = (e) => {
+        e.preventDefault();
+    
+        const trimmedTextValue = textValue.trim();
+        if (trimmedTextValue !== '') {
+            onSendMessage(trimmedTextValue);
+            setTextValue('');
+            textAreaRef.current.style.height = 'auto';
+            setTextAreaHeight('auto');
         }
     };
 
@@ -75,6 +87,12 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji }) {
                 rows="1"
                 value={textValue}
                 onChange={(e) => setTextValue(e.target.value)}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendNewMessage(e);
+                    }
+                }}
             />
             <div className={styles.inputButton}>
                 <img 
@@ -89,6 +107,7 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji }) {
                     src={sendMessage}
                     alt="Send"
                     style={ sendIconStyle }
+                    onClick={sendNewMessage}
                 />
             </div>
         </div>

@@ -5,7 +5,7 @@ import defaultProfilePic from '../../assets/img/default-profile-img.png';
 import catPic from '../../assets/img/cat.jpg'; 
 import dogPic from '../../assets/img/dog.png'; 
 
-function UserList({ onUserClick }) {
+function UserList({ onUserClick, isHovered, showOnlyProfilePics }) {
     const [searchUser, setsearchUser] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
     const users = [
@@ -29,25 +29,27 @@ function UserList({ onUserClick }) {
         const listItems = document.querySelectorAll(`.${styles.item}`);
         listItems.forEach(item => {
             const profilePic = item.getElementsByClassName(styles.profilePic)[0];
+
             if (item.dataset.userid === selectedUser?.id.toString()) {
                 item.style.backgroundColor = '#7F76FF';
-                item.style.borderRadius = '50px';
+                item.style.borderRadius = showOnlyProfilePics ? '0' : '50px';
                 if (profilePic) {
                     profilePic.style.border = '1px solid rgb(223, 223, 250)';
                 }
             } else {
                 item.style.backgroundColor = '';
                 profilePic.style.border = '';
+                item.style.borderRadius = showOnlyProfilePics ? '0' : '50px';
             }
         });
-    }, [selectedUser]);
+    }, [selectedUser, showOnlyProfilePics]);
 
     const filteredUsers = users.filter(user => 
         user.name.toLowerCase().startsWith(searchUser.toLowerCase())
     );
 
     return (
-        <div className={styles.userList}>
+        <div className={`${styles.userList} ${isHovered ? styles.hovered : ''} ${showOnlyProfilePics ? styles.showOnlyProfilePics : ''}`}>
             <div className={styles.logoContainer}>
                 <img src={logoIcon} alt="Logo" />
                 <div>Chat</div>
@@ -72,7 +74,7 @@ function UserList({ onUserClick }) {
                         <div className={styles.profilePicContainer}>
                             <img src={user.profilePic || defaultProfilePic} className={styles.profilePic} />
                         </div>
-                        {user.name}
+                        {!showOnlyProfilePics && user.name}
                     </li>
                 ))}
             </ul>

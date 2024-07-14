@@ -11,7 +11,7 @@
     box-shadow: 0 0 3px $purple;
     position: relative;
     overflow: hidden;
-    aside {
+    .emojiComponent {
         position: absolute;
         width: 100% !important;
         height: 100% !important;
@@ -20,19 +20,6 @@
         h2 {
             background-color: $itemColor;
             color: $fontColor;
-        }
-        input {
-            background-color: transparent;
-            border: 1px solid $purple;
-            border-radius: 25px;
-            color: $fontColor;
-            &::placeholder {
-                color: rgb(165, 163, 163);
-            }
-            &:focus {
-                background-color: transparent;
-                border: 1px solid $turquise;
-            }
         }
     }
 }

@@ -9,8 +9,9 @@ function ChatHeader({ selectedUser }) {
         <header className={styles.header}>
             <div className={styles.profileContainer}>
                 <img 
-                   src={selectedUser ? (selectedUser.profilePic || defaultProfilePic) : ''}
-                    className={selectedUser ? styles.profilePic : ''} 
+                    src={selectedUser ? (selectedUser.profilePic || defaultProfilePic) : ''}
+                    alt={selectedUser ? `${selectedUser.name}'s profile picture` : ''}
+                    className={selectedUser ? styles.profilePic : ''}
                 />
                 <div className={styles.profileInfo}>
                     <div>{selectedUser ? selectedUser.name : ''}</div>

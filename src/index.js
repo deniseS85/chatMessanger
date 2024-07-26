@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.scss';
@@ -15,14 +15,42 @@ const App = () => {
     const [selectedEmoji, setSelectedEmoji] = useState(null);
     const [isHovered, setIsHovered] = useState(false);
     const [showOnlyProfilePics, setShowOnlyProfilePics] = useState(false);
+    const [userToggled, setUserToggled] = useState(false);
 
     const toggleEmojiPicker = () => {
-        setEmojiPickerVisible(prev => !prev);
+        setEmojiPickerVisible(open => !open);
     };
 
     const handleEmojiClick = (emojiObject) => {
         setSelectedEmoji(emojiObject);
     };
+
+    const checkScreenWidth = () => {
+        const isSmallScreen = window.innerWidth <= 655;
+        if (!userToggled) {
+            setShowOnlyProfilePics(isSmallScreen);
+        }
+    };
+
+    useEffect(() => {
+        checkScreenWidth();
+
+        const handleResize = () => {
+            checkScreenWidth();
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [userToggled]);
+
+    const toggleShowOnlyProfilePics = () => {
+        setUserToggled(prev => !prev);
+        setShowOnlyProfilePics(prev => !prev);
+    };
+
    
     return (
         <div className={`app ${emojiPickerVisible ? 'emoji-visible' : ''}`}>
@@ -33,11 +61,12 @@ const App = () => {
                     showOnlyProfilePics={showOnlyProfilePics} 
                 />
                 <img 
-                    className="toggleUserList" 
+                    className="toggleUserList"
+                    alt="Close"
                     src={showOnlyProfilePics ? openUserList : closeUserList} 
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
-                    onClick={() => setShowOnlyProfilePics(!showOnlyProfilePics)}    
+                    onClick={toggleShowOnlyProfilePics}    
                 />
             </div>
             <div className="main-content">

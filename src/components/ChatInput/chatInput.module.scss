@@ -7,7 +7,7 @@
     position: relative;
     .chatInput {
         width: 100%;
-        padding: 10px 85px 10px 20px;
+        padding: 10px clamp(4.5rem, 4.3571rem + 0.7143vw, 5.5rem) 10px 20px;
         border-radius: 25px;
         border: none;
         outline: none;
@@ -28,7 +28,7 @@
             position: absolute;
             cursor: pointer;
             bottom: auto;
-            width: 30px;
+            width: clamp(1.5625rem, 1.5179rem + 0.2232vw, 1.875rem);
             background: $purple;
             border-radius: 50%;
             transition: background-color 0.3s ease;
@@ -41,7 +41,7 @@
             border: 2.4px solid $fontColor;
         }
         .smileyIcon {
-            right: 50px;
+            right: clamp(2.5rem, 2.4107rem + 0.4464vw, 3.125rem);
         }
     }
 }

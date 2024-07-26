@@ -72,7 +72,7 @@ function UserList({ onUserClick, isHovered, showOnlyProfilePics }) {
                         onClick={() => handleUserClick(user)}
                     >
                         <div className={styles.profilePicContainer}>
-                            <img src={user.profilePic || defaultProfilePic} className={styles.profilePic} />
+                            <img src={user.profilePic || defaultProfilePic} className={styles.profilePic} alt="Profile" />
                         </div>
                         {!showOnlyProfilePics && user.name}
                     </li>

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import styles from './chatInput.module.scss';
 import sendMessage from '../../assets/img/send-message-icon.png';
 import smileyIcon from '../../assets/img/smiley-icon.png';
@@ -7,71 +7,106 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
     const textAreaRef = useRef(null);
     const [textAreaHeight, setTextAreaHeight] = useState('auto');
     const [textValue, setTextValue] = useState('');
+    const [placeholder, setPlaceholder] = useState(window.innerWidth < 450 ? 'Message...' : 'Type your message here...');
 
+    // fokussiert das Inputfeld am Anfang und beim Auswählen eines Emojis
     useEffect(() => {
-        const textArea = textAreaRef.current;
+        if (textAreaRef.current) {
+            textAreaRef.current.focus();
+        }
+    }, [textValue, selectedEmoji]);
 
-        const adjustHeight = () => {
+    // passt die Höhe des Textfeldes automatisch auf den Inhalt an (useCallback verhindert immer neue Berechnungen)
+    const adjustHeight = useCallback(() => {
+        const textArea = textAreaRef.current;
+        if (textArea) {
             textArea.style.height = 'auto';
             const newHeight = textArea.scrollHeight + 'px';
             setTextAreaHeight(newHeight);
             textArea.style.height = newHeight;
-        };
-
-        const handleResize = () => {
-            adjustHeight();
-        };
-
-        textArea.addEventListener('input', () => {
-            adjustHeight();
-            setTextValue(textArea.value);
-        });
-        adjustHeight();
-        window.addEventListener('resize', handleResize);
-
-        return () => {
-            textArea.removeEventListener('input', adjustHeight);
-            window.removeEventListener('resize', handleResize);
-        };
+        }
     }, []);
 
     useEffect(() => {
-        insertEmoji();
-    }, [selectedEmoji]);
+        const textArea = textAreaRef.current;
 
-    const insertEmoji = () => {
+        // ändert Placeholdertext nach Bildschirmbreite
+        const handleResize = () => {
+            setPlaceholder(window.innerWidth < 450 ? 'Message...' : 'Type your message here...');
+            if (textValue === '') {
+                textArea.style.height = '44px';
+            } else {
+                adjustHeight();
+            }
+        };
+
+        // aktualisiert den Textvalue und passt Höhe des Textfeldes an
+        const handleInput = (event) => {
+            setTextValue(event.target.value);
+            if (event.target.value === '') {
+                textArea.style.height = '44px';
+            } else {
+                adjustHeight();
+            }
+        };
+
+        if (textArea) {
+            textArea.addEventListener('input', handleInput);
+        }
+        window.addEventListener('resize', handleResize);
+        adjustHeight();
+
+        return () => {
+            if (textArea) {
+                textArea.removeEventListener('input', handleInput);
+            }
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [adjustHeight]);
+
+    // zeigt ausgewählen Emoji im Textfelt, setzt Emoji mit Leerzeichen (useCallback, Funktion wird nur ausgeführt, wenn selectEmoji verwendet wird)
+    const insertEmoji = useCallback(() => {
         if (selectedEmoji) {
-            if (selectedEmoji) {
-                const needsLeadingSpace = textValue.trim().length === 0 || textValue.trim().endsWith(' ');
-                const hasTrailingSpace = textValue.endsWith(' ');
+            setTextValue(prevValue => {
+                const needsLeadingSpace = prevValue.trim().length === 0 || prevValue.trim().endsWith(' ');
+                const hasTrailingSpace = prevValue.endsWith(' ');
                 
-                setTextValue(prevValue => {
-                    if (needsLeadingSpace) {
-                        return prevValue + selectedEmoji.emoji + ' ';
-                    } else if (hasTrailingSpace) {
-                        return prevValue + selectedEmoji.emoji + ' ';
-                    } else {
-                        return prevValue + ' ' + selectedEmoji.emoji + ' ';
-                    }
-                });
+                if (needsLeadingSpace || hasTrailingSpace) {
+                    return prevValue + selectedEmoji.emoji + ' ';
+                } else {
+                    return prevValue + ' ' + selectedEmoji.emoji + ' ';
+                }
+            });
+            
+            if (textAreaRef.current) {
+                textAreaRef.current.focus();
             }
         }
-    };
+    }, [selectedEmoji]);
 
+    // Emojis auswählen
+    useEffect(() => {
+        insertEmoji();
+    }, [selectedEmoji, insertEmoji]);
+
+    // Nachricht senden, überprüft ob Textfeld nicht leer ist, danach wird Textfeld zurückgesetzt
     const sendNewMessage = (e) => {
         e.preventDefault();
-    
+
         const trimmedTextValue = textValue.trim();
         if (trimmedTextValue !== '') {
             onSendMessage(trimmedTextValue);
             setTextValue('');
             textAreaRef.current.style.height = 'auto';
             setTextAreaHeight('auto');
+            if (textAreaRef.current) {
+                textAreaRef.current.focus();
+            }
         }
     };
 
     const buttonStyle = parseInt(textAreaHeight) > 67 ? '10px' : 'auto';
-    const isSendDisabled = textValue.trim() === ''; 
+    const isSendDisabled = textValue.trim() === '';
     const sendIconStyle = {
         bottom: buttonStyle,
         opacity: isSendDisabled ? '0.5' : '1',
@@ -83,7 +118,7 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
             <textarea 
                 ref={textAreaRef}
                 className={styles.chatInput}
-                placeholder="Type your message here..."
+                placeholder={placeholder}
                 rows="1"
                 value={textValue}
                 onChange={(e) => setTextValue(e.target.value)}

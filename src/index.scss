@@ -19,6 +19,9 @@ body {
 			margin-left: 10px;
 			position: relative;
 			transition: width 0.3s ease;
+			@media (max-width: 425px) {
+				display: none;
+			}
 			&.showOnlyProfilePics {
 				width: 80px;
 				.toggleUserList {

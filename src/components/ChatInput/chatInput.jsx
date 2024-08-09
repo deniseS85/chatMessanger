@@ -7,16 +7,27 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
     const textAreaRef = useRef(null);
     const [textAreaHeight, setTextAreaHeight] = useState('auto');
     const [textValue, setTextValue] = useState('');
-    const [placeholder, setPlaceholder] = useState(window.innerWidth < 450 ? 'Message...' : 'Type your message here...');
+    const [placeholder, setPlaceholder] = useState(getPlaceholder());
 
-    // fokussiert das Inputfeld am Anfang und beim Auswählen eines Emojis
+    function getPlaceholder() {
+        const textArea = textAreaRef.current;
+        if (textArea) {
+            const textAreaWidth = textArea.clientWidth;
+            return window.innerWidth < 450 || textAreaWidth <= 290
+                ? 'Message...'
+                : 'Type your message here...';
+        }
+        return window.innerWidth < 450 ? 'Message...' : 'Type your message here...';
+    }
+
+    // Fokussiert das Inputfeld am Anfang und beim Auswählen eines Emojis
     useEffect(() => {
         if (textAreaRef.current) {
             textAreaRef.current.focus();
         }
     }, [textValue, selectedEmoji]);
 
-    // passt die Höhe des Textfeldes automatisch auf den Inhalt an (useCallback verhindert immer neue Berechnungen)
+    // Passt die Höhe des Textfeldes automatisch auf den Inhalt an
     const adjustHeight = useCallback(() => {
         const textArea = textAreaRef.current;
         if (textArea) {
@@ -28,68 +39,65 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
     }, []);
 
     useEffect(() => {
-        const textArea = textAreaRef.current;
-
-        // ändert Placeholdertext nach Bildschirmbreite
         const handleResize = () => {
-            setPlaceholder(window.innerWidth < 450 ? 'Message...' : 'Type your message here...');
-            if (textValue === '') {
-                textArea.style.height = '44px';
-            } else {
+            // Verwende requestAnimationFrame, um Änderungen am Layout zu minimieren
+            window.requestAnimationFrame(() => {
+                const textArea = textAreaRef.current;
+                if (textArea) {
+                    const textAreaWidth = textArea.clientWidth;
+                    setPlaceholder(window.innerWidth < 450 || textAreaWidth <= 290 ? 'Message...' : 'Type your message here...');
+                }
                 adjustHeight();
-            }
+            });
         };
 
-        // aktualisiert den Textvalue und passt Höhe des Textfeldes an
-        const handleInput = (event) => {
-            setTextValue(event.target.value);
-            if (event.target.value === '') {
-                textArea.style.height = '44px';
-            } else {
-                adjustHeight();
-            }
-        };
+        // Initialer Aufruf zur Setzung des richtigen Placeholders
+        handleResize();
 
-        if (textArea) {
-            textArea.addEventListener('input', handleInput);
-        }
+        // Event-Listener für die Fenstergröße hinzufügen
         window.addEventListener('resize', handleResize);
-        adjustHeight();
+
+        // ResizeObserver für das Textarea hinzufügen
+        const resizeObserver = new ResizeObserver(() => {
+            window.requestAnimationFrame(handleResize);
+        });
+        if (textAreaRef.current) {
+            resizeObserver.observe(textAreaRef.current);
+        }
 
         return () => {
-            if (textArea) {
-                textArea.removeEventListener('input', handleInput);
-            }
             window.removeEventListener('resize', handleResize);
+            if (textAreaRef.current) {
+                resizeObserver.unobserve(textAreaRef.current);
+            }
         };
-    }, [adjustHeight]);
+    }, [adjustHeight, textValue]);
 
-    // zeigt ausgewählen Emoji im Textfelt, setzt Emoji mit Leerzeichen (useCallback, Funktion wird nur ausgeführt, wenn selectEmoji verwendet wird)
+    // Zeigt ausgewählten Emoji im Textfeld an
     const insertEmoji = useCallback(() => {
         if (selectedEmoji) {
             setTextValue(prevValue => {
                 const needsLeadingSpace = prevValue.trim().length === 0 || prevValue.trim().endsWith(' ');
                 const hasTrailingSpace = prevValue.endsWith(' ');
-                
+
                 if (needsLeadingSpace || hasTrailingSpace) {
                     return prevValue + selectedEmoji.emoji + ' ';
                 } else {
                     return prevValue + ' ' + selectedEmoji.emoji + ' ';
                 }
             });
-            
+
             if (textAreaRef.current) {
                 textAreaRef.current.focus();
             }
         }
     }, [selectedEmoji]);
 
-    // Emojis auswählen
     useEffect(() => {
         insertEmoji();
     }, [selectedEmoji, insertEmoji]);
 
-    // Nachricht senden, überprüft ob Textfeld nicht leer ist, danach wird Textfeld zurückgesetzt
+    // Nachricht senden, überprüft ob Textfeld nicht leer ist
     const sendNewMessage = (e) => {
         e.preventDefault();
 
@@ -97,9 +105,9 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
         if (trimmedTextValue !== '') {
             onSendMessage(trimmedTextValue);
             setTextValue('');
-            textAreaRef.current.style.height = 'auto';
-            setTextAreaHeight('auto');
             if (textAreaRef.current) {
+                textAreaRef.current.style.height = 'auto';
+                setTextAreaHeight('auto');
                 textAreaRef.current.focus();
             }
         }
@@ -121,7 +129,10 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
                 placeholder={placeholder}
                 rows="1"
                 value={textValue}
-                onChange={(e) => setTextValue(e.target.value)}
+                onChange={(e) => {
+                    setTextValue(e.target.value);
+                    adjustHeight();
+                }}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
@@ -141,7 +152,7 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
                     className={styles.sendIcon}
                     src={sendMessage}
                     alt="Send"
-                    style={ sendIconStyle }
+                    style={sendIconStyle}
                     onClick={sendNewMessage}
                 />
             </div>

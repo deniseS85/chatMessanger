@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import styles from './chatContainer.module.scss';
 import ChatInput from '../ChatInput/chatInput';
 
@@ -8,9 +9,9 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji })
     const [messages, setMessages] = useState([]);
 
     const addMessage = (message) => {
-        const newMessage = { text: message, type: 'send' };
+        const newMessage = { text: message, type: 'send', id: Date.now() };
         setMessages(prevMessages => [newMessage, ...prevMessages]);
-    };
+    }; 
 
     useEffect(() => {
         scrollToBottom();
@@ -46,11 +47,28 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji })
     return (
         <div className={`${styles.chatContainer} ${!emojiPickerVisible ? styles['emoji-hidden'] : ''}`}>
             <div ref={messagesContainerRef} className={styles.messageContainer}>
-                {messages.map((message, index) => (
-                    <p key={index} className={`${styles.message} ${styles[message.type]}`}>
-                        {message.text}
-                    </p>
-                ))}
+                <TransitionGroup component={null}>
+                    {messages.map((message) => {
+                        const nodeRef = React.createRef();
+                        return (
+                            <CSSTransition
+                                key={message.id} 
+                                nodeRef={nodeRef}
+                                timeout={500}
+                                classNames={{
+                                    enter: styles.messageEnter,
+                                    enterActive: styles.messageEnterActive,
+                                    exit: styles.messageExit,
+                                    exitActive: styles.messageExitActive,
+                                }}
+                            >
+                                <p ref={nodeRef} className={`${styles.message} ${styles[message.type]}`}>
+                                    {message.text}
+                                </p>
+                            </CSSTransition>
+                        );
+                    })}
+                </TransitionGroup>
                 <div ref={messagesEndRef} />
             </div>
 

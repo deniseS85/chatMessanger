@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.scss';
@@ -25,12 +25,12 @@ const App = () => {
         setSelectedEmoji(emojiObject);
     };
 
-    const checkScreenWidth = () => {
+    const checkScreenWidth = useCallback(() => {
         const isSmallScreen = window.innerWidth <= 655;
         if (!userToggled) {
             setShowOnlyProfilePics(isSmallScreen);
         }
-    };
+    }, [userToggled]);
 
     useEffect(() => {
         checkScreenWidth();
@@ -44,7 +44,7 @@ const App = () => {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [userToggled]);
+    }, [checkScreenWidth]);
 
     const toggleShowOnlyProfilePics = () => {
         setUserToggled(prev => !prev);

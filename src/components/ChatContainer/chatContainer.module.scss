@@ -23,8 +23,8 @@
         display: flex;
         flex-direction: column-reverse;
         align-items: flex-start;
-        margin: 0px 0px 40px 20px;
-        padding-right: 20px;
+        margin: 0px 0px 50px 0px;
+        padding: 0 20px 0 20px;
         overflow-y: auto;
         overflow-x: hidden;
         background-color: $itemColor;
@@ -46,6 +46,7 @@
             position: relative;
             font-size: 16px;
             display: inline-block;
+            margin-bottom: 10px;
 
             &:before, &:after {
                 content: "";
@@ -108,4 +109,25 @@
         left: 10px;
     }
 }
+
+.messageEnter {
+    transform: translateY(20px);
+}
+
+.messageEnterActive {
+    transform: translateY(0);
+    transition: transform 0.5s ease;
+}
+
+.messageExit {
+    transform: translateY(0);
+}
+
+.messageExitActive {
+    transform: translateY(-20px);
+    transition: transform 0.5s ease;
+}
+
+
+
 

@@ -40,7 +40,6 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
 
     useEffect(() => {
         const handleResize = () => {
-            // Verwende requestAnimationFrame, um Änderungen am Layout zu minimieren
             window.requestAnimationFrame(() => {
                 const textArea = textAreaRef.current;
                 if (textArea) {
@@ -51,25 +50,27 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
             });
         };
 
-        // Initialer Aufruf zur Setzung des richtigen Placeholders
         handleResize();
 
-        // Event-Listener für die Fenstergröße hinzufügen
-        window.addEventListener('resize', handleResize);
+        const handleResizeObserver = () => {
+            const textArea = textAreaRef.current;
+            if (textArea) {
+                const resizeObserver = new ResizeObserver(() => {
+                    window.requestAnimationFrame(handleResize);
+                });
+                resizeObserver.observe(textArea);
+                return () => {
+                    resizeObserver.unobserve(textArea);
+                };
+            }
+        };
 
-        // ResizeObserver für das Textarea hinzufügen
-        const resizeObserver = new ResizeObserver(() => {
-            window.requestAnimationFrame(handleResize);
-        });
-        if (textAreaRef.current) {
-            resizeObserver.observe(textAreaRef.current);
-        }
+        const cleanupResizeObserver = handleResizeObserver();
+        window.addEventListener('resize', handleResize);
 
         return () => {
             window.removeEventListener('resize', handleResize);
-            if (textAreaRef.current) {
-                resizeObserver.unobserve(textAreaRef.current);
-            }
+            cleanupResizeObserver();
         };
     }, [adjustHeight, textValue]);
 

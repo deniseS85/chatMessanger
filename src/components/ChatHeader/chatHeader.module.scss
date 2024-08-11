@@ -11,16 +11,38 @@
     box-shadow: 0 0 3px $purple;
     height: 80px;
     min-height: 80px;
+    @media (max-width: 428px) {
+        margin-top: 10px;
+        border-radius: 10px;
+        height: 60px;
+        min-height: 60px;
+        padding: 10px;
+    }
     .profileContainer {
         display: flex;
         align-items: center;
         gap: 20px;
+        .backIcon {
+            width: 30px;
+            height: 30px;
+            transform: rotate(180deg);
+            display: none;
+
+            @media (max-width: 428px) {
+                display: flex;
+            }
+        }
         .profilePic {
             width: 60px;
             height: 60px;
             border-radius: 50%;
             object-fit: cover;
             border: 1.5px solid $purple;
+
+            @media (max-width: 428px) {
+                width: 42px;
+                height: 42px;
+            }
         }
         .profileInfo {
             display: flex;
@@ -28,7 +50,17 @@
             > div:first-child {
                 font-size: 18px;
                 font-weight: bold;
+
+                @media (max-width: 428px) {
+                    font-size: 16px;
+                }
             }
+            @media (max-width: 428px) {
+                > div:last-child {
+                    font-size: 14px;
+                }
+            }
+            
         }
     }
     .menuIcon {

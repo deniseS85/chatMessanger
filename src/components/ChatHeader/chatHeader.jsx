@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from './chatHeader.module.scss';
 import menuIcon from '../../assets/img/menu-icon.png';
+import backIcon from '../../assets/img/send-message-icon.png'
 import defaultProfilePic from '../../assets/img/default-profile-img.png';
 
 
@@ -8,6 +9,11 @@ function ChatHeader({ selectedUser }) {
     return (
         <header className={styles.header}>
             <div className={styles.profileContainer}>
+                <img 
+                    src={backIcon}
+                    alt='Back'
+                    className={styles.backIcon}
+                />
                 <img 
                     src={selectedUser ? (selectedUser.profilePic || defaultProfilePic) : ''}
                     alt={selectedUser ? `${selectedUser.name}'s profile picture` : ''}

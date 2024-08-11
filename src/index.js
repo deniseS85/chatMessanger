@@ -16,9 +16,11 @@ const App = () => {
     const [isHovered, setIsHovered] = useState(false);
     const [showOnlyProfilePics, setShowOnlyProfilePics] = useState(false);
     const [userToggled, setUserToggled] = useState(false);
+    const [emojiToggled, setEmojiToggled] = useState(false);
 
     const toggleEmojiPicker = () => {
         setEmojiPickerVisible(open => !open);
+        setEmojiToggled(prev => !prev);
     };
 
     const handleEmojiClick = (emojiObject) => {
@@ -26,11 +28,18 @@ const App = () => {
     };
 
     const checkScreenWidth = useCallback(() => {
-        const isSmallScreen = window.innerWidth <= 655;
+        const isSmallScreenUserPic = window.innerWidth <= 655;
+        const isSmallScreenEmoji = window.innerWidth <= 811;
         if (!userToggled) {
-            setShowOnlyProfilePics(isSmallScreen);
+            setShowOnlyProfilePics(isSmallScreenUserPic);
         }
-    }, [userToggled]);
+
+        if (isSmallScreenEmoji) {
+            setEmojiPickerVisible(false);
+        } else if (emojiToggled) {
+            setEmojiPickerVisible(true);
+        }
+    }, [userToggled, emojiToggled]);
 
     useEffect(() => {
         checkScreenWidth();

@@ -20,6 +20,9 @@
         &::placeholder {
             color: rgb(165, 163, 163);
         }
+        @media (max-width: 428px) { 
+            border-radius: 10px;
+        }
     }
     .inputButton {
         display: flex;

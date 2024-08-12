@@ -27,6 +27,11 @@
             height: 30px;
             transform: rotate(180deg);
             display: none;
+            cursor: pointer;
+            transition: transform 0.3s;
+            &:hover {
+                transform: scale(1.2) rotate(180deg);
+            }
 
             @media (max-width: 428px) {
                 display: flex;

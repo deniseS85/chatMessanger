@@ -1,11 +1,10 @@
 import React from 'react';
 import styles from './chatHeader.module.scss';
 import menuIcon from '../../assets/img/menu-icon.png';
-import backIcon from '../../assets/img/send-message-icon.png'
+import backIcon from '../../assets/img/send-message-icon.png';
 import defaultProfilePic from '../../assets/img/default-profile-img.png';
 
-
-function ChatHeader({ selectedUser }) {
+function ChatHeader({ selectedUser, onBackClick }) { 
     return (
         <header className={styles.header}>
             <div className={styles.profileContainer}>
@@ -13,6 +12,7 @@ function ChatHeader({ selectedUser }) {
                     src={backIcon}
                     alt='Back'
                     className={styles.backIcon}
+                    onClick={onBackClick}
                 />
                 <img 
                     src={selectedUser ? (selectedUser.profilePic || defaultProfilePic) : ''}

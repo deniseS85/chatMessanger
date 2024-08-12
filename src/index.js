@@ -17,6 +17,7 @@ const App = () => {
     const [showOnlyProfilePics, setShowOnlyProfilePics] = useState(false);
     const [userToggled, setUserToggled] = useState(false);
     const [emojiToggled, setEmojiToggled] = useState(false);
+    const [isUserListOpen, setIsUserListOpen] = useState(false);
 
     const toggleEmojiPicker = () => {
         setEmojiPickerVisible(open => !open);
@@ -30,8 +31,19 @@ const App = () => {
     const checkScreenWidth = useCallback(() => {
         const isSmallScreenUserPic = window.innerWidth <= 655;
         const isSmallScreenEmoji = window.innerWidth <= 811;
-        if (!userToggled) {
-            setShowOnlyProfilePics(isSmallScreenUserPic);
+    
+        if (window.innerWidth >= 428) {
+            setIsUserListOpen(false);
+
+            if (!userToggled) {
+                setShowOnlyProfilePics(isSmallScreenUserPic);
+            }
+        } else {
+            if (userToggled) {
+                setShowOnlyProfilePics(true);
+            } else {
+                setShowOnlyProfilePics(false);
+            }
         }
 
         if (isSmallScreenEmoji) {
@@ -60,14 +72,27 @@ const App = () => {
         setShowOnlyProfilePics(prev => !prev);
     };
 
-   
+    const toggleUserList = () => {
+        if (window.innerWidth <= 428) {
+            setIsUserListOpen(prev => !prev);
+            setShowOnlyProfilePics(false); 
+        }
+    };
+
+    const handleUserSelect = (user) => {
+        setSelectedUser(user);
+        if (window.innerWidth <= 428) {
+            setIsUserListOpen(false);
+        }
+    };
+
     return (
         <div className={`app ${emojiPickerVisible ? 'emoji-visible' : ''}`}>
-            <div className={`sidebar ${showOnlyProfilePics ? 'showOnlyProfilePics' : ''}`}>
+            <div className={`sidebar ${showOnlyProfilePics ? 'showOnlyProfilePics' : ''} ${isUserListOpen ? 'expanded' : ''}`}>
                 <UserList 
                     isHovered={isHovered} 
-                    onUserClick={setSelectedUser}
-                    showOnlyProfilePics={showOnlyProfilePics} 
+                    onUserClick={handleUserSelect}
+                    showOnlyProfilePics={showOnlyProfilePics}
                 />
                 <img 
                     className="toggleUserList"
@@ -78,8 +103,11 @@ const App = () => {
                     onClick={toggleShowOnlyProfilePics}    
                 />
             </div>
-            <div className="main-content">
-                <ChatHeader selectedUser={selectedUser} />
+            <div className={`main-content ${isUserListOpen ? 'sidebar-expanded' : ''}`}>
+                <ChatHeader 
+                    selectedUser={selectedUser} 
+                    onBackClick={toggleUserList}
+                />
                 <div className="chat-layout">
                     <div className="chat-container">
                         <ChatContainer 

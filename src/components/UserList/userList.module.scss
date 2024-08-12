@@ -14,6 +14,10 @@
     box-shadow: 0 0 3px $purple;
     transition: box-shadow 0.3s ease;
 
+    @media (max-width: 428px) {
+        border-radius: 10px;
+    }
+
     &.hovered {
         box-shadow: 0 0 8px $purple;
     }

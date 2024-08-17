@@ -4,126 +4,132 @@ $itemColor: #221F36;
 $turquise: #2BB8EE;
 
 body {
-	background: linear-gradient(90deg, rgba(22,19,43,1) 0%, rgba(32,31,69,1) 53%, rgba(22,18,44,1) 100%);
-	color: $fontColor;
-	height: 100dvh;
-	user-select: none;
-
-	.app {
-		display: flex;
-		height: 100dvh;
-
-		.sidebar {
-			width: 280px;
-			overflow-y: auto;
-			padding-top: 20px;
-			padding-bottom: 20px;
-			margin-left: 10px;
-			position: relative;
-			transition: width 0.3s ease, transform 0.3s ease-in-out;
-
-			@media (max-width: 428px) {
-				position: fixed;
-				top: 0;
-				left: 0;
-				height: 100%;
-				width: 100%;
-				transform: translateX(-110%);
-				background-color: $itemColor;
-				z-index: 10;
-				overflow-y: auto;
-				display: block;
-			}
-
-			&.showOnlyProfilePics {
-				width: 80px;
-
-				.toggleUserList {
-					top: 35px;
-					right: 25px;
-				}
-			}
-
-			.toggleUserList {
-				position: absolute;
-				top: 20px;
-				right: 10px;
-				width: 30px;
-				height: 30px;
-				cursor: pointer;
-				transition: transform 0.3s ease, filter 0.3s ease;
-
-				&:hover {
-					transform: scale(1.1);
-					filter: brightness(1.2);
-				}
-				@media (max-width: 428px) {
-					display: none;
-				}
-			}
-
-			&.expanded {
-				transform: translateX(-10px);
-			}
-		}
-
-		.main-content {
-			flex: 1;
-			display: flex;
-			flex-direction: column;
-			padding: 0 20px;
-			transition: padding 0.3s ease-in-out;
-
-			@media (max-width: 428px) {
-				padding: 0 10px;
-			}
-
-			.chat-layout {
-				display: flex;
-				flex: 1;
-
-				.chat-container {
-					flex: 3;
-					display: flex;
-					flex-direction: column;
-					transition: flex 0.3s ease-in-out, max-width 0.3s ease-in-out;
-				}
-
-				.emoji-container {
-					flex: 0;
-					display: flex;
-					flex-direction: column;
-					transition: flex 0.3s ease-in-out, min-width 0.3s ease-in-out;
-					min-width: 0;
-					will-change: flex, max-width;
-
-					&.emoji-visible {
-						flex: 1;
-						min-width: 280px;
-						margin-left: 1px;
+    background: linear-gradient(90deg, rgba(22,19,43,1) 0%, rgba(32,31,69,1) 53%, rgba(22,18,44,1) 100%);
+    color: $fontColor;
+    height: 100dvh;
+    user-select: none;
+    .app {
+        display: flex;
+        height: 100dvh;
+        .sidebar {
+            width: 280px;
+            overflow-y: auto;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            margin-left: 10px;
+            position: relative;
+            transition: width 0.3s ease, transform 0.3s ease-in-out;
+            @media (max-width: 428px) {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                width: 100%;
+                transform: translateX(-110%);
+                background-color: $itemColor;
+                z-index: 10;
+                overflow-y: auto;
+                display: block;
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+            &.showOnlyProfilePics {
+                width: 80px;
+                background-color: transparent;
+                .toggleUserList {
+                    top: 35px;
+                    right: 25px;
+                }
+            }
+            .toggleUserList {
+                position: absolute;
+                top: 20px;
+                right: 10px;
+                width: 30px;
+                height: 30px;
+                cursor: pointer;
+                transition: transform 0.3s ease, filter 0.3s ease;
+                &:hover {
+                    transform: scale(1.1);
+                    filter: brightness(1.2);
+                }
+                @media (max-width: 428px) {
+                    display: none;
+                }
+            }
+            &.expanded {
+                transform: translateX(-10px);
+            }
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0 20px;
+            transition: padding 0.3s ease-in-out;
+            @media (max-width: 428px) {
+                padding: 0 10px;
+            }
+            .chat-layout {
+                display: flex;
+                flex: 1;
+                transition: flex-direction 0.3s ease-in-out;
+                @media (max-width: 811px) {
+                    flex-direction: column;
+                }
+                .chat-container {
+                    flex: 3;
+                    display: flex;
+                    flex-direction: column;
+                    transition: flex 0.3s ease-in-out, max-width 0.3s ease-in-out;
+                }
+                .emoji-container {
+                    flex: 0;
+                    display: flex;
+                    flex-direction: column;
+                    transition: flex 0.3s ease-in-out, min-width 0.3s ease-in-out, max-height 0.3s ease-in-out;
+                    min-width: 0;
+                    will-change: flex, max-width, max-height;
+					@media (max-width: 811px) {
+						max-height: 0;
 					}
-				}
-			}
-		}
-	}
+                    &.emoji-visible {
+                        flex: 1;
+                        min-width: 280px;
+                        margin-left: 1px;
+                        @media (max-width: 811px) {
+							transition: max-height 0.3s ease-in-out;
+                            margin-top: -39px;
+							max-height: 300px;
+                        }
+						@media (max-width: 428px) {
+							margin-top: -29px;
+						}
+                        
+                    }
+                }
+            }
+        }
+    }
 }
 
 ::-webkit-scrollbar {
-	width: 6px;
+    width: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
-	background-color: $purple;
-	border-radius: 5px;
+    background-color: $purple;
+    border-radius: 5px;
 }
 
 ::-webkit-scrollbar-track {
-	background-color: transparent;
-	border-radius: 5px;
+    background-color: transparent;
+    border-radius: 5px;
 }
 
 @media (max-width: 428px) {
-	::-webkit-scrollbar {
-		width: 2px;
-	}
+    ::-webkit-scrollbar {
+        width: 2px;
+    }
 }
+

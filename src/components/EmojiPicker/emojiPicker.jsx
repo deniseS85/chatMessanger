@@ -4,7 +4,7 @@ import styles from './emojiPicker.module.scss';
 
 function EmojiPickerComponent({ onEmojiClick }) {
     const handleEmojiClick = (event, emojiObject) => {
-        onEmojiClick(emojiObject);
+        onEmojiClick(event);
     };
 
     return (

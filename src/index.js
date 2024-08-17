@@ -18,9 +18,9 @@ const App = () => {
     const [userToggled, setUserToggled] = useState(false);
     const [emojiToggled, setEmojiToggled] = useState(false);
     const [isUserListOpen, setIsUserListOpen] = useState(false);
-
+   
     const toggleEmojiPicker = () => {
-        setEmojiPickerVisible(open => !open);
+        setEmojiPickerVisible(prev => !prev);
         setEmojiToggled(prev => !prev);
     };
 
@@ -29,28 +29,18 @@ const App = () => {
     };
 
     const checkScreenWidth = useCallback(() => {
-        const isSmallScreenUserPic = window.innerWidth <= 655;
-        const isSmallScreenEmoji = window.innerWidth <= 811;
-    
         if (window.innerWidth >= 428) {
             setIsUserListOpen(false);
 
             if (!userToggled) {
-                setShowOnlyProfilePics(isSmallScreenUserPic);
+                setShowOnlyProfilePics(window.innerWidth <= 655);
             }
         } else {
-            if (userToggled) {
-                setShowOnlyProfilePics(true);
-            } else {
-                setShowOnlyProfilePics(false);
-            }
+            userToggled ? setShowOnlyProfilePics(true) : setUserToggled(false);
         }
 
-        if (isSmallScreenEmoji) {
-            setEmojiPickerVisible(false);
-        } else if (emojiToggled) {
-            setEmojiPickerVisible(true);
-        }
+        setEmojiPickerVisible(emojiToggled);
+
     }, [userToggled, emojiToggled]);
 
     useEffect(() => {
@@ -103,7 +93,7 @@ const App = () => {
                     onClick={toggleShowOnlyProfilePics}    
                 />
             </div>
-            <div className={`main-content ${isUserListOpen ? 'sidebar-expanded' : ''}`}>
+            <div className="main-content">
                 <ChatHeader 
                     selectedUser={selectedUser} 
                     onBackClick={toggleUserList}

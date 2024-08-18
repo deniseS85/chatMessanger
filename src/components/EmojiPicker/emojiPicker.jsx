@@ -34,6 +34,29 @@ function EmojiPickerComponent({ onEmojiClick }) {
         }
     }, [isSmallScreen]);
 
+    useEffect(() => {
+        const container = containerRef.current;
+        if (container) {
+            const observer = new MutationObserver(() => {
+                const emojis = container.querySelectorAll('.epr-emoji');
+                emojis.forEach((emoji) => {
+                    emoji.addEventListener('mouseover', () => {
+                        emoji.style.backgroundColor = '#2BB8EE';
+                    });
+                    emoji.addEventListener('mouseout', () => {
+                        emoji.style.backgroundColor = 'transparent';
+                    });
+                });
+            });
+
+            observer.observe(container, { childList: true, subtree: true });
+
+            return () => {
+                observer.disconnect();
+            };
+        }
+    }, []);
+
     return (
         <div className={styles.emojiContainer} ref={containerRef}>
             <EmojiPicker

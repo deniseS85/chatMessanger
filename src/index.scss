@@ -8,6 +8,7 @@ body {
     color: $fontColor;
     height: 100dvh;
     user-select: none;
+    overflow: hidden;
     .app {
         display: flex;
         height: 100dvh;

@@ -118,6 +118,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji })
                     toggleEmojiPicker={toggleEmojiPicker}
                     selectedEmoji={selectedEmoji}
                     onSendMessage={addMessage}
+                    emojiPickerVisible={emojiPickerVisible}
                 />
             </div>
         </div>

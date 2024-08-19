@@ -3,9 +3,9 @@ import styles from './chatInput.module.scss';
 import sendMessage from '../../assets/img/send-message-icon.png';
 import smileyIcon from '../../assets/img/smiley-icon.png';
 
-function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
+function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPickerVisible }) {
     const textAreaRef = useRef(null);
-    const [textAreaHeight, setTextAreaHeight] = useState('auto');
+    const [textAreaHeight, setTextAreaHeight] = useState(window.innerWidth <= 428 ? '35px' : '44px');
     const [textValue, setTextValue] = useState('');
     const [placeholder, setPlaceholder] = useState(getPlaceholder());
 
@@ -22,7 +22,7 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
 
     // Fokussiert das Inputfeld am Anfang und beim Auswählen eines Emojis
     useEffect(() => {
-        if (textAreaRef.current) {
+        if (textAreaRef.current && window.innerWidth > 811) {
             textAreaRef.current.focus();
         }
     }, [textValue, selectedEmoji]);
@@ -30,13 +30,26 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
     // Passt die Höhe des Textfeldes automatisch auf den Inhalt an
     const adjustHeight = useCallback(() => {
         const textArea = textAreaRef.current;
+
         if (textArea) {
             textArea.style.height = 'auto';
             const newHeight = textArea.scrollHeight + 'px';
-            setTextAreaHeight(newHeight);
-            textArea.style.height = newHeight;
+            const maxHeight = window.innerWidth <= 428 ? 370 : 548;
+
+            if (window.innerWidth <= 428) {
+                if (textValue.trim() === '') {
+                    textArea.style.height = '35px';
+                    setTextAreaHeight('35px');
+                } else {
+                    textArea.style.height = Math.min(textArea.scrollHeight, maxHeight) + 'px';
+                    setTextAreaHeight(newHeight);
+                }
+            } else {
+                textArea.style.height = Math.min(textArea.scrollHeight, maxHeight) + 'px';
+                setTextAreaHeight(newHeight);
+            }    
         }
-    }, []);
+    }, [textValue]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -88,7 +101,7 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
                 }
             });
 
-            if (textAreaRef.current) {
+            if (textAreaRef.current && window.innerWidth > 811) {
                 textAreaRef.current.focus();
             }
         }
@@ -101,16 +114,28 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
     // Nachricht senden, überprüft ob Textfeld nicht leer ist
     const sendNewMessage = (e) => {
         e.preventDefault();
-
+    
         const trimmedTextValue = textValue.trim();
-        if (trimmedTextValue !== '') {
-            onSendMessage(trimmedTextValue);
-            setTextValue('');
-            if (textAreaRef.current) {
-                textAreaRef.current.style.height = 'auto';
-                setTextAreaHeight('auto');
+    
+        if (!trimmedTextValue) return;
+    
+        onSendMessage(trimmedTextValue);
+        setTextValue('');
+    
+        if (textAreaRef.current) {
+            textAreaRef.current.style.height = 'auto';
+
+            if (window.innerWidth > 811) {
                 textAreaRef.current.focus();
             }
+        }
+        hideEmojiPickerByText();
+       
+    };
+
+    const hideEmojiPickerByText = () => {
+        if (window.innerWidth <= 811 && emojiPickerVisible) {
+            toggleEmojiPicker();
         }
     };
 
@@ -134,6 +159,7 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
                     setTextValue(e.target.value);
                     adjustHeight();
                 }}
+                onClick={hideEmojiPickerByText}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
@@ -147,7 +173,10 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage }) {
                     src={smileyIcon} 
                     alt="Smiley"
                     style={{ bottom: buttonStyle }}
-                    onClick={toggleEmojiPicker}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        toggleEmojiPicker();
+                    }}
                 />
                 <img
                     className={styles.sendIcon}

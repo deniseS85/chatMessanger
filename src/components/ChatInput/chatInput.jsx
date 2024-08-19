@@ -136,6 +136,16 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
     const hideEmojiPickerByText = () => {
         if (window.innerWidth <= 811 && emojiPickerVisible) {
             toggleEmojiPicker();
+
+            setTimeout(() => {
+                if (textAreaRef.current) {
+                    textAreaRef.current.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start',
+                        inline: 'nearest'
+                    });
+                }
+            }, 300);
         }
     };
 

@@ -2,9 +2,10 @@
 
 .userList {
     background-color: $itemColor;
-    padding: 10px 20px 50px 10px;
+    padding-top: 10px;
+    padding-bottom: 50px;
     height: 100%;
-    overflow-y: auto;
+    overflow: hidden;
     border-start-end-radius: 250px 120px;
     border-start-start-radius: 50px 40px;
     border-end-end-radius: 40px 50px;
@@ -45,17 +46,13 @@
             }
         }
     }
-    &::-webkit-scrollbar-track-piece:start {
-        margin-top: 90px;
-    }
-    &::-webkit-scrollbar-track-piece:end {
-        margin-bottom: 30px;
-    }
     .logoContainer {
         display: flex;
         gap: 30px;
         align-items: center;
         margin: 5px 5px 20px 5px;
+        padding-left: 10px;
+        padding-right: 20px;
         img {
             width: 35px;
         }
@@ -72,6 +69,8 @@
     .searchContainer {
         width: 100%;
         margin-bottom: 20px;
+        padding-left: 10px;
+        padding-right: 20px;
         .searchInput {
             width: 100%;
             padding: 6px 20px;
@@ -89,11 +88,13 @@
     }
     .list {
         list-style-type: none;
-        padding: 0;
+        padding: 0 20px 0 10px;
         margin: 0;
         display: flex;
         flex-direction: column;
         gap: 10px;
+        overflow-y: auto;
+        max-height: calc(100% - 80px);
         .item {
             cursor: pointer;
             display: flex;
@@ -121,6 +122,9 @@
                 object-fit: cover;
                 border: 1.5px solid $purple;
             }
+        }
+        &::-webkit-scrollbar-track-piece:end {
+            margin-bottom: 20px;
         }
     }
 }

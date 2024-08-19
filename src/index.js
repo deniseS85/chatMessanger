@@ -33,7 +33,7 @@ const App = () => {
             setIsUserListOpen(false);
 
             if (!userToggled) {
-                setShowOnlyProfilePics(window.innerWidth <= 655);
+                setShowOnlyProfilePics(window.innerWidth <= 811);
             }
         } else {
             userToggled ? setShowOnlyProfilePics(true) : setUserToggled(false);

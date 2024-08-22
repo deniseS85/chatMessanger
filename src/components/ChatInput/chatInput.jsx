@@ -3,7 +3,7 @@ import styles from './chatInput.module.scss';
 import sendMessage from '../../assets/img/send-message-icon.png';
 import smileyIcon from '../../assets/img/smiley-icon.png';
 
-function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPickerVisible }) {
+function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPickerVisible, onHeightChange }) {
     const textAreaRef = useRef(null);
     const [textAreaHeight, setTextAreaHeight] = useState(window.innerWidth <= 428 ? '35px' : '44px');
     const [textValue, setTextValue] = useState('');
@@ -30,26 +30,35 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
     // Passt die Höhe des Textfeldes automatisch auf den Inhalt an
     const adjustHeight = useCallback(() => {
         const textArea = textAreaRef.current;
-
+    
         if (textArea) {
             textArea.style.height = 'auto';
-            const newHeight = textArea.scrollHeight + 'px';
+    
+            // Berechne die neue Höhe und maximale Höhe
+            const scrollHeight = textArea.scrollHeight;
             const maxHeight = window.innerWidth <= 428 ? 370 : 548;
-
+            const newHeight = Math.min(scrollHeight, maxHeight) + 'px';
+    
+            // Berechne die Differenz zur Initialhöhe
+            const initialHeight = window.innerWidth <= 428 ? 35 : 44;
+            const heightDifference = Math.min(scrollHeight, maxHeight) - initialHeight;
+            onHeightChange(heightDifference);
+    
             if (window.innerWidth <= 428) {
                 if (textValue.trim() === '') {
                     textArea.style.height = '35px';
                     setTextAreaHeight('35px');
                 } else {
-                    textArea.style.height = Math.min(textArea.scrollHeight, maxHeight) + 'px';
+                    textArea.style.height = newHeight;
                     setTextAreaHeight(newHeight);
                 }
             } else {
-                textArea.style.height = Math.min(textArea.scrollHeight, maxHeight) + 'px';
+                textArea.style.height = newHeight;
                 setTextAreaHeight(newHeight);
-            }    
+            }
         }
-    }, [textValue]);
+    }, [textValue, onHeightChange]);
+    
 
     useEffect(() => {
         const handleResize = () => {

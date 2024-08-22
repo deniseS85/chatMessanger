@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styles from './userList.module.scss';
 import logoIcon from '../../assets/img/logo.png';
 import defaultProfilePic from '../../assets/img/default-profile-img.png';
 import catPic from '../../assets/img/cat.jpg'; 
-import dogPic from '../../assets/img/dog.png'; 
+import dogPic from '../../assets/img/dog.png';
+import addIcon from '../../assets/img/add-icon.png';
 
-function UserList({ onUserClick, isHovered, showOnlyProfilePics }) {
+function UserList({ onUserClick, isHovered, showOnlyProfilePics, addNewContact }) {
     const [searchUser, setsearchUser] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
+
     const users = [
         { id: 1, name: 'Alice', status: 'online', profilePic: catPic },
         { id: 2, name: 'Bob', status: 'offline', profilePic: dogPic },
@@ -20,10 +22,10 @@ function UserList({ onUserClick, isHovered, showOnlyProfilePics }) {
         setsearchUser(event.target.value);
     };
 
-    const handleUserClick = (user) => {
+     const handleUserClick = useCallback((user) => {
         setSelectedUser(user === selectedUser ? null : user);
         onUserClick(user);
-    };
+    }, [selectedUser, onUserClick]);
 
     useEffect(() => {
         const listItems = document.querySelectorAll(`.${styles.item}`);
@@ -78,8 +80,15 @@ function UserList({ onUserClick, isHovered, showOnlyProfilePics }) {
                     </li>
                 ))}
             </ul>
+            <button 
+                className={`${styles.addUserButton} ${showOnlyProfilePics ? styles.isOnlyProfilePic : ''}`} 
+                onClick={addNewContact}
+            >
+                <img src={addIcon} className={styles.addUserImg} alt="Add" />
+            </button>
         </div>
     );
 }
 
 export default UserList;
+

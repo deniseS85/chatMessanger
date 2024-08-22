@@ -6,6 +6,7 @@ import ChatHeader from './components/ChatHeader/chatHeader';
 import ChatContainer from './components/ChatContainer/chatContainer';
 import UserList from './components/UserList/userList';
 import EmojiPickerComponent from './components/EmojiPicker/emojiPicker';
+import AddNewContact from './components/AddNewContact/addNewContact';
 import closeUserList from './assets/img/closeUser-icon.png';
 import openUserList from './assets/img/openUser-icon.png';
 
@@ -18,6 +19,7 @@ const App = () => {
     const [userToggled, setUserToggled] = useState(false);
     const [emojiToggled, setEmojiToggled] = useState(false);
     const [isUserListOpen, setIsUserListOpen] = useState(false);
+    const [showAddContactForm, setShowAddContactForm] = useState(false);
    
     const toggleEmojiPicker = () => {
         setEmojiPickerVisible(prev => !prev);
@@ -76,6 +78,14 @@ const App = () => {
         }
     };
 
+    const handleAddNewContact = (contact) => {
+        console.log('Neuer Kontakt hinzugefügt:', contact);
+    };
+
+    const toggleAddContactForm = () => {
+        setShowAddContactForm(prev => !prev);
+    };
+
     return (
         <div className={`app ${emojiPickerVisible ? 'emoji-visible' : ''}`}>
             <div className={`sidebar ${showOnlyProfilePics ? 'showOnlyProfilePics' : ''} ${isUserListOpen ? 'expanded' : ''}`}>
@@ -83,6 +93,7 @@ const App = () => {
                     isHovered={isHovered} 
                     onUserClick={handleUserSelect}
                     showOnlyProfilePics={showOnlyProfilePics}
+                    addNewContact={toggleAddContactForm}
                 />
                 <img 
                     className="toggleUserList"
@@ -111,6 +122,12 @@ const App = () => {
                     </div>
                 </div>
             </div>
+            {showAddContactForm && (
+                <AddNewContact 
+                    onAddContact={handleAddNewContact} 
+                    onClose={toggleAddContactForm} 
+                />
+            )}
         </div>
     );
 };

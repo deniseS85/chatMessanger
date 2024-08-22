@@ -1,0 +1,114 @@
+@import '../../index.scss';
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .formContainer {
+        background: $itemColor;
+        padding: 30px clamp(0.9375rem, 0.8929rem + 0.2232vw, 1.25rem);
+        position: relative;
+        width: clamp(18.75rem, 14.2857rem + 22.3214vw, 50rem);
+        height: clamp(200px, 40vh, 400px);
+        min-height: 300px;
+        max-height: 90vh;
+        color: $fontColor;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-start-start-radius: 250px 120px;  /* oben links */
+        border-start-end-radius: 50px 40px; /* oben rechts */
+        border-end-start-radius: 40px 50px; /* unten links */
+        border-end-end-radius: 200px 100px;  /* unten rechts */
+        box-shadow: 0 0 3px $purple;
+        @media (max-width: 428px) {
+            border-radius: 10px;
+            max-height: 80vh; 
+            padding: clamp(0.9375rem, 0.8929rem + 0.2232vw, 1.25rem);
+        }
+        .formHeader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            margin: 0px auto 20px;
+            border-start-start-radius: 250px 120px;
+            .formHeadline {
+                font-size: clamp(1.25rem, 1.0714rem + 0.8929vw, 2.5rem);
+            }
+            .closeButton {
+                position: absolute;
+                right: clamp(-0.375rem, -0.5179rem + 0.7143vw, 0.625rem);
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: clamp(1.25rem, 1.2054rem + 0.2232vw, 1.5625rem);
+                color: $fontColor;
+            }
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-end-end-radius: 200px 100px; 
+            padding: 0 20px;
+            height: 72%;
+            @media (max-width: 428px) {
+                border-radius: 0;
+                padding: 0;
+            }
+            label {
+                display: flex;
+                width: 100%; 
+                gap: 10px;
+                align-items: center;
+                flex-wrap: wrap;
+                @media (max-width: 428px) {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 5px;
+                }
+                span {
+                    width: clamp(100px, 20vw, 150px);
+                    font-size: clamp(1rem, 0.9643rem + 0.1786vw, 1.25rem);
+                    font-weight: bold;
+                    @media (max-width: 428px) {
+                       width: 100%;
+                    }
+                }
+                input {
+                    flex: 1;
+                    padding: 8px;
+                    font-size: 16px;
+                    width: 100%;
+                    box-sizing: border-box;
+                    @media (max-width: 428px) {
+                       width: 100%;
+                    }
+                }
+            }
+            button {
+                margin-top: 10px;
+                padding: 10px;
+                background-color: $purple;
+                color: $fontColor;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                width: calc(80% - 20px);
+                margin-right: auto; 
+                font-size: clamp(1rem, 0.9643rem + 0.1786vw, 1.25rem);
+                font-weight: bold;
+                @media (max-width: 428px) {
+                    width: 100%;
+                    
+                }
+            }  
+        }
+    }  
+}
+

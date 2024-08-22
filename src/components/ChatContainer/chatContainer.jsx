@@ -7,6 +7,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji })
     const messagesContainerRef = useRef(null);
     const messagesEndRef = useRef(null);
     const [messages, setMessages] = useState([]);
+    const [inputHeightDiff, setInputHeightDiff] = useState(0);
 
     let messageCounter = useRef(0);
 
@@ -83,6 +84,18 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji })
         });
     };
 
+    const handleInputHeightChange = (heightDifference) => {
+        setInputHeightDiff(heightDifference);
+    };
+
+    const marginBottom = 50 + inputHeightDiff;
+
+    useEffect(() => {
+        if (messagesContainerRef.current) {
+            messagesContainerRef.current.style.marginBottom = `${marginBottom}px`;
+        }
+    }, [marginBottom]);
+
     return (
         <div className={`${styles.chatContainer} ${!emojiPickerVisible ? styles['emoji-hidden'] : ''}`}>
             <div ref={messagesContainerRef} className={styles.messageContainer}>
@@ -103,7 +116,10 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji })
                                     exitActive: styles.messageExitActive,
                                 }}
                             >
-                                <p ref={nodeRef} className={`${styles.message} ${styles[message.type]} ${isFirstMessage ? styles.firstMessage : ''}`}>
+                                <p 
+                                    ref={nodeRef} 
+                                    className={`${styles.message} ${styles[message.type]} ${isFirstMessage ? styles.firstMessage : ''}`}
+                                >
                                     {message.text}
                                 </p>
                             </CSSTransition>
@@ -119,6 +135,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji })
                     selectedEmoji={selectedEmoji}
                     onSendMessage={addMessage}
                     emojiPickerVisible={emojiPickerVisible}
+                    onHeightChange={handleInputHeightChange}
                 />
             </div>
         </div>

@@ -65,7 +65,7 @@ function UserList({ onUserClick, isHovered, showOnlyProfilePics, addNewContact }
                     onChange={handleSearchChange} 
                 />
             </div>
-            <ul className={styles.list}>
+            <ul className={styles.list} >
                 {filteredUsers.map(user => (
                     <li 
                         key={user.id}

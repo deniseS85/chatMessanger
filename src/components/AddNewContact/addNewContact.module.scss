@@ -7,6 +7,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 100;
     .formContainer {
         background: $itemColor;
         padding: 30px clamp(0.9375rem, 0.8929rem + 0.2232vw, 1.25rem);
@@ -27,7 +28,8 @@
         @media (max-width: 428px) {
             border-radius: 10px;
             max-height: 80vh; 
-            padding: clamp(0.9375rem, 0.8929rem + 0.2232vw, 1.25rem);
+            padding: 20px;
+            height: clamp(200px, 40vh, 350px);
         }
         .formHeader {
             display: flex;
@@ -39,6 +41,7 @@
             border-start-start-radius: 250px 120px;
             .formHeadline {
                 font-size: clamp(1.25rem, 1.0714rem + 0.8929vw, 2.5rem);
+                font-weight: bold;
             }
             .closeButton {
                 position: absolute;
@@ -56,7 +59,7 @@
             justify-content: space-between;
             border-end-end-radius: 200px 100px; 
             padding: 0 20px;
-            height: 72%;
+            height: 80%;
             @media (max-width: 428px) {
                 border-radius: 0;
                 padding: 0;
@@ -73,7 +76,7 @@
                     gap: 5px;
                 }
                 span {
-                    width: clamp(100px, 20vw, 150px);
+                    width: clamp(7.6875rem, 7.0961rem + 2.2055vw, 10.625rem);
                     font-size: clamp(1rem, 0.9643rem + 0.1786vw, 1.25rem);
                     font-weight: bold;
                     @media (max-width: 428px) {
@@ -83,11 +86,18 @@
                 input {
                     flex: 1;
                     padding: 8px;
-                    font-size: 16px;
                     width: 100%;
                     box-sizing: border-box;
+                    background-color: transparent;
+                    border: none;
+                    border-bottom: 2px solid $purple;
+                    border-radius: 0;
+                    outline: none;
+                    color: $fontColor;
+                    font-size: clamp(1rem, 0.9643rem + 0.1786vw, 1.25rem);
                     @media (max-width: 428px) {
                        width: 100%;
+                       padding-top: 0;
                     }
                 }
             }

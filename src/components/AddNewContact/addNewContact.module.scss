@@ -8,6 +8,16 @@
     align-items: center;
     justify-content: center;
     z-index: 100;
+
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden; 
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    &.visible {
+        opacity: 1;
+        pointer-events: auto;
+        visibility: visible;
+    }
     .formContainer {
         background: $itemColor;
         padding: 30px clamp(0.9375rem, 0.8929rem + 0.2232vw, 1.25rem);
@@ -25,6 +35,14 @@
         border-end-start-radius: 40px 50px; /* unten links */
         border-end-end-radius: 200px 100px;  /* unten rechts */
         box-shadow: 0 0 3px $purple;
+
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        transform: scale(0);
+        opacity: 0;
+        &.visible {
+            transform: scale(1);
+            opacity: 1;
+        }
         @media (max-width: 428px) {
             border-radius: 10px;
             max-height: 80vh; 

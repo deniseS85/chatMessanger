@@ -125,7 +125,8 @@ const App = () => {
             {showAddContactForm && (
                 <AddNewContact 
                     onAddContact={handleAddNewContact} 
-                    onClose={toggleAddContactForm} 
+                    onClose={toggleAddContactForm}
+                    showAddContactForm={showAddContactForm}
                 />
             )}
         </div>

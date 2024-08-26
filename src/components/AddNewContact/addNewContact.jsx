@@ -1,39 +1,52 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import styles from './addNewContact.module.scss';
 
-function AddNewContact({ onAddContact, onClose }) {
+function AddNewContact({ onAddContact, onClose, showAddContactForm }) {
     const [name, setName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
+    const [isVisible, setIsVisible] = useState(false);
     const formRef = useRef(null);
+
+    useEffect(() => {
+        if (showAddContactForm) {
+            setIsVisible(true);
+        }
+    }, [showAddContactForm]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         onAddContact({ name, phoneNumber });
         setName('');
         setPhoneNumber('');
-        onClose();
+        handleClose();
     };
+
+    const handleClose = useCallback(() => {
+        setIsVisible(false);
+        setTimeout(() => {
+            onClose();
+        }, 300);
+    }, [onClose]);
 
     const handleClickOutside = useCallback((e) => {
         if (formRef.current && !formRef.current.contains(e.target)) {
-            onClose();
+            handleClose();
         }
-    }, [onClose]);
+    }, [handleClose]);
 
     useEffect(() => {
         document.addEventListener('mousedown', handleClickOutside);
-
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [handleClickOutside]);
 
     return (
-        <div className={styles.overlay}>
-            <div className={styles.formContainer} ref={formRef}>
+        <div className={`${styles.overlay} ${isVisible ? styles.visible : ''}`}>
+            <div className={`${styles.formContainer} ${isVisible ? styles.visible : ''}`} ref={formRef}>
                 <div className={styles.formHeader}>
                     <div className={styles.formHeadline}>Neuer Kontakt</div>
-                    <button className={styles.closeButton} onClick={onClose}>X</button>
+                    <button className={styles.closeButton} onClick={handleClose}>X</button>
                 </div>
                
                 <form onSubmit={handleSubmit}>

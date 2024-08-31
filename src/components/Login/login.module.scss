@@ -1,0 +1,193 @@
+@import '../../index.scss';
+
+.loginContainer {
+    color: $fontColor;
+    height: 100dvh;
+    user-select: none;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(90deg, rgba(22,19,43,1) 0%, rgba(32,31,69,1) 53%, rgba(22,18,44,1) 100%);
+    form {
+        background-color: $itemColor;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-radius: 30px;
+        padding: clamp(0.9375rem, 0.8036rem + 0.6696vw, 1.875rem);
+        box-shadow: 0 0 3px $purple;
+        width: clamp(19.375rem, 18.5714rem + 4.0179vw, 25rem);
+        height: clamp(25rem, 24.1071rem + 4.4643vw, 31.25rem);
+        .formHeadline {
+            font-size: clamp(1.25rem, 1.0714rem + 0.8929vw, 2.5rem);
+            font-weight: bold;
+            text-align: center;
+        }
+        label {
+            display: flex;
+            width: 100%; 
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        input:not([type='checkbox']) {
+            flex: 1;
+            padding: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px solid $purple;
+            border-radius: 0;
+            outline: none;
+            color: $fontColor;
+            font-size: clamp(1rem, 0.9643rem + 0.1786vw, 1.25rem);
+            @media (max-width: 428px) {
+                width: 100%;
+                padding-top: 0;
+            }
+        }
+        .forget {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: clamp(0.875rem, 0.8571rem + 0.0893vw, 1rem);
+            .checkboxContainer {
+                display: flex;
+                align-items: center;
+                position: relative;
+                cursor: pointer;
+                user-select: none;
+                input[type="checkbox"] {
+                    opacity: 0;
+                    width: 0;
+                    height: 0;
+                    position: absolute;
+                }
+                .checkmark {
+                    height: 17px;
+                    width: 17px;
+                    background-color: transparent;
+                    border-radius: 3px;
+                    border: 2px solid $turquise;
+                    transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+                    &::after {
+                        content: "";
+                        position: absolute;
+                        display: none;
+                    }
+                }
+            }
+            input[type="checkbox"]:checked + .checkmark {
+                background-color: $turquise;
+                border-color: $turquise;
+            }
+            input[type="checkbox"]:checked + .checkmark::after {
+                display: block;
+                left: 6px;
+                top: 5px;
+                width: 5px;
+                height: 10px;
+                border: solid white;
+                border-width: 0 3px 3px 0;
+                transform: rotate(45deg);
+            }
+            input[type="checkbox"] {
+                cursor: pointer;
+            }
+            label {
+                width: unset;
+                padding-bottom: 4px;
+                cursor: pointer;
+                @media (max-width: 428px) {
+                    gap: 5px;
+                }
+            }
+        }
+        .errorContainer {
+            height: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; 
+            .error {
+                color: red;
+                margin: 0;
+                font-size: clamp(0.875rem, 0.8571rem + 0.0893vw, 1rem);
+                text-align: center;
+                animation: fadeIn 0.5s forwards;
+            }
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+        }
+        a {
+            position: relative;
+            text-decoration: none;
+            color: $turquise;
+            overflow: hidden;
+            padding-bottom: 4px;
+            &::after {
+                content: "";
+                position: absolute;
+                bottom: 0; 
+                left: 0;
+                width: 0;
+                height: 3px;
+                background-color: $turquise; 
+                transition: width 0.3s ease-in-out;
+            }
+            &:hover {
+                &::after {
+                    width: 60%;
+                }
+            }
+        }
+        button {
+            padding: 10px;
+            background-color: $purple;
+            color: $fontColor;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            margin-right: auto; 
+            font-size: clamp(1rem, 0.9643rem + 0.1786vw, 1.25rem);
+            font-weight: bold;
+        }
+        .register {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: clamp(0.875rem, 0.8571rem + 0.0893vw, 1rem);
+            p {
+                margin: 0;
+                padding-bottom: 4px;
+            }
+        }
+        .passwordContainer {
+            position: relative;
+            .passwordFieldContainer {
+                display: flex;
+                align-items: center;
+                input {
+                    padding-right: 30px;
+                }
+            }
+            .eyeIcon {
+                position: absolute;
+                right: 10px;
+                cursor: pointer;
+                width: 20px;
+                height: 20px;
+            }
+        }
+    }
+}
+

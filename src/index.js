@@ -8,6 +8,7 @@ import Login from './components/Login/login';
 import Signup from './components/Signup/signup';
 import Chat from './components/Chat/chat'; 
 import ForgotPassword from './components/ForgotPassword/forgotPassword';
+import ResetPassword from './components/ResetPassword/resetPassword';
 
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -32,6 +33,7 @@ const App = () => {
                         <Route path="/signup" element={<Signup />} />
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/chat" element={isLoggedIn ? <Chat /> : <Navigate to="/" />} />
+                        <Route path="/reset-password/:token" element={<ResetPassword />} />
                     </Routes>
                 </div>
             </CSSTransition>

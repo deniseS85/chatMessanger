@@ -32,7 +32,7 @@ const Login = ({ onLoginSuccess }) => {
             setError('You are not yet registered!');
             setTimeout(() => {
                 navigate('/signup');
-            }, 2000);
+            }, 3000);
             } else {
                 setError('Login failed. Please try again.');
             }

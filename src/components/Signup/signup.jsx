@@ -61,7 +61,7 @@ const Signup = () => {
             setFormData({ username: '', password: '', email: '', phoneNumber: '' });
             setTimeout(() => {
                 navigate('/');
-            }, 2000);
+            }, 3000);
         } catch (error) {
             if (error.response) {
                 const message = error.response.data.message || 'Please try again.';
@@ -69,7 +69,7 @@ const Signup = () => {
                 if (message === 'You are already registered!') {
                     setTimeout(() => {
                         navigate('/');
-                    }, 2000);
+                    }, 3000);
                 }
             } else {
                 setError('Registration failed. Please try again.');

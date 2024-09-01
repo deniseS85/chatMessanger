@@ -18,6 +18,10 @@ const ForgotPassword = () => {
         try {
             const response = await axios.post('http://localhost:8081/forgot-password', { email });
             setMessage(response.data.message);
+            setEmail('');
+            setTimeout(() => {
+                navigate('/');
+            }, 3000);
         } catch (error) {
             setError('Failed to send password reset email.');
         }

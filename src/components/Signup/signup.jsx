@@ -34,7 +34,7 @@ const Signup = () => {
             return false;
         }
 
-        const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{4,}$/;
         if (!strongPasswordRegex.test(password)) {
             setError('Invalid password format.');
             return false;
@@ -120,6 +120,7 @@ const Signup = () => {
                         <input
                             type={showPassword ? 'text' : 'password'}
                             id="password"
+                            placeholder='Min. 4 character, 1 upper, 1 number'
                             value={formData.password}
                             onChange={(e) => handleChange('password', e.target.value)}
                             autoComplete='new-password'
@@ -137,6 +138,7 @@ const Signup = () => {
                     <input
                         type="email"
                         id="email"
+                        placeholder='name@example.com'
                         value={formData.email}
                         onChange={(e) => handleChange('email', e.target.value)}
                         autoComplete='email'
@@ -146,6 +148,7 @@ const Signup = () => {
                     <label htmlFor="phone_number">Phone Number</label>
                     <PhoneInput
                         value={formData.phoneNumber}
+                        maxLength="22"
                         onChange={(value) => handleChange('phoneNumber', value)}
                         defaultCountry="DE"
                         international

@@ -56,6 +56,7 @@ $turquise: #2BB8EE;
         input {
             flex: 1;
             padding: 5px;
+            padding-bottom: 2px;
             width: 100%;
             box-sizing: border-box;
             background-color: transparent;
@@ -68,6 +69,9 @@ $turquise: #2BB8EE;
             @media (max-width: 428px) {
                 width: 100%;
                 padding-top: 0;
+            }
+            &::placeholder {
+                font-size: 12px;
             }
         }
         .errorContainer {

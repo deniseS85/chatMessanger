@@ -17,10 +17,7 @@ const db = mysql.createConnection({
 
 const checkUserAlreadyExist = (email, phoneNumber) => {
     return new Promise((resolve, reject) => {
-        const query = `
-            SELECT * FROM users 
-            WHERE email = ? OR phone_number = ?
-        `;
+        const query = `SELECT * FROM users WHERE email = ? OR phone_number = ?`;
         db.query(query, [email, phoneNumber], (err, results) => {
             if (err) {
                 return reject(err);
@@ -44,7 +41,7 @@ app.post('/signup', async (req, res) => {
         db.query(sql, [username, hashedPassword, email, phoneNumber], (err, result) => {
             if (err) {
                 console.error(err);
-                return res.status(500).json({ message: 'Error registering user' });
+                return res.status(400).json({ message: 'Error registering user' });
             }
             res.json({ success: true, message: 'User registered successfully' });
         });

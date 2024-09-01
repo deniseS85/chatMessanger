@@ -7,6 +7,7 @@ import './index.scss';
 import Login from './components/Login/login';
 import Signup from './components/Signup/signup';
 import Chat from './components/Chat/chat'; 
+import ForgotPassword from './components/ForgotPassword/forgotPassword';
 
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -29,6 +30,7 @@ const App = () => {
                     <Routes location={location}>
                         <Route path="/" element={isLoggedIn ? <Navigate to="/chat" /> : <Login onLoginSuccess={handleLoginSuccess} />} />
                         <Route path="/signup" element={<Signup />} />
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/chat" element={isLoggedIn ? <Chat /> : <Navigate to="/" />} />
                     </Routes>
                 </div>

@@ -81,7 +81,7 @@ const Login = ({ onLoginSuccess }) => {
                         <span className={styles.checkmark}></span>
                         Remember Me
                     </label>
-                    <a href="#forget">Forgot Password?</a>
+                    <Link to="/forgot-password">Forgot Password?</Link>
                 </div>
                 
                 <div className={styles.errorContainer}>

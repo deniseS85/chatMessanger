@@ -21,7 +21,7 @@
         height: clamp(25rem, 24.1071rem + 4.4643vw, 31.25rem);
         .formHeadline {
             font-size: clamp(1.25rem, 1.0714rem + 0.8929vw, 2.5rem);
-            font-weight: bold;
+            color: $purple;
             text-align: center;
         }
         label {

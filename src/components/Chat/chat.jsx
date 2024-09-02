@@ -8,7 +8,7 @@ import closeUserList from '../../assets/img/closeUser-icon.png';
 import openUserList from '../../assets/img/openUser-icon.png';
 import styles from './chat.module.scss'
 
-const Chat = () => {
+const Chat = ({ onLogout }) => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
     const [selectedEmoji, setSelectedEmoji] = useState(null);
@@ -103,7 +103,7 @@ const Chat = () => {
                 />
             </div>
             <div className={styles['main-content']}>
-                <ChatHeader 
+                <ChatHeader onLogout={onLogout}
                     selectedUser={selectedUser} 
                     onBackClick={toggleUserList}
                 />

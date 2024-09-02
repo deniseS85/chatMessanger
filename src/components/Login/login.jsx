@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import styles from './login.module.scss';
 import hidePassword from '../../assets/img/password-hide.png';
 import visiblePassword from '../../assets/img/password-visible.png';
+import { v4 as uuidv4 } from 'uuid';
 
 const Login = ({ onLoginSuccess }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -22,17 +25,30 @@ const Login = ({ onLoginSuccess }) => {
         }
 
         try {
-            const response = await axios.post('http://localhost:8081/login', { 
-                username, 
-                password 
-            });
-            onLoginSuccess(response.data); 
+            const response = await axios.post('http://localhost:8081/login', { username, password });
+
+            if (response.data.success) {
+                const token = uuidv4();
+                Cookies.set('authToken', token, { expires: 7, secure: true, sameSite: 'Strict' });
+
+                if (rememberMe) {
+                    Cookies.set('username', username, { expires: 7 });
+                }
+
+                onLoginSuccess(response.data); 
+            }
         } catch (error) {
-            if (error.response && error.response.status === 404) {
-            setError('You are not yet registered!');
-            setTimeout(() => {
-                navigate('/signup');
-            }, 3000);
+            if (error.response) {
+                if (error.response.status === 404) {
+                    setError('You are not yet registered!');
+                    setTimeout(() => {
+                        navigate('/signup');
+                    }, 3000);
+                } else if (error.response.status === 401) {
+                    setError('Wrong password. Please try again.');
+                } else {
+                    setError('Login failed. Please try again.');
+                }
             } else {
                 setError('Login failed. Please try again.');
             }
@@ -77,7 +93,12 @@ const Login = ({ onLoginSuccess }) => {
                 </div>
                 <div className={styles.forget}>
                     <label className={styles.checkboxContainer}>
-                        <input type="checkbox" id="remember" />
+                        <input 
+                            type="checkbox" 
+                            id="remember"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                        />
                         <span className={styles.checkmark}></span>
                         Remember Me
                     </label>

@@ -56,22 +56,19 @@ function ChatHeader({ selectedUser, onBackClick, onLogout }) {
                     <div>{selectedUser ? selectedUser.status : ''}</div>
                 </div>
             </div>
-            <div className={styles.menuContainer}>
-                <img 
-                    className={styles.menuIcon} 
-                    src={menuIcon} 
-                    alt="Menü" 
-                    onClick={toggleMenu} 
-                />
-                {isMenuOpen && (
-                    <DropdownMenu 
-                        onLogout={handleLogout}
-                        onSelectMessages={handleSelectMessages}
-                        onDeleteChat={handleDeleteChat}
-                        onSearchMessages={handleSearchMessages}
-                    />
-                )}
-            </div>
+            <img 
+                className={styles.menuIcon} 
+                src={menuIcon} 
+                alt="Menü" 
+                onClick={toggleMenu} 
+            />
+            <DropdownMenu
+                isOpen={isMenuOpen}
+                onLogout={handleLogout}
+                onSelectMessages={handleSelectMessages}
+                onDeleteChat={handleDeleteChat}
+                onSearchMessages={handleSearchMessages}
+            />
         </header>
     );
 }

@@ -2,25 +2,50 @@
 
 .dropdownMenu {
     position: absolute;
-    top: 40px;
-    right: 10px;
-    background-color: white;
-    border: 1px solid #ccc;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
+    top: 100px;
+    right: 19px;
+    background-color: $itemColor;
+    box-shadow: 0 0 3px $purple;
+    border-radius: 30px;
     z-index: 1000;
-
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease;
+    @media (max-width: 428px) {
+        top: 60px;
+        right: 9px;
+    }
     ul {
         list-style: none;
         margin: 0;
-        padding: 10px 0;
+        padding: 0;
+        width: 100%;
     }
-
     li {
-        padding: 10px 20px;
+        padding: 15px;
+        text-align: center;
         cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 16px;
+        &:first-child {
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+        }
+
+        &:last-child {
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
         &:hover {
-            background-color: #f0f0f0;
+            background-color: $purple;
+        }
+        @media (max-width: 768px) {
+            padding: 10px 15px;
+            font-size: 14px;
         }
     }
+}
+
+.open {
+    max-height: 1000px;
 }

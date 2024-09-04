@@ -104,6 +104,7 @@ const Chat = ({ onLogout }) => {
             </div>
             <div className={styles['main-content']}>
                 <ChatHeader onLogout={onLogout}
+                    isUserListOpen={isUserListOpen}
                     selectedUser={selectedUser} 
                     onBackClick={toggleUserList}
                 />

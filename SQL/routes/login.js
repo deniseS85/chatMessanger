@@ -19,7 +19,16 @@ router.post('/', async (req, res) => {
             const isPasswordCorrect = await bcrypt.compare(password, user.password_hash);
 
             if (isPasswordCorrect) {
-                res.json({ success: true, message: 'Login successful', user });
+                const updateStatusQuery = `UPDATE user_status SET online_status = 'online', last_login = CURRENT_TIMESTAMP WHERE user_id = ?`;
+
+                db.query(updateStatusQuery, [user.id], (err) => {
+                    if (err) {
+                        console.error('Failed to update status:', err);
+                        return res.status(500).json({ success: false, message: 'Failed to update status' });
+                    }
+
+                    res.json({ success: true, message: 'Login successful', user });
+                });
             } else {
                 res.status(401).json({ success: false, message: 'Invalid password' });
             }

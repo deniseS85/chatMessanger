@@ -30,6 +30,7 @@ const Login = ({ onLoginSuccess }) => {
             if (response.data.success) {
                 const token = uuidv4();
                 Cookies.set('authToken', token, { expires: 7, secure: true, sameSite: 'Strict' });
+                Cookies.set('userId', response.data.user.id); 
 
                 if (rememberMe) {
                     Cookies.set('username', username, { expires: 7 });

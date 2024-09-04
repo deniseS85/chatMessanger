@@ -18,10 +18,10 @@ const DropdownMenu = ({ isOpen, onLogout, onSelectMessages, onDeleteChat, onSear
             style={{ maxHeight }}
         >
             <ul>
+                <li onClick={onSelectMessages}>Select Message</li>
+                <li onClick={onSearchMessages}>Search Message</li>
+                <li onClick={onDeleteChat}>Delete Chat</li>
                 <li onClick={onLogout}>Logout</li>
-                <li onClick={onSelectMessages}>Nachrichten auswählen</li>
-                <li onClick={onDeleteChat}>Chat löschen</li>
-                <li onClick={onSearchMessages}>Nachricht suchen</li>
             </ul>
         </div>
     );

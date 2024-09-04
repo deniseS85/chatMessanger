@@ -11,11 +11,13 @@ const loginRoute = require('./routes/login');
 const signupRoute = require('./routes/signup');
 const forgotRoute = require('./routes/forgot');
 const resetRoute = require('./routes/reset');
+const logoutRoute = require('./routes/logout');
 
 app.use('/login', loginRoute);
 app.use('/signup', signupRoute);
 app.use('/forgot-password', forgotRoute);
 app.use('/reset-password', resetRoute);
+app.use('/logout', logoutRoute); 
 
 const PORT = process.env.PORT || 8081;
 app.listen(PORT, () => {

@@ -45,13 +45,13 @@ function AddNewContact({ onAddContact, onClose, showAddContactForm }) {
         <div className={`${styles.overlay} ${isVisible ? styles.visible : ''}`}>
             <div className={`${styles.formContainer} ${isVisible ? styles.visible : ''}`} ref={formRef}>
                 <div className={styles.formHeader}>
-                    <div className={styles.formHeadline}>Neuer Kontakt</div>
+                    <div className={styles.formHeadline}>New Contact</div>
                     <button className={styles.closeButton} onClick={handleClose}>X</button>
                 </div>
                
                 <form onSubmit={handleSubmit}>
                     <label>
-                        <span>Vorname:</span>
+                        <span>Firstname:</span>
                         <input 
                             type="text" 
                             value={name} 
@@ -60,7 +60,7 @@ function AddNewContact({ onAddContact, onClose, showAddContactForm }) {
                         />
                     </label>
                     <label>
-                        <span>Handynummer:</span>
+                        <span>Mobile Number:</span>
                         <input 
                             type="text" 
                             value={phoneNumber} 
@@ -68,7 +68,7 @@ function AddNewContact({ onAddContact, onClose, showAddContactForm }) {
                             required 
                         />
                     </label>
-                    <button type="submit">Hinzufügen</button>
+                    <button type="submit">Add Contact</button>
                 </form>
             </div>
         </div>

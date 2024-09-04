@@ -32,7 +32,16 @@ router.post('/', async (req, res) => {
                 console.error(err);
                 return res.status(400).json({ message: 'Error registering user' });
             }
-            res.json({ success: true, message: 'User registered successfully' });
+
+            const userId = result.insertId;
+            const insertStatusSql = "INSERT INTO user_status (user_id, online_status, last_login) VALUES (?, 'offline', CURRENT_TIMESTAMP)";
+            db.query(insertStatusSql, [userId], (err) => {
+                if (err) {
+                    console.error('Error inserting user status:', err);
+                    return res.status(500).json({ message: 'Error inserting user status' });
+                }
+                res.json({ success: true, message: 'User registered successfully' });
+            });
         });
     } catch (err) {
         console.error(err);

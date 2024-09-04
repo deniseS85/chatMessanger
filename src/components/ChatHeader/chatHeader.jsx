@@ -1,25 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import axios from 'axios'; 
 import styles from './chatHeader.module.scss';
 import menuIcon from '../../assets/img/menu-icon.png';
 import backIcon from '../../assets/img/send-message-icon.png';
 import defaultProfilePic from '../../assets/img/default-profile-img.png';
 import DropdownMenu from '../DropdownMenu/dropdownMenu';
 
-function ChatHeader({ selectedUser, onBackClick, onLogout }) {
+function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigate = useNavigate(); 
+
+    useEffect(() => {
+        if (isUserListOpen) {
+            setIsMenuOpen(false);
+        }
+    }, [isUserListOpen]);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
-    const handleLogout = () => {
-        Cookies.remove('authToken');
-        Cookies.remove('username');
-        onLogout();
-        navigate('/');
+    const handleLogout = async () => {
+        const userId = Cookies.get('userId');
+        
+        try {
+            await axios.post('http://localhost:8081/logout', { userId });
+            Cookies.remove('authToken');
+            Cookies.remove('username');
+            Cookies.remove('userId');
+            onLogout();
+            navigate('/');
+        } catch (error) {
+            console.error('Logout failed', error);
+        }
     };
 
     const handleSelectMessages = () => {

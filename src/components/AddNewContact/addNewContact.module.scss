@@ -8,7 +8,6 @@
     align-items: center;
     justify-content: center;
     z-index: 100;
-
     opacity: 0;
     pointer-events: none;
     visibility: hidden; 
@@ -35,7 +34,6 @@
         border-end-start-radius: 40px 50px; /* unten links */
         border-end-end-radius: 200px 100px;  /* unten rechts */
         box-shadow: 0 0 3px $purple;
-
         transition: transform 0.3s ease, opacity 0.3s ease;
         transform: scale(0);
         opacity: 0;

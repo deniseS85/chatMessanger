@@ -1,8 +1,27 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const db = require('../config/db');
-
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const router = express.Router();
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadPath = path.join(__dirname, '..', 'uploads');
+
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+        }
+        cb(null, uploadPath);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage: storage });
 
 const checkUserAlreadyExist = (email, phoneNumber) => {
     return new Promise((resolve, reject) => {
@@ -16,8 +35,9 @@ const checkUserAlreadyExist = (email, phoneNumber) => {
     });
 };
 
-router.post('/', async (req, res) => {
-    const { username, password, email, phoneNumber } = req.body;
+router.post('/', upload.single('profile_img'), async (req, res) => {
+    const { username, password, email, phoneNumber, avatarConfig } = req.body;
+    const profile_img = req.file ? req.file.filename : null;
 
     try {
         const userExists = await checkUserAlreadyExist(email, phoneNumber);
@@ -26,8 +46,8 @@ router.post('/', async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const sql = "INSERT INTO users (username, password_hash, email, phone_number) VALUES (?, ?, ?, ?)";
-        db.query(sql, [username, hashedPassword, email, phoneNumber], (err, result) => {
+        const sql = "INSERT INTO users (username, password_hash, email, phone_number, profile_img, avatar_config) VALUES (?, ?, ?, ?, ?, ?)";
+        db.query(sql, [username, hashedPassword, email, phoneNumber, profile_img, avatarConfig || null], (err, result) => {
             if (err) {
                 console.error(err);
                 return res.status(400).json({ message: 'Error registering user' });

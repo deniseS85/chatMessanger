@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './signup.module.scss'; 
 import backIcon from '../../assets/img/back-icon.png';
 import 'react-phone-number-input/style.css';
 import PhoneInput from 'react-phone-number-input';
 import hidePassword from '../../assets/img/password-hide.png';
 import visiblePassword from '../../assets/img/password-visible.png';
+import uploadImage from '../../assets/img/upload-image-icon.png';
+import Avatar from 'react-nice-avatar';
+import AvatarSelector from '../AvatarSelector/avatarSelector';
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -14,11 +17,16 @@ const Signup = () => {
         password: '',
         email: '',
         phoneNumber: '',
+        profile_img: null,
+        profile_img_preview: '',
+        selectedAvatar: null,
     });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [step, setStep] = useState(1);
     const navigate = useNavigate();
+    const fileInputRef = useRef(null);
 
     const validateForm = () => {
         const { username, password, email, phoneNumber } = formData;
@@ -48,6 +56,31 @@ const Signup = () => {
         return true;
     };
 
+    const handleNextStep = () => {
+        if (validateForm()) {
+            setStep(2);
+        }
+    }
+
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        setFormData((prev) => ({
+            ...prev,
+            profile_img: file,
+            profile_img_preview: URL.createObjectURL(file),
+            selectedAvatar: null,
+        }));
+    };
+
+    const handleAvatarSelect = (config) => {
+        setFormData((prev) => ({
+            ...prev,
+            selectedAvatar: config,
+            profile_img_preview: '',
+        }));
+        setStep(2);
+    };
+
     const handleSignup = async (event) => {
         event.preventDefault();
         setError('');
@@ -55,10 +88,27 @@ const Signup = () => {
 
         if (!validateForm()) return;
 
+        const formDataToSend = new FormData();
+        formDataToSend.append('username', formData.username);
+        formDataToSend.append('password', formData.password);
+        formDataToSend.append('email', formData.email);
+        formDataToSend.append('phoneNumber', formData.phoneNumber);
+        if (formData.selectedAvatar) {
+            formDataToSend.append('avatarConfig', JSON.stringify(formData.selectedAvatar));
+        }
+        if (formData.profile_img) {
+            formDataToSend.append('profile_img', formData.profile_img);
+        }
+
         try {
-            await axios.post('http://localhost:8081/signup', formData);
+            await axios.post('http://localhost:8081/signup', formDataToSend, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
             setSuccess('Registration successful!');
-            setFormData({ username: '', password: '', email: '', phoneNumber: '' });
+            setFormData({ username: '', password: '', email: '', phoneNumber: '', profile_img: null, profile_img_preview: '', selectedAvatar: null });
+            setStep(1);
             setTimeout(() => {
                 navigate('/');
             }, 3000);
@@ -77,10 +127,6 @@ const Signup = () => {
         }
     };
 
-    const handleBackClick = () => {
-        navigate('/');
-    };
-
     const handleChange = (field, value) => {
         setFormData(prevState => ({
             ...prevState,
@@ -94,75 +140,147 @@ const Signup = () => {
 
     return (
         <div className={styles.signupContainer}>
-            <form onSubmit={handleSignup} noValidate>
-                <div className={styles.formHeader}>
-                    <img 
-                        src={backIcon}
-                        alt='Back'
-                        className={styles.backIcon}
-                        onClick={handleBackClick}
-                    />
-                    <div className={styles.formHeadline}>Sign Up</div>
-                </div>
-                <div>
-                    <label htmlFor="username">Username</label>
-                    <input
-                        type="text"
-                        id="username"
-                        value={formData.username}
-                        onChange={(e) => handleChange('username', e.target.value)}
-                        autoComplete='username'
-                    />
-                </div>
-                <div className={styles.passwordContainer}>
-                    <label htmlFor="password">Password</label>
-                    <div className={styles.passwordFieldContainer}>
-                        <input
-                            type={showPassword ? 'text' : 'password'}
-                            id="password"
-                            placeholder='Min. 4 character, 1 upper, 1 number'
-                            value={formData.password}
-                            onChange={(e) => handleChange('password', e.target.value)}
-                            autoComplete='new-password'
+            {step === 1 && ( 
+                <form noValidate>
+                    <div className={styles.formHeader}>
+                        <img 
+                            src={backIcon}
+                            alt='Back'
+                            className={styles.backIcon}
+                            onClick={() =>  navigate('/')}
                         />
-                        <img
-                            src={showPassword ? visiblePassword : hidePassword}
-                            alt={showPassword ? 'Hide password' : 'Show password'}
-                            className={styles.eyeIcon}
-                            onClick={togglePasswordVisibility}
+                        <div className={styles.formHeadline}>Sign Up</div>
+                    </div>
+                    <div>
+                        <label htmlFor="username">Username</label>
+                        <input
+                            type="text"
+                            id="username"
+                            value={formData.username}
+                            onChange={(e) => handleChange('username', e.target.value)}
+                            autoComplete='username'
                         />
                     </div>
-                </div>
-                <div>
-                    <label htmlFor="email">Email</label>
-                    <input
-                        type="email"
-                        id="email"
-                        placeholder='name@example.com'
-                        value={formData.email}
-                        onChange={(e) => handleChange('email', e.target.value)}
-                        autoComplete='email'
+                    <div className={styles.passwordContainer}>
+                        <label htmlFor="password">Password</label>
+                        <div className={styles.passwordFieldContainer}>
+                            <input
+                                type={showPassword ? 'text' : 'password'}
+                                id="password"
+                                placeholder='Min. 4 character, 1 upper, 1 number'
+                                value={formData.password}
+                                onChange={(e) => handleChange('password', e.target.value)}
+                                autoComplete='new-password'
+                            />
+                            <img
+                                src={showPassword ? visiblePassword : hidePassword}
+                                alt={showPassword ? 'Hide password' : 'Show password'}
+                                className={styles.eyeIcon}
+                                onClick={togglePasswordVisibility}
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label htmlFor="email">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder='name@example.com'
+                            value={formData.email}
+                            onChange={(e) => handleChange('email', e.target.value)}
+                            autoComplete='email'
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="phone_number">Phone Number</label>
+                        <PhoneInput
+                            value={formData.phoneNumber}
+                            maxLength="22"
+                            onChange={(value) => handleChange('phoneNumber', value)}
+                            defaultCountry="DE"
+                            international
+                            className={styles.phoneNumberInput}
+                        />
+                    </div>
+                    
+                    <div className={styles.errorContainer}>
+                        {error && <p className={styles.error}>{error}</p>}
+                        {success && <p className={styles.success}>{success}</p>}
+                    </div>
+                    
+                    <button type="button" onClick={handleNextStep}>
+                        Next
+                    </button>
+                </form>
+            )}
+
+            {step === 2 && (
+                <div className={styles.uploadContainer}>
+                    <div className={styles.formHeaderUpload}>
+                        <img 
+                            src={backIcon}
+                            alt='Back'
+                            className={styles.backIcon}
+                            onClick={() => setStep(1)}
+                        />
+                        <div className={styles.formHeadline}>Upload Image</div>
+                    </div>
+                    <input 
+                        type="file" 
+                        onChange={handleImageUpload} 
+                        accept="image/*" 
+                        ref={fileInputRef}
+                        style={{ display: 'none' }}
                     />
+                    <div className={styles.imageUploadContainer} onClick={() => fileInputRef.current.click()}>
+                    {formData.selectedAvatar ? (
+                        <Avatar style={{ width: '100%', height: '100%' }} {...formData.selectedAvatar} />
+                    ) : formData.profile_img_preview ? (
+                        <img src={formData.profile_img_preview} alt="Profile Preview" className={styles.profileImage} />
+                    ) : (
+                        <img src={uploadImage} alt="Upload Icon" className={styles.uploadImage} />
+                    )}
+                    </div>
+
+                    <div className={styles.linkContainer}>
+                        <Link 
+                            to="#" 
+                            className={styles.chooseAvatarLink}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setStep(3);
+                            }}
+                        >
+                            ... or choose an avatar
+                        </Link>
+                    </div>
+                    
+                    <div className={styles.buttonContainer}>
+                        <button 
+                            type="button" 
+                            onClick={handleSignup} 
+                            className={styles.submitButton}
+                        >
+                            Signup
+                        </button>
+                    </div>
                 </div>
-                <div>
-                    <label htmlFor="phone_number">Phone Number</label>
-                    <PhoneInput
-                        value={formData.phoneNumber}
-                        maxLength="22"
-                        onChange={(value) => handleChange('phoneNumber', value)}
-                        defaultCountry="DE"
-                        international
-                        className={styles.phoneNumberInput}
-                    />
-                </div>
-                
-                <div className={styles.errorContainer}>
-                    {error && <p className={styles.error}>{error}</p>}
-                    {success && <p className={styles.success}>{success}</p>}
-                </div>
-                
-                <button type="submit">Register</button>
-            </form>
+            )}
+
+            {step === 3 && (
+                <div className={styles.avatarModal}>
+                    <div className={styles.formHeaderUpload}>
+                        <img 
+                            src={backIcon}
+                            alt='Back'
+                            className={styles.backIcon}
+                            onClick={() => setStep(2)}
+                        />
+                        <div className={styles.formHeadline}>Choose Avatar</div>
+                    </div>
+                    <AvatarSelector onSelect={handleAvatarSelect} />
+                </div>  
+            )}
         </div>
     );
 };

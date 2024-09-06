@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import axios from 'axios'; 
@@ -7,10 +7,14 @@ import menuIcon from '../../assets/img/menu-icon.png';
 import backIcon from '../../assets/img/send-message-icon.png';
 import defaultProfilePic from '../../assets/img/default-profile-img.png';
 import DropdownMenu from '../DropdownMenu/dropdownMenu';
+import MyProfile from '../MyProfile/myProfile';
 
 function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const navigate = useNavigate(); 
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const navigate = useNavigate();
+    const menuRef = useRef(null);
+    const iconRef = useRef(null);
 
     useEffect(() => {
         if (isUserListOpen) {
@@ -18,11 +22,34 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout }) {
         }
     }, [isUserListOpen]);
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target) && iconRef.current && !iconRef.current.contains(event.target)) {
+                setIsMenuOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isMenuOpen]);
+
     const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
+        setIsMenuOpen(prevState => !prevState);
+    };
+
+    const showProfile = () => {
+        setIsMenuOpen(false);
+        setIsProfileOpen(true);
+    }
+
+    const closeProfile = () => {
+        setIsProfileOpen(false);
     };
 
     const handleLogout = async () => {
+        setIsMenuOpen(false);
         const userId = Cookies.get('userId');
         
         try {
@@ -38,16 +65,19 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout }) {
     };
 
     const handleSelectMessages = () => {
+        setIsMenuOpen(false);
         console.log('Nachrichten auswählen');
         // Nachrichten auswählen Logik hier
     };
 
     const handleDeleteChat = () => {
+        setIsMenuOpen(false);
         console.log('Chat löschen');
         // Chat löschen Logik hier
     };
 
     const handleSearchMessages = () => {
+        setIsMenuOpen(false);
         console.log('Nachricht suchen');
         // Nachricht suchen Logik hier
     };
@@ -71,7 +101,8 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout }) {
                     <div>{selectedUser ? selectedUser.status : ''}</div>
                 </div>
             </div>
-            <img 
+            <img
+                ref={iconRef}
                 className={styles.menuIcon} 
                 src={menuIcon} 
                 alt="Menü" 
@@ -79,11 +110,19 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout }) {
             />
             <DropdownMenu
                 isOpen={isMenuOpen}
+                onMyProfile={showProfile}
                 onLogout={handleLogout}
                 onSelectMessages={handleSelectMessages}
                 onDeleteChat={handleDeleteChat}
                 onSearchMessages={handleSearchMessages}
+                menuRef={menuRef} 
             />
+            {isProfileOpen && (
+                <MyProfile 
+                    onClose={closeProfile} 
+                    isProfileOpen={isProfileOpen}
+                />
+            )}
         </header>
     );
 }

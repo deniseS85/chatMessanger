@@ -15,7 +15,7 @@
     @media (max-width: 428px) {
         top: 60px;
         right: 9px;
-        width: 150px;
+        width: 180px;
     }
     ul {
         list-style: none;
@@ -25,10 +25,12 @@
     }
     li {
         padding: 15px;
-        text-align: center;
         cursor: pointer;
         transition: background-color 0.3s ease;
         font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
         &:first-child {
             border-top-left-radius: 30px;
             border-top-right-radius: 30px;
@@ -41,9 +43,18 @@
         &:hover {
             background-color: $purple;
         }
+        .icon {
+            width: 24px;
+            height: 24px;
+            @media (max-width: 768px) {
+                width: 18px;
+                height: 18px;
+            }
+        }
         @media (max-width: 768px) {
             padding: 10px 15px;
             font-size: 14px;
+            
         }
     }
 }

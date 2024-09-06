@@ -48,7 +48,7 @@
             position: relative;
             width: 100%;
             margin-bottom: 20px;
-            .closeIcon {
+            .closeIcon, .editIcon {
                 position: absolute;
                 right: 10px;
                 width: clamp(1.25rem, 1.2054rem + 0.2232vw, 1.5625rem);
@@ -60,6 +60,12 @@
                 }
                 @media (max-width: 428px) {
                     right: 0;
+                }
+            }
+            .editIcon {
+                right: 40px;
+                @media (max-width: 428px) {
+                    right: 25px;
                 }
             }
             .profileHeadline {

@@ -4,6 +4,7 @@ import backIcon from '../../assets/img/close-icon.png';
 import mailIcon from '../../assets/img/mail-icon.png';
 import mobileIcon from '../../assets/img/mobile-icon.png';
 import defaultProfileImg from '../../assets/img/default-profile-img.png';
+import editIcon from '../../assets/img/edit-icon.png';
 import axios from 'axios';
 import Cookies from "js-cookie";
 import Avatar from 'react-nice-avatar';
@@ -31,6 +32,10 @@ const MyProfile = ({ onClose, isProfileOpen }) => {
             fetchUserData();
         }
     }, [isProfileOpen]);
+
+    const handleEdit = () => {
+        console.log('edit');
+    }
 
     const handleClose = useCallback(() => {
         setIsVisible(false);
@@ -67,6 +72,12 @@ const MyProfile = ({ onClose, isProfileOpen }) => {
             <div className={`${styles.myProfileContent} ${isVisible ? styles.visible : ''}`} ref={modalRef}>
                 <div className={styles.profileHeader}>
                     <div className={styles.profileHeadline}>Profile</div>
+                    <img 
+                        src={editIcon}
+                        alt='Edit'
+                        className={styles.editIcon}
+                        onClick={handleEdit}
+                    />
                     <img 
                         src={backIcon}
                         alt='Back'

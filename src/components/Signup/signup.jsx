@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './signup.module.scss'; 
 import backIcon from '../../assets/img/back-icon.png';
+import clearIcon from '../../assets/img/clear-upload-icon.png';
 import 'react-phone-number-input/style.css';
 import PhoneInput from 'react-phone-number-input';
 import hidePassword from '../../assets/img/password-hide.png';
@@ -27,6 +28,7 @@ const Signup = () => {
     const [step, setStep] = useState(1);
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
+    const uploadRef = useRef(null);
 
     const validateForm = () => {
         const { username, password, email, phoneNumber } = formData;
@@ -138,6 +140,23 @@ const Signup = () => {
         setShowPassword(!showPassword);
     };
 
+    const handleClearImage = (e) => {
+        e.stopPropagation();
+        setFormData(prev => ({
+            ...prev,
+            profile_img: null,
+            profile_img_preview: '',
+            selectedAvatar: null
+        }));
+    };
+
+    const handleMouseOpacity = (opacity) => {
+        if (uploadRef.current) {
+            uploadRef.current.style.transition = 'opacity 0.3s ease';
+            uploadRef.current.style.opacity = opacity;
+        }
+    };
+
     return (
         <div className={styles.signupContainer}>
             {step === 1 && ( 
@@ -232,16 +251,31 @@ const Signup = () => {
                         ref={fileInputRef}
                         style={{ display: 'none' }}
                     />
-                    <div className={styles.imageUploadContainer} onClick={() => fileInputRef.current.click()}>
-                    {formData.selectedAvatar ? (
-                        <Avatar style={{ width: '100%', height: '100%' }} {...formData.selectedAvatar} />
-                    ) : formData.profile_img_preview ? (
-                        <img src={formData.profile_img_preview} alt="Profile Preview" className={styles.profileImage} />
-                    ) : (
-                        <img src={uploadImage} alt="Upload Icon" className={styles.uploadImage} />
-                    )}
+                    <div className={styles.imageUploadWrapper}>
+                        <div 
+                            className={styles.imageUploadContainer} 
+                            onClick={() => fileInputRef.current.click()}
+                            ref={uploadRef}
+                        >
+                            {formData.selectedAvatar ? (
+                                <Avatar style={{ width: '100%', height: '100%' }} {...formData.selectedAvatar} />
+                            ) : formData.profile_img_preview ? (
+                                <img src={formData.profile_img_preview} alt="Profile Preview" className={styles.profileImage} />
+                            ) : (
+                                <img src={uploadImage} alt="Upload Icon" className={styles.uploadImage} />
+                            )}
+                            {(formData.selectedAvatar || formData.profile_img_preview) && (
+                                <img
+                                    src={clearIcon}
+                                    alt="Clear"
+                                    className={styles.clearIcon}
+                                    onClick={handleClearImage}
+                                    onMouseEnter={() => handleMouseOpacity(0.5)}
+                                    onMouseLeave={() => handleMouseOpacity(1)}
+                                /> 
+                            )}
+                        </div>
                     </div>
-
                     <div className={styles.linkContainer}>
                         <Link 
                             to="#" 

@@ -14,6 +14,7 @@ const forgotRoute = require('./routes/forgot');
 const resetRoute = require('./routes/reset');
 const logoutRoute = require('./routes/logout');
 const userRoute = require('./routes/users'); 
+const editUser = require('./routes/editUser');
 
 app.use('/login', loginRoute);
 app.use('/signup', signupRoute);
@@ -21,6 +22,7 @@ app.use('/forgot-password', forgotRoute);
 app.use('/reset-password', resetRoute);
 app.use('/logout', logoutRoute);
 app.use('/users', userRoute);
+app.use('/edit-user', editUser);
 
 const PORT = process.env.PORT || 8081;
 app.listen(PORT, () => {

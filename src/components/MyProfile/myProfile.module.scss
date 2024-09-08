@@ -96,7 +96,7 @@
                     width: clamp(5rem, -2.4074rem + 37.037vw, 7.5rem);
                     height: clamp(5rem, -2.4074rem + 37.037vw, 7.5rem);
                 }
-                .profileImage {
+                .profileImage, .profileImageEdit {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
@@ -108,12 +108,80 @@
                     object-fit: cover;
                 }
             }
+            .profileImageEditContainer {
+                position: relative;
+                .profileImageEdit {
+                    opacity: 0.5;
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 50%;
+                }
+                .uploadImage {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 50px;
+                    height: auto;
+                    cursor: pointer;
+                    transition: transform 0.3s ease;
+                    &:hover {
+                        transform: translate(-50%, -50%) scale(1.2);
+                    }
+                    @media (max-width: 428px) {
+                        width: 30px;
+                    }
+                }
+            }
             .profileName {
                 font-size: 18px;
                 font-weight: bold;
             }
             .profileStatus {
                 font-size: 14px;
+            }
+            .dropdownMenu {
+                position: absolute;
+                background: $itemColor;
+                border: 1px solid $purple;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                width: 150px;
+                border-radius: 10px;
+                overflow: hidden;
+                overflow-y: auto;
+                text-align: center;
+                .dropdownItem {
+                    padding: 10px;
+                    cursor: pointer;
+                    transition: background 0.3s ease;
+                    &:hover {
+                        background: $purple;
+                    }
+                }
+            }
+            .avatarSelectorContainer {
+                position: absolute;
+                inset: 0;
+                background-color: $itemColor;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                padding: 30px;
+            }
+            .backIcon {
+                position: absolute;
+                top: 20px;
+                width: clamp(1.875rem, 1.7857rem + 0.4464vw, 2.5rem);
+                height: clamp(1.875rem, 1.7857rem + 0.4464vw, 2.5rem);
+                cursor: pointer;
+                transition: transform 0.3s;
+                &:hover {
+                    transform: scale(1.2);
+                }
+                @media (max-width: 428px) {
+                    top: 5px;
+                }
             }
         }
         .contactContainer {
@@ -133,5 +201,26 @@
                 }  
             }
         } 
+        input {
+            padding: 5px;
+            padding-bottom: 2px;
+            box-sizing: border-box;
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px solid $purple;
+            border-radius: 0;
+            outline: none;
+            color: $fontColor;
+            font-size: clamp(1rem, 0.9643rem + 0.1786vw, 1.25rem);
+            @media (max-width: 428px) {
+                width: 100%;
+                padding-top: 0;
+            }
+        }
+        .usernameInput {
+            @media (max-width: 428px) {
+                width: auto;
+            }
+        }
     }
 }

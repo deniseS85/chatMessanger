@@ -33,6 +33,7 @@
         opacity: 0;
         transform: scale(0.9);
         transition: opacity 0.3s ease, transform 0.3s ease;
+        overflow: hidden;
         &.visible {
             opacity: 1;
             transform: scale(1);
@@ -115,6 +116,10 @@
                     width: 120px;
                     height: 120px;
                     border-radius: 50%;
+                    @media (max-width: 428px) {
+                        width: clamp(5rem, -2.4074rem + 37.037vw, 7.5rem);
+                        height: clamp(5rem, -2.4074rem + 37.037vw, 7.5rem);
+                    }
                 }
                 .uploadImage {
                     position: absolute;
@@ -150,12 +155,18 @@
                 overflow: hidden;
                 overflow-y: auto;
                 text-align: center;
+                @media (max-width: 428px) {
+                    width: 80%;
+                }
                 .dropdownItem {
                     padding: 10px;
                     cursor: pointer;
                     transition: background 0.3s ease;
                     &:hover {
                         background: $purple;
+                    }
+                    @media (max-width: 428px) {
+                        padding: 5px;
                     }
                 }
             }

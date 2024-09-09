@@ -32,7 +32,7 @@ const deleteOldImage = (oldProfileImg) => {
 
 router.put('/:userId', upload.single('profile_img'), async (req, res) => {
     const userId = req.params.userId;
-    const { username, email, phone_number, avatarConfig } = req.body;
+    const { username, email, phone_number, avatarConfig, deleteProfileImg } = req.body;
     const newProfileImg = req.file ? req.file.filename : null;
 
     try {
@@ -65,19 +65,28 @@ router.put('/:userId', upload.single('profile_img'), async (req, res) => {
                 updateValues.push(phone_number);
             }
 
-            if (newProfileImg) {
+            if (deleteProfileImg === 'true') {
+                updateFields.push("profile_img = ?");
+                updateValues.push(null);
+                updateFields.push("avatar_config = ?");
+                updateValues.push(null);
+                // Lösche das alte Bild
+                deleteOldImage(oldProfileImg);
+            } else if (newProfileImg) {
                 updateFields.push("profile_img = ?");
                 updateValues.push(newProfileImg);
                 updateFields.push("avatar_config = ?");
                 updateValues.push(null);
+                // Lösche das alte Bild
                 deleteOldImage(oldProfileImg);
             } else if (avatarConfig) {
                 updateFields.push("avatar_config = ?");
                 updateValues.push(avatarConfig);
                 updateFields.push("profile_img = ?");
                 updateValues.push(null);
+                // Lösche das alte Bild
                 deleteOldImage(oldProfileImg);
-            }
+            } 
 
             updateValues.push(userId);
             const sql = `UPDATE users SET ${updateFields.join(", ")} WHERE id = ?`;

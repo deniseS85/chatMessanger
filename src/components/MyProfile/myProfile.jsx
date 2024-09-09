@@ -13,7 +13,7 @@ import axios from 'axios';
 import Cookies from "js-cookie";
 import Avatar from 'react-nice-avatar';
 import AvatarSelector from '../AvatarSelector/avatarSelector'; 
-import { formatPhoneNumberIntl } from 'react-phone-number-input'
+import { formatPhoneNumberIntl } from 'react-phone-number-input';
 
 
 const MyProfile = ({ onClose, isProfileOpen }) => {
@@ -116,21 +116,26 @@ const MyProfile = ({ onClose, isProfileOpen }) => {
         }));
     };
 
-   /*  const handleClearImage = () => {
+    const handleClearImage = () => {
         setFormData(prevData => ({
             ...prevData,
             profile_img: null,
-            profile_img_preview: '',
+            profile_img_preview: defaultProfileImg,
             selectedAvatar: null,
         }));
-    }; */
-
+        setIsDropdownOpen(false);
+    };
+    
     const handleSave = async () => {
         const userId = Cookies.get('userId');
         const formDataToSend = new FormData();
         formDataToSend.append('username', formData.username);
         formDataToSend.append('email', formData.email);
         formDataToSend.append('phone_number', formData.phone_number);
+
+        if (formData.profile_img === null && formData.profile_img_preview === defaultProfileImg) {
+            formDataToSend.append('deleteProfileImg', 'true');
+        }
 
         if (formData.profile_img) {
             formDataToSend.append('profile_img', formData.profile_img);
@@ -173,27 +178,7 @@ const MyProfile = ({ onClose, isProfileOpen }) => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [handleClickOutside]);
-/* 
-    const renderProfileImage = () => {        
-        if (isEditing) {
-            return (
-                <>
-                    <input type="file" onChange={handleImageChange} />
-                    <button onClick={handleClearImage} className={styles.clearButton}>Clear Image</button>
-                    <AvatarSelector onSelect={handleAvatarSelect} />
-                </>
-            );
-        } else {
-            if (userData?.avatar_config) {
-                return <Avatar style={{ width: '100%', height: '100%' }} {...JSON.parse(userData.avatar_config)} />;
-            } else if (userData?.profile_img) {
-                return <img src={`http://localhost:8081/uploads/${userData.profile_img}`} alt="Profile" className={styles.profileImage} />;
-            } else {
-                return <img src={defaultProfileImg} alt="Default Profile" className={styles.defaultImage} />;
-            }
-        }
-    };
- */
+
     const renderProfileImage = () => {
         const imageSrc = formData.profile_img_preview || (userData?.profile_img ? `http://localhost:8081/uploads/${userData.profile_img}` : defaultProfileImg);
     
@@ -218,6 +203,7 @@ const MyProfile = ({ onClose, isProfileOpen }) => {
                     <div className={styles.dropdownMenu}>
                         <div onClick={handleFileInputClick} className={styles.dropdownItem}>Upload Image</div>
                         <div onClick={handleAvatarClick} className={styles.dropdownItem}>Select Avatar</div>
+                        <div onClick={handleClearImage} className={styles.dropdownItem}>Delete Picture</div>
                     </div>
                 )}
                 {isAvatarSelectorVisible && (

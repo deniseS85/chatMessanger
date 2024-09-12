@@ -20,6 +20,7 @@ const MyProfile = ({ onClose, isProfileOpen }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [userData, setUserData] = useState(null);
     const modalRef = useRef(null);
+    const dropdownRef = useRef(null);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         username: '',
@@ -108,13 +109,24 @@ const MyProfile = ({ onClose, isProfileOpen }) => {
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
-        setFormData((prev) => ({
-            ...prev,
-            profile_img: file,
-            profile_img_preview: URL.createObjectURL(file),
-            selectedAvatar: null,
-        }));
+        
+        if (file) {
+            setFormData((prev) => ({
+                ...prev,
+                profile_img: file,
+                profile_img_preview: URL.createObjectURL(file),
+                selectedAvatar: null,
+            }));
+        }
     };
+
+    useEffect(() => {
+        return () => {
+            if (formData.profile_img_preview) {
+                URL.revokeObjectURL(formData.profile_img_preview);
+            }
+        };
+    }, [formData.profile_img_preview]);
 
     const handleClearImage = () => {
         setFormData(prevData => ({
@@ -170,6 +182,10 @@ const MyProfile = ({ onClose, isProfileOpen }) => {
         if (modalRef.current && !modalRef.current.contains(e.target)) {
             handleClose();
         }
+
+        if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+            setIsDropdownOpen(false);
+        }
     }, [handleClose]);
 
     useEffect(() => {
@@ -199,24 +215,23 @@ const MyProfile = ({ onClose, isProfileOpen }) => {
                     )}
                     <img src={uploadImage} alt="Upload" className={styles.uploadImage} />
                 </div>
-                {isDropdownOpen && (
-                    <div className={styles.dropdownMenu}>
-                        <div onClick={handleFileInputClick} className={styles.dropdownItem}>Upload Image</div>
-                        <div onClick={handleAvatarClick} className={styles.dropdownItem}>Select Avatar</div>
-                        <div onClick={handleClearImage} className={styles.dropdownItem}>Delete Picture</div>
-                    </div>
-                )}
-                {isAvatarSelectorVisible && (
-                    <div className={styles.avatarSelectorContainer}>
-                         <img 
-                            src={backIcon}
-                            alt='Back'
-                            className={styles.backIcon}
-                            onClick={() => setIsAvatarSelectorVisible(false)}
-                        />
-                        <AvatarSelector onSelect={handleAvatarSelect} />
-                    </div>
-                )}
+        
+                <div className={`${styles.dropdownMenu} ${isDropdownOpen ? styles.visible : ''}`} ref={dropdownRef}>
+                    <div onClick={handleFileInputClick} className={styles.dropdownItem}>Upload Image</div>
+                    <div onClick={handleAvatarClick} className={styles.dropdownItem}>Select Avatar</div>
+                    <div onClick={handleClearImage} className={styles.dropdownItem}>Delete Picture</div>
+                </div>
+             
+                <div className={`${styles.avatarSelectorContainer} ${isAvatarSelectorVisible ? styles.visible : ''}`}>
+                        <img 
+                        src={backIcon}
+                        alt='Back'
+                        className={styles.backIcon}
+                        onClick={() => setIsAvatarSelectorVisible(false)}
+                    />
+                    <AvatarSelector onSelect={handleAvatarSelect} />
+                </div>
+            
             </>
         ) : (
             <>
@@ -229,7 +244,6 @@ const MyProfile = ({ onClose, isProfileOpen }) => {
         );
     };
     
-
     return (
         <div className={`${styles.overlay} ${isVisible ? styles.visible : ''}`}>
             <div className={`${styles.myProfileContent} ${isVisible ? styles.visible : ''}`} ref={modalRef}>

@@ -58,15 +58,21 @@
             .formHeadline {
                 font-size: clamp(1.25rem, 1.0714rem + 0.8929vw, 2.5rem);
                 font-weight: bold;
+                color: $purple;
             }
-            .closeButton {
+            .closeIcon {
                 position: absolute;
-                right: clamp(-0.375rem, -0.5179rem + 0.7143vw, 0.625rem);
-                background: none;
-                border: none;
+                right: 10px;
+                width: clamp(1.25rem, 1.2054rem + 0.2232vw, 1.5625rem);
+                height: clamp(1.25rem, 1.2054rem + 0.2232vw, 1.5625rem);
                 cursor: pointer;
-                font-size: clamp(1.25rem, 1.2054rem + 0.2232vw, 1.5625rem);
-                color: $fontColor;
+                transition: transform 0.3s;
+                &:hover {
+                    transform: scale(1.2);
+                }
+                @media (max-width: 428px) {
+                    right: 0;
+                }
             }
         }
         form {

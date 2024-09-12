@@ -4,6 +4,7 @@ import ChatContainer from '../ChatContainer/chatContainer';
 import UserList from '../UserList/userList';
 import EmojiPickerComponent from '../EmojiPicker/emojiPicker';
 import AddNewContact from '../AddNewContact/addNewContact';
+import Notification from '../Notification/notification';
 import closeUserList from '../../assets/img/closeUser-icon.png';
 import openUserList from '../../assets/img/openUser-icon.png';
 import styles from './chat.module.scss'
@@ -18,6 +19,7 @@ const Chat = ({ onLogout }) => {
     const [emojiToggled, setEmojiToggled] = useState(false);
     const [isUserListOpen, setIsUserListOpen] = useState(false);
     const [showAddContactForm, setShowAddContactForm] = useState(false);
+    const [notification, setNotification] = useState('');
 
     const toggleEmojiPicker = () => {
         setEmojiPickerVisible(prev => !prev);
@@ -77,7 +79,11 @@ const Chat = ({ onLogout }) => {
     };
 
     const handleAddNewContact = (contact) => {
-        console.log('Neuer Kontakt hinzugefügt:', contact);
+        setNotification(`Request to <span style="color:#2BB8EE; font-weight:bold">${contact}</span> successfully sent.`);
+    };
+
+    const handleCloseNotification = () => {
+        setNotification('');
     };
 
     const toggleAddContactForm = () => {
@@ -128,6 +134,11 @@ const Chat = ({ onLogout }) => {
                     showAddContactForm={showAddContactForm}
                 />
             )}
+            <Notification 
+                message={notification}
+                onClose={handleCloseNotification}
+            />
+           
         </div>
     );
 };

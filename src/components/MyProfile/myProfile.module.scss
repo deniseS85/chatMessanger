@@ -74,6 +74,7 @@
                 font-size: clamp(1.25rem, 1.0714rem + 0.8929vw, 2.5rem);
                 color: $purple;
                 text-align: center;
+                font-weight: bold;
             }
         }
         .profileInfo {
@@ -155,6 +156,14 @@
                 overflow: hidden;
                 overflow-y: auto;
                 text-align: center;
+
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+                &.visible {
+                    opacity: 1;
+                    visibility: visible;
+                }
                 @media (max-width: 428px) {
                     width: 80%;
                 }
@@ -178,7 +187,14 @@
                 justify-content: center;
                 align-items: center;
                 flex-direction: column;
-                padding: 30px;
+                padding: clamp(0rem, -0.2679rem + 1.3393vw, 1.875rem);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+                &.visible {
+                    opacity: 1;
+                    visibility: visible;
+                }
             }
             .backIcon {
                 position: absolute;
@@ -190,7 +206,7 @@
                 &:hover {
                     transform: scale(1.2);
                 }
-                @media (max-width: 428px) {
+                @media (max-width: 592px) {
                     top: 5px;
                 }
             }

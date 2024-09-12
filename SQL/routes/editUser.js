@@ -70,21 +70,18 @@ router.put('/:userId', upload.single('profile_img'), async (req, res) => {
                 updateValues.push(null);
                 updateFields.push("avatar_config = ?");
                 updateValues.push(null);
-                // Lösche das alte Bild
                 deleteOldImage(oldProfileImg);
             } else if (newProfileImg) {
                 updateFields.push("profile_img = ?");
                 updateValues.push(newProfileImg);
                 updateFields.push("avatar_config = ?");
                 updateValues.push(null);
-                // Lösche das alte Bild
                 deleteOldImage(oldProfileImg);
             } else if (avatarConfig) {
                 updateFields.push("avatar_config = ?");
                 updateValues.push(avatarConfig);
                 updateFields.push("profile_img = ?");
                 updateValues.push(null);
-                // Lösche das alte Bild
                 deleteOldImage(oldProfileImg);
             } 
 

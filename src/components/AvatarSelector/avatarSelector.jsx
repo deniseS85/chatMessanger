@@ -41,8 +41,15 @@ const AvatarSelector = ({ onSelect }) => {
                     key={index} 
                     className={styles.avatarOption}
                     onClick={() => onSelect(config)}
+                    style={{ 
+                        width: avatarSize, 
+                        height: avatarSize, 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center'
+                    }}
                 >
-                    <Avatar style={{ width: avatarSize, height: avatarSize }} {...config} />
+                    <Avatar style={{ width: avatarSize * 0.8, height: avatarSize * 0.8 }} {...config} />
                 </div>
             ))}
         </div>

@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import styles from './addNewContact.module.scss';
+import closeIcon from '../../assets/img/close-icon.png';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+import Cookies from "js-cookie";
+import axios from 'axios';
 
 function AddNewContact({ onAddContact, onClose, showAddContactForm }) {
     const [name, setName] = useState('');
@@ -13,12 +18,25 @@ function AddNewContact({ onAddContact, onClose, showAddContactForm }) {
         }
     }, [showAddContactForm]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onAddContact({ name, phoneNumber });
-        setName('');
-        setPhoneNumber('');
-        handleClose();
+        const userId = Cookies.get('userId');
+
+        try {
+            const response = await axios.post('http://localhost:8081/add-contact', { 
+                userId, 
+                name, 
+                phoneNumber 
+            });
+            if (response.data.message === 'Send contact request') {
+                onAddContact(response.data.name);
+                setName('');
+                setPhoneNumber('');
+                handleClose();
+            }
+        } catch (error) {
+            console.error('Error adding contact:', error.response ? error.response.data : error.message);
+        }
     };
 
     const handleClose = useCallback(() => {
@@ -46,12 +64,17 @@ function AddNewContact({ onAddContact, onClose, showAddContactForm }) {
             <div className={`${styles.formContainer} ${isVisible ? styles.visible : ''}`} ref={formRef}>
                 <div className={styles.formHeader}>
                     <div className={styles.formHeadline}>New Contact</div>
-                    <button className={styles.closeButton} onClick={handleClose}>X</button>
+                    <img
+                        src={closeIcon}
+                        alt="Back"
+                        className={styles.closeIcon}
+                        onClick={handleClose}
+                    />
                 </div>
                
                 <form onSubmit={handleSubmit}>
                     <label>
-                        <span>Firstname:</span>
+                        <span>Username:</span>
                         <input 
                             type="text" 
                             value={name} 
@@ -61,11 +84,12 @@ function AddNewContact({ onAddContact, onClose, showAddContactForm }) {
                     </label>
                     <label>
                         <span>Mobile Number:</span>
-                        <input 
-                            type="text" 
-                            value={phoneNumber} 
-                            onChange={(e) => setPhoneNumber(e.target.value)} 
-                            required 
+                        <PhoneInput
+                            value={phoneNumber}
+                            maxLength="22"
+                            onChange={setPhoneNumber}
+                            defaultCountry="DE"
+                            international
                         />
                     </label>
                     <button type="submit">Add Contact</button>

@@ -46,10 +46,15 @@
             top: calc(-1 * var(--dynamic-offset));
             left: 50%;
             transform: translateX(-50%);
-            background-image: url('../../assets/img/save-edit-user-icon.png');
             background-repeat: no-repeat;
             background-position: center;
             background-size: 60%;
+            &.success {
+                background-image: url('../../assets/img/save-edit-user-icon.png');
+            }
+            &.error {
+                background-image: url('../../assets/img/cancel-edit-user-icon.png');
+            }
         }
         .header {
             width: 100%;

@@ -28,14 +28,22 @@ function AddNewContact({ onAddContact, onClose, showAddContactForm }) {
                 name, 
                 phoneNumber 
             });
-            if (response.data.message === 'Send contact request') {
-                onAddContact(response.data.name);
+
+            const { message, type } = response.data;
+
+            if (type === 'success') {
+                onAddContact(message, true, name);
                 setName('');
                 setPhoneNumber('');
                 handleClose();
+            } else {
+                onAddContact(message, false);
+                handleClose();
             }
         } catch (error) {
-            console.error('Error adding contact:', error.response ? error.response.data : error.message);
+            const errorMessage = error.response?.data?.message || 'Failed to send contact request. Please try again.';
+            onAddContact(errorMessage, false);
+            handleClose();
         }
     };
 

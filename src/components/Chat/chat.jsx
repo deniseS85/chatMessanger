@@ -78,8 +78,20 @@ const Chat = ({ onLogout }) => {
         }
     };
 
-    const handleAddNewContact = (contact) => {
-        setNotification(`Request to <span style="color:#2BB8EE; font-weight:bold">${contact}</span> successfully sent.`);
+    const handleAddNewContact = (message, isSuccess, contactName) => {
+        if (isSuccess) {
+            setNotification({
+                message: `Request to <span style="color:#2BB8EE; font-weight:bold">${contactName}</span> successfully sent.`,
+                type: 'success',
+                isHtml: true 
+            });
+        } else {
+            setNotification({
+                message: message,
+                type: 'error',
+                isHtml: false 
+            });
+        }
     };
 
     const handleCloseNotification = () => {
@@ -138,7 +150,6 @@ const Chat = ({ onLogout }) => {
                 message={notification}
                 onClose={handleCloseNotification}
             />
-           
         </div>
     );
 };

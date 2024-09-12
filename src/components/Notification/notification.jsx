@@ -49,11 +49,17 @@ const Notification = ({ message, onClose }) => {
 
     if (!isVisible) return null;
 
+    const iconClass = message.type === 'success' ? styles.success : styles.error;
+
     return (
         <div className={`${styles.overlay} ${isVisible ? styles.visible : ''}`}>
             <div className={`${styles.notification} ${isVisible ? styles.visible : ''}`} ref={notificationRef}>
-                <div className={styles.infoImg} ref={infoImgRef}></div>
-                <div className={styles.header} dangerouslySetInnerHTML={{ __html: message }} />
+                <div className={`${styles.infoImg} ${iconClass}`} ref={infoImgRef}></div>
+                {message.isHtml ? (
+                    <div className={styles.header} dangerouslySetInnerHTML={{ __html: message.message }} />
+                ) : (
+                    <div className={styles.header}>{message.message}</div>
+                )}
                 <button onClick={onClose}>Close</button>
             </div>
         </div> 

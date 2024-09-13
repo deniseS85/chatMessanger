@@ -16,6 +16,7 @@ const logoutRoute = require('./routes/logout');
 const userRoute = require('./routes/users'); 
 const editUser = require('./routes/editUser');
 const addContact = require('./routes/addContact');
+const checkFriendRequest = require('./routes/checkFriendRequest');
 
 app.use('/login', loginRoute);
 app.use('/signup', signupRoute);
@@ -25,6 +26,7 @@ app.use('/logout', logoutRoute);
 app.use('/users', userRoute);
 app.use('/edit-user', editUser);
 app.use('/add-contact', addContact);
+app.use('/check-friend-request', checkFriendRequest);
 
 const PORT = process.env.PORT || 8081;
 app.listen(PORT, () => {

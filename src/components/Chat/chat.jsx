@@ -7,7 +7,10 @@ import AddNewContact from '../AddNewContact/addNewContact';
 import Notification from '../Notification/notification';
 import closeUserList from '../../assets/img/closeUser-icon.png';
 import openUserList from '../../assets/img/openUser-icon.png';
-import styles from './chat.module.scss'
+import styles from './chat.module.scss';
+import Cookies from "js-cookie";
+import axios from 'axios';
+import FriendRequestNotification from '../FriendRequestNotification/friendRequestNotification';
 
 const Chat = ({ onLogout }) => {
     const [selectedUser, setSelectedUser] = useState(null);
@@ -20,6 +23,8 @@ const Chat = ({ onLogout }) => {
     const [isUserListOpen, setIsUserListOpen] = useState(false);
     const [showAddContactForm, setShowAddContactForm] = useState(false);
     const [notification, setNotification] = useState('');
+    const [hasPendingRequest, setHasPendingRequest] = useState(false);
+    const [pendingRequests, setPendingRequests] = useState([]);
 
     const toggleEmojiPicker = () => {
         setEmojiPickerVisible(prev => !prev);
@@ -102,6 +107,31 @@ const Chat = ({ onLogout }) => {
         setShowAddContactForm(prev => !prev);
     };
 
+    useEffect(() => {
+        const userId = Cookies.get('userId');
+
+        const checkForRequests = () => {
+            axios.get(`http://localhost:8081/check-friend-request/${userId}`)
+                .then(response => {
+                    if (response.data.type === 'success' && response.data.requests.length > 0) {
+                        setHasPendingRequest(true);
+                        setPendingRequests(response.data.requests);
+                    } else {
+                        setHasPendingRequest(false);
+                        setPendingRequests([]);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error retrieving friend requests:', error);
+                });
+        };
+
+        const interval = setInterval(checkForRequests, 60000);
+        checkForRequests();
+
+        return () => clearInterval(interval);
+    }, []);
+
     return (
         <div className={`${styles.app} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>
             <div className={`${styles.sidebar} ${showOnlyProfilePics ? styles.showOnlyProfilePics : ''} ${isUserListOpen ? styles.expanded : ''}`}>
@@ -150,6 +180,13 @@ const Chat = ({ onLogout }) => {
                 message={notification}
                 onClose={handleCloseNotification}
             />
+            {hasPendingRequest && pendingRequests.map(request => (
+                <FriendRequestNotification 
+                    key={request.FriendID} 
+                    request={request}
+                    onClose={() => setHasPendingRequest(false)} 
+                />
+            ))}
         </div>
     );
 };

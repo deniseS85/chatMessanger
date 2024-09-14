@@ -42,7 +42,7 @@ router.post('/', upload.single('profile_img'), async (req, res) => {
     try {
         const userExists = await checkUserAlreadyExist(email, phoneNumber);
         if (userExists) {
-            return res.status(400).json({ message: 'You are already registered!' });
+            return res.json({ message: 'You are already registered!' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -50,7 +50,7 @@ router.post('/', upload.single('profile_img'), async (req, res) => {
         db.query(sql, [username, hashedPassword, email, phoneNumber, profile_img, avatarConfig || null], (err, result) => {
             if (err) {
                 console.error(err);
-                return res.status(400).json({ message: 'Error registering user' });
+                return res.json({ message: 'Error registering user' });
             }
 
             const userId = result.insertId;
@@ -58,14 +58,14 @@ router.post('/', upload.single('profile_img'), async (req, res) => {
             db.query(insertStatusSql, [userId], (err) => {
                 if (err) {
                     console.error('Error inserting user status:', err);
-                    return res.status(500).json({ message: 'Error inserting user status' });
+                    return res.json({ message: 'Error inserting user status' });
                 }
                 res.json({ success: true, message: 'User registered successfully' });
             });
         });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Error checking user existence' });
+        res.json({ message: 'Error checking user existence' });
     }
 });
 

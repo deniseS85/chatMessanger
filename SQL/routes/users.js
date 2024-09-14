@@ -56,12 +56,12 @@ router.get('/:userId', (req, res) => {
     const userId = req.params.userId;
     getUserById(userId, (err, user) => {
         if (err) {
-            return res.status(500).json({ message: 'Server error' });
+            return res.json({ message: 'Server error' });
         }
         if (user) {
             return res.json(user);
         } else {
-            return res.status(404).json({ message: 'User not found' });
+            return res.json({ message: 'User not found' });
         }
     });
 });

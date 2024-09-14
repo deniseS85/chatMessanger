@@ -40,11 +40,11 @@ router.put('/:userId', upload.single('profile_img'), async (req, res) => {
         db.query(query, [userId], async (err, results) => {
             if (err) {
                 console.error('Database query error', err);
-                return res.status(500).json({ message: 'Database error' });
+                return res.json({ message: 'Database error' });
             }
 
             if (results.length === 0) {
-                return res.status(404).json({ message: 'User not found' });
+                return res.json({ message: 'User not found' });
             }
 
             const oldProfileImg = results[0].profile_img;
@@ -91,11 +91,11 @@ router.put('/:userId', upload.single('profile_img'), async (req, res) => {
             db.query(sql, updateValues, (err, result) => {
                 if (err) {
                     console.error('Failed to update user:', err);
-                    return res.status(500).json({ message: 'Failed to update user' });
+                    return res.json({ message: 'Failed to update user' });
                 }
 
                 if (result.affectedRows === 0) {
-                    return res.status(404).json({ message: 'User not found' });
+                    return res.json({ message: 'User not found' });
                 }
 
                 res.json({ success: true, message: 'Update user successful' });
@@ -103,7 +103,7 @@ router.put('/:userId', upload.single('profile_img'), async (req, res) => {
         });
     } catch (err) {
         console.error('Fehler:', err);
-        res.status(500).json({ message: 'Failed to update user' });
+        res.json({ message: 'Failed to update user' });
     }
 });
 

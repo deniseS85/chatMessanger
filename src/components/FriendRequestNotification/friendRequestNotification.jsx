@@ -69,6 +69,7 @@ const FriendRequestNotification = ({ request, onClose }) => {
         axios.post('http://localhost:8081/check-friend-request/accept', { requestId: request.FriendID })
             .then(response => {
                 onClose();
+                console.log(response.data.message);
             })
             .catch(error => {
                 console.error('Fehler beim Akzeptieren der Freundschaftsanfrage:', error);
@@ -79,6 +80,7 @@ const FriendRequestNotification = ({ request, onClose }) => {
         axios.post('http://localhost:8081/check-friend-request/reject', { requestId: request.FriendID })
             .then(response => {
                 onClose();
+                console.log(response.data.message);
             })
             .catch(error => {
                 console.error('Fehler beim Ablehnen der Freundschaftsanfrage:', error);

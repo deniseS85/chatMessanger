@@ -122,7 +122,8 @@ const Chat = ({ onLogout }) => {
                     }
                 })
                 .catch(error => {
-                    console.error('Error retrieving friend requests:', error);
+                    console.error('Error retrieving friend requests:', error.response || error);
+                    setTimeout(checkForRequests, 5000); 
                 });
         };
 

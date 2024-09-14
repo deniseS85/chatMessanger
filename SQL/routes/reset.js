@@ -12,11 +12,11 @@ router.post('/', async (req, res) => {
     db.query(query, [token], async (err, results) => {
         if (err) {
             console.error('Database query error:', err);
-            return res.status(500).json({ message: 'Database error' });
+            return res.json({ message: 'Database error' });
         }
 
         if (results.length === 0) {
-            return res.status(400).json({ message: 'Invalid or expired token' });
+            return res.json({ message: 'Invalid or expired token' });
         }
 
         const email = results[0].email;
@@ -27,7 +27,7 @@ router.post('/', async (req, res) => {
         db.query(updateQuery, [hashedPassword, email], (err) => {
             if (err) {
                 console.error('Database update error:', err);
-                return res.status(500).json({ message: 'Failed to update password' });
+                return res.json({ message: 'Failed to update password' });
             }
 
             res.json({ message: 'Password has been successfully reset.' });

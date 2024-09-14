@@ -11,7 +11,7 @@ router.post('/', async (req, res) => {
     db.query(query, [username], async (err, results) => {
         if (err) {
             console.error('Database query error:', err);
-            return res.status(500).json({ message: 'Database error' });
+            return res.json({ message: 'Database error' });
         }
 
         if (results.length > 0) {
@@ -24,16 +24,16 @@ router.post('/', async (req, res) => {
                 db.query(updateStatusQuery, [user.id], (err) => {
                     if (err) {
                         console.error('Failed to update status:', err);
-                        return res.status(500).json({ success: false, message: 'Failed to update status' });
+                        return res.json({ success: false, message: 'Failed to update status' });
                     }
 
                     res.json({ success: true, message: 'Login successful', user });
                 });
             } else {
-                res.status(401).json({ success: false, message: 'Invalid password' });
+                res.json({ success: false, message: 'Invalid password' });
             }
         } else {
-            res.status(404).json({ success: false, message: 'User not found' });
+            res.json({ success: false, message: 'User not found' });
         }
     });
 });

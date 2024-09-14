@@ -12,11 +12,11 @@ router.post('/', async (req, res) => {
     db.query(query, [email], (err, results) => {
         if (err) {
             console.error('Database query error:', err);
-            return res.status(500).json({ message: 'Database error' });
+            return res.json({ message: 'Database error' });
         }
 
         if (results.length === 0) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.json({ message: 'User not found' });
         }
 
         const username = results[0].username; 
@@ -28,7 +28,7 @@ router.post('/', async (req, res) => {
         db.query(updateQuery, [token, expiresAt, email], (err) => {
             if (err) {
                 console.error('Database update error:', err);
-                return res.status(500).json({ message: 'Failed to update user with reset token' });
+                return res.json({ message: 'Failed to update user with reset token' });
             }
 
             sendPasswordResetEmail(email, username, token);

@@ -31,7 +31,6 @@ app.use('/check-friend-request', checkFriendRequest);
 
 function deleteOldRejectedRequests() {
     const sql = 'DELETE FROM Friends WHERE acceptState = "rejected" AND requestDate < NOW() - INTERVAL 24 HOUR';
-
     db.query(sql, (err, results) => {
         if (err) {
             console.error('Error deleting old rejected requests:', err);

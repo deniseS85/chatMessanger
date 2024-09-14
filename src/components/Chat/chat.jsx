@@ -113,7 +113,7 @@ const Chat = ({ onLogout }) => {
         const checkForRequests = () => {
             axios.get(`http://localhost:8081/check-friend-request/${userId}`)
                 .then(response => {
-                    if (response.data.type === 'success' && response.data.requests.length > 0) {
+                    if (response.data.type === 'success' && Array.isArray(response.data.requests) && response.data.requests.length > 0) {
                         setHasPendingRequest(true);
                         setPendingRequests(response.data.requests);
                     } else {

@@ -11,9 +11,10 @@ router.get('/:userId', (req, res) => {
             return res.status(500).json({ message: 'Database error', type: 'error' });
         }
 
-        if (results.length > 0) {
-            return res.status(200).json({ data: results, type: 'success'});
-        }
+        return res.status(200).json({
+            requests: results || [],
+            type: 'success'
+        });
     });
 });
 

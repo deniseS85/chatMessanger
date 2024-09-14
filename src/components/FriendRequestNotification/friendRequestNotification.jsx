@@ -76,7 +76,7 @@ const FriendRequestNotification = ({ request, onClose }) => {
     };
 
     const handleReject = () => {
-        axios.post('http://localhost:8081/check-friend-request/reject', { requestId: request.id })
+        axios.post('http://localhost:8081/check-friend-request/reject', { requestId: request.FriendID })
             .then(response => {
                 onClose();
             })

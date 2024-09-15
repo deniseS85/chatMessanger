@@ -23,8 +23,10 @@ const Chat = ({ onLogout }) => {
     const [isUserListOpen, setIsUserListOpen] = useState(false);
     const [showAddContactForm, setShowAddContactForm] = useState(false);
     const [notification, setNotification] = useState('');
-    const [hasPendingRequest, setHasPendingRequest] = useState(false);
+    const [hasSentRequest, setHasSentRequest] = useState(false);
+    const [sentRequests, setSentRequests] = useState([]);
     const [pendingRequests, setPendingRequests] = useState([]);
+    
 
     const toggleEmojiPicker = () => {
         setEmojiPickerVisible(prev => !prev);
@@ -113,21 +115,24 @@ const Chat = ({ onLogout }) => {
         const checkForRequests = () => {
             axios.get(`http://localhost:8081/check-friend-request/${userId}`)
                 .then(response => {
-                    if (response.data.type === 'success' && Array.isArray(response.data.requests) && response.data.requests.length > 0) {
-                        setHasPendingRequest(true);
-                        setPendingRequests(response.data.requests);
+                    if (response.data.type === 'success') {
+                        const { sentRequests, pendingRequests } = response.data;
+                        setSentRequests(sentRequests || []);
+                        setPendingRequests(pendingRequests || []);
+                        setHasSentRequest(sentRequests.length > 0);
                     } else {
-                        setHasPendingRequest(false);
+                        setHasSentRequest(false);
+                        setSentRequests([]);
                         setPendingRequests([]);
                     }
                 })
                 .catch(error => {
                     console.error('Error retrieving friend requests:', error.response || error);
-                    setTimeout(checkForRequests, 5000); 
                 });
         };
 
         const interval = setInterval(checkForRequests, 60000);
+
         checkForRequests();
 
         return () => clearInterval(interval);
@@ -156,6 +161,7 @@ const Chat = ({ onLogout }) => {
                     isUserListOpen={isUserListOpen}
                     selectedUser={selectedUser} 
                     onBackClick={toggleUserList}
+                    pendingRequestCount={pendingRequests.length + sentRequests.length}
                 />
                 <div className={styles['chat-layout']}>
                     <div className={styles['chat-container']}>
@@ -181,11 +187,11 @@ const Chat = ({ onLogout }) => {
                 message={notification}
                 onClose={handleCloseNotification}
             />
-            {hasPendingRequest && pendingRequests.map(request => (
+            {hasSentRequest && sentRequests.map(request => (
                 <FriendRequestNotification 
                     key={request.FriendID} 
                     request={request}
-                    onClose={() => setHasPendingRequest(false)} 
+                    onClose={() => setHasSentRequest(false)} 
                 />
             ))}
         </div>

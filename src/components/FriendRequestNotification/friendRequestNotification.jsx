@@ -54,9 +54,9 @@ const FriendRequestNotification = ({ request, onClose }) => {
 
     const handleClickOutside = useCallback((e) => {
         if (notificationRef.current && !notificationRef.current.contains(e.target)) {
-            onClose();
+            handleClose();
         }
-    }, [onClose]);
+    }, []);
 
     useEffect(() => {
         document.addEventListener('mousedown', handleClickOutside);
@@ -64,6 +64,16 @@ const FriendRequestNotification = ({ request, onClose }) => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [handleClickOutside]);
+
+    const handleClose = () => {
+        axios.post('http://localhost:8081/check-friend-request/update-request-status', { requestId: request.FriendID })
+            .then(response => {
+                onClose();
+            })
+            .catch(error => {
+                console.error('Fehler beim Aktualisieren des Anfrage-Status:', error);
+            });
+    };
 
     const handleAccept = () => {
         axios.post('http://localhost:8081/check-friend-request/accept', { requestId: request.FriendID })
@@ -124,7 +134,7 @@ const FriendRequestNotification = ({ request, onClose }) => {
                     className={styles.closeIcon} 
                     src={closeIcon} 
                     alt="Close"
-                    onClick={onClose} 
+                    onClick={handleClose} 
                 />
             </div>
         </div>

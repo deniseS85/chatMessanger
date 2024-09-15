@@ -11,6 +11,7 @@
     box-shadow: 0 0 3px $purple;
     height: 80px;
     min-height: 80px;
+    /* position: relative; */
     @media (max-width: 428px) {
         margin-top: 10px;
         border-radius: 10px;
@@ -71,13 +72,49 @@
             
         }
     }
-    .menuIcon {
-        width: 30px;
-        cursor: pointer;
-        transition: transform 0.3s;
-        &:hover {
-            transform: scale(1.2);
+    
+    .menuContainer {
+        align-items: center;
+        display: flex;
+        gap: clamp(0.3125rem, 0.2679rem + 0.2232vw, 0.625rem);
+        .notificationContainer {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s;
+            &:hover {
+                transform: scale(1.2);
+            }
+            .notificationIcon {
+                width: clamp(1.25rem, 1.2054rem + 0.2232vw, 1.5625rem); 
+            }
+            .newMessage {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background-color: #FD206A;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border: 2px solid $itemColor;
+                position: absolute;
+                top: -7px;
+                right: clamp(-0.625rem, -0.6339rem + 0.0446vw, -0.5625rem);
+                font-size: 12px;
+                font-weight: bold;
+                color: $fontColor;
+            }
+        }
+        .menuIcon {
+            width: 30px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            &:hover {
+                transform: scale(1.2);
+            }
         }
     }
+    
+   
+
 }
   

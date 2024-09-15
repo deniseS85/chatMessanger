@@ -5,11 +5,12 @@ import axios from 'axios';
 import styles from './chatHeader.module.scss';
 import menuIcon from '../../assets/img/menu-icon.png';
 import backIcon from '../../assets/img/send-message-icon.png';
+import notificationIcon from '../../assets/img/notification.png';
 import defaultProfilePic from '../../assets/img/default-profile-img.png';
 import DropdownMenu from '../DropdownMenu/dropdownMenu';
 import MyProfile from '../MyProfile/myProfile';
 
-function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout }) {
+function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const navigate = useNavigate();
@@ -101,13 +102,27 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout }) {
                     <div>{selectedUser ? selectedUser.status : ''}</div>
                 </div>
             </div>
-            <img
-                ref={iconRef}
-                className={styles.menuIcon} 
-                src={menuIcon} 
-                alt="Menü" 
-                onClick={toggleMenu} 
+            <div className={styles.menuContainer}>
+                <div className={styles.notificationContainer}>
+                <img
+                    className={styles.notificationIcon}
+                    src={notificationIcon}
+                    alt="Notification"
+                />
+                {pendingRequestCount > 0 && (
+                    <div className={styles.newMessage}>
+                        {pendingRequestCount}
+                    </div>
+                )}
+                </div>
+                <img
+                    ref={iconRef}
+                    className={styles.menuIcon} 
+                    src={menuIcon} 
+                    alt="Menü" 
+                    onClick={toggleMenu} 
             />
+            </div>
             <DropdownMenu
                 isOpen={isMenuOpen}
                 onMyProfile={showProfile}

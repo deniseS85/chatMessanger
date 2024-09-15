@@ -5,14 +5,24 @@ const db = require('../config/db');
 // Abrufen der ausstehenden Freundschaftsanfragen
 router.get('/:userId', (req, res) => {
     const { userId } = req.params;
-    const checkPendingRequestsQuery = 'SELECT * FROM Friends WHERE UserId2 = ? AND acceptState = "pending"';
+    const checkRequestsQuery = `
+        SELECT * FROM Friends 
+        WHERE UserId2 = ? AND (acceptState = "sent" OR acceptState = "pending")
+    `;
 
-    db.query(checkPendingRequestsQuery, [userId], (err, results) => {
+    db.query(checkRequestsQuery, [userId], (err, results) => {
         if (err) {
             return res.json({ message: 'Database error', type: 'error' });
         }
 
-        return res.json({ requests: results || [], type: 'success' });
+        const sentRequests = results.filter(request => request.acceptState === 'sent');
+        const pendingRequests = results.filter(request => request.acceptState === 'pending');
+
+        return res.json({
+            sentRequests,
+            pendingRequests,
+            type: 'success'
+        });
     });
 });
 
@@ -31,6 +41,19 @@ router.get('/users/:userId', (req, res) => {
         } else {
             return res.json({ message: 'User not found', type: 'error' });
         }
+    });
+});
+
+// Freundschaftsanfrage nicht beantworten
+router.post('/update-request-status', (req, res) => {
+    const { requestId } = req.body;
+    const updateStatusQuery = 'UPDATE Friends SET acceptState = "pending" WHERE FriendID = ? AND acceptState = "sent"';
+
+    db.query(updateStatusQuery, [requestId], (err, results) => {
+        if (err) {
+            return res.json({ message: 'Database error', type: 'error' });
+        }
+        return res.json({ message: 'Status updated to pending', type: 'success' });
     });
 });
 

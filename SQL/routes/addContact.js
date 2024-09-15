@@ -28,7 +28,7 @@ router.post('/', (req, res) => {
 
                 if (requestResults.length > 0) {
                     const currentState = requestResults[0].acceptState;
-                    if (currentState === 'pending') {
+                    if (currentState === 'pending' || currentState === 'sent') {
                         return res.json({ message: 'Request already sent and pending', type: 'error' });
                     } else if (currentState === 'accepted') {
                         return res.json({ message: 'You are already friends', type: 'error' });
@@ -37,7 +37,7 @@ router.post('/', (req, res) => {
                     }
                 }
 
-                const addRequestQuery = 'INSERT INTO Friends (UserId1, UserId2, acceptState) VALUES (?, ?, "pending")';
+                const addRequestQuery = 'INSERT INTO Friends (UserId1, UserId2, acceptState) VALUES (?, ?, "sent")';
                 db.query(addRequestQuery, [userId, contactId], (err) => {
                     if (err) {
                         return res.json({ message: 'Error sending the contact request', type: 'error' });

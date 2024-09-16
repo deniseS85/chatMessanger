@@ -9,24 +9,33 @@ import notificationIcon from '../../assets/img/notification.png';
 import defaultProfilePic from '../../assets/img/default-profile-img.png';
 import DropdownMenu from '../DropdownMenu/dropdownMenu';
 import MyProfile from '../MyProfile/myProfile';
+import NotificationsContainer from '../NotificationsContainer/notificationsContainer';
 
-function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount }) {
+function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const navigate = useNavigate();
     const menuRef = useRef(null);
-    const iconRef = useRef(null);
+    const menuIconRef = useRef(null);
+    const notificationRef = useRef(null);
+    const noticicationIconRef = useRef(null);
 
     useEffect(() => {
         if (isUserListOpen) {
             setIsMenuOpen(false);
+            setIsNotificationOpen(false);
         }
     }, [isUserListOpen]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (menuRef.current && !menuRef.current.contains(event.target) && iconRef.current && !iconRef.current.contains(event.target)) {
+            if (menuRef.current && !menuRef.current.contains(event.target) && menuIconRef.current && !menuIconRef.current.contains(event.target)) {
                 setIsMenuOpen(false);
+            }
+
+            if (notificationRef.current && !notificationRef.current.contains(event.target) && noticicationIconRef.current && !noticicationIconRef.current.contains(event.target)) {
+                setIsNotificationOpen(false);
             }
         };
 
@@ -34,10 +43,24 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isMenuOpen]);
+    }, [isMenuOpen, isNotificationOpen]);
+
+    const toggleNotification = () => {
+        setIsNotificationOpen((prevState) => {
+            if (!prevState) {
+                setIsMenuOpen(false);
+            }
+            return !prevState;
+        });
+    }
 
     const toggleMenu = () => {
-        setIsMenuOpen(prevState => !prevState);
+        setIsMenuOpen((prevState) => {
+            if (!prevState) {
+                setIsNotificationOpen(false);
+            }
+            return !prevState;
+        });
     };
 
     const showProfile = () => {
@@ -103,20 +126,24 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                 </div>
             </div>
             <div className={styles.menuContainer}>
-                <div className={styles.notificationContainer}>
-                <img
-                    className={styles.notificationIcon}
-                    src={notificationIcon}
-                    alt="Notification"
-                />
-                {pendingRequestCount > 0 && (
-                    <div className={styles.newMessage}>
-                        {pendingRequestCount}
-                    </div>
-                )}
+                <div 
+                    className={styles.notificationContainer}
+                    onClick={toggleNotification}
+                    ref={noticicationIconRef}
+                >
+                    <img
+                        className={styles.notificationIcon}
+                        src={notificationIcon}
+                        alt="Notification"
+                    />
+                    {pendingRequestCount > 0 && (
+                        <div className={styles.newMessage}>
+                            {pendingRequestCount}
+                        </div>
+                    )}
                 </div>
                 <img
-                    ref={iconRef}
+                    ref={menuIconRef}
                     className={styles.menuIcon} 
                     src={menuIcon} 
                     alt="Menü" 
@@ -138,6 +165,11 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                     isProfileOpen={isProfileOpen}
                 />
             )}
+            <NotificationsContainer
+                isOpen={isNotificationOpen}
+                notificationRef={notificationRef}
+                pendingRequests={pendingRequests}
+            />
         </header>
     );
 }

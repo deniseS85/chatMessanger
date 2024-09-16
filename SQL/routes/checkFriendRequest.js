@@ -6,8 +6,10 @@ const db = require('../config/db');
 router.get('/:userId', (req, res) => {
     const { userId } = req.params;
     const checkRequestsQuery = `
-        SELECT * FROM Friends 
-        WHERE UserId2 = ? AND (acceptState = "sent" OR acceptState = "pending")
+        SELECT f.FriendID, f.UserId1, f.UserId2, f.acceptState, u.username, u.profile_img, u.avatar_config
+        FROM Friends f
+        JOIN Users u ON f.UserId1 = u.id
+        WHERE f.UserId2 = ? AND (f.acceptState = "sent" OR f.acceptState = "pending")
     `;
 
     db.query(checkRequestsQuery, [userId], (err, results) => {

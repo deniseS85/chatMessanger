@@ -162,6 +162,7 @@ const Chat = ({ onLogout }) => {
                     selectedUser={selectedUser} 
                     onBackClick={toggleUserList}
                     pendingRequestCount={pendingRequests.length + sentRequests.length}
+                    pendingRequests={pendingRequests}
                 />
                 <div className={styles['chat-layout']}>
                     <div className={styles['chat-container']}>

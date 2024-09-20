@@ -1,13 +1,13 @@
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const path = require('path');
-const db = require('./config/db');
-
 const app = express();
+
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+require('./routes/cleanup');
 
 const loginRoute = require('./routes/login');
 const signupRoute = require('./routes/signup');
@@ -28,19 +28,6 @@ app.use('/users', userRoute);
 app.use('/edit-user', editUser);
 app.use('/add-contact', addContact);
 app.use('/check-friend-request', checkFriendRequest);
-
-function deleteOldRejectedRequests() {
-    const sql = 'DELETE FROM Friends WHERE acceptState = "rejected" AND requestDate < NOW() - INTERVAL 24 HOUR';
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error('Error deleting old rejected requests:', err);
-        } else {
-            console.log('Old rejected requests deleted:', results.affectedRows);
-        }
-    });
-}
-
-setInterval(deleteOldRejectedRequests, 24 * 60 * 60 * 1000);
 
 const PORT = process.env.PORT || 8081;
 app.listen(PORT, () => {

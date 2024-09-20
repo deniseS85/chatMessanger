@@ -5,7 +5,8 @@ import Avatar from 'react-nice-avatar';
 import defaultImage from '../../assets/img/default-profile-img.png';
 import closeIcon from '../../assets/img/close-icon.png';
 
-const FriendRequestNotification = ({ request, onClose }) => {
+
+const FriendRequestNotification = ({ request, onClose, checkForRequests }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [userInfo, setUserInfo] = useState({ username: '', profile_img: '', avatar_config: '' });
     const infoImgRef = useRef(null);
@@ -52,20 +53,7 @@ const FriendRequestNotification = ({ request, onClose }) => {
         }
     }, [isVisible]);
 
-    const handleClickOutside = useCallback((e) => {
-        if (notificationRef.current && !notificationRef.current.contains(e.target)) {
-            handleClose();
-        }
-    }, []);
-
-    useEffect(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [handleClickOutside]);
-
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
         axios.post('http://localhost:8081/check-friend-request/update-request-status', { requestId: request.FriendID })
             .then(response => {
                 onClose();
@@ -73,13 +61,28 @@ const FriendRequestNotification = ({ request, onClose }) => {
             .catch(error => {
                 console.error('Fehler beim Aktualisieren des Anfrage-Status:', error);
             });
-    };
+    }, [request.FriendID, onClose]); 
+    
+    const handleClickOutside = useCallback((e) => {
+        if (notificationRef.current && !notificationRef.current.contains(e.target)) {
+            handleClose();
+        }
+    }, [handleClose]);
+    
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [handleClickOutside]);
 
     const handleAccept = () => {
         axios.post('http://localhost:8081/check-friend-request/accept', { requestId: request.FriendID })
             .then(response => {
+                if (typeof checkForRequests === 'function') {
+                    checkForRequests();
+                }
                 onClose();
-                console.log(response.data.message);
             })
             .catch(error => {
                 console.error('Fehler beim Akzeptieren der Freundschaftsanfrage:', error);
@@ -89,8 +92,10 @@ const FriendRequestNotification = ({ request, onClose }) => {
     const handleReject = () => {
         axios.post('http://localhost:8081/check-friend-request/reject', { requestId: request.FriendID })
             .then(response => {
+                if (typeof checkForRequests === 'function') {
+                    checkForRequests();
+                }
                 onClose();
-                console.log(response.data.message);
             })
             .catch(error => {
                 console.error('Fehler beim Ablehnen der Freundschaftsanfrage:', error);

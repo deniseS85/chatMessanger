@@ -11,6 +11,7 @@ import styles from './chat.module.scss';
 import Cookies from "js-cookie";
 import axios from 'axios';
 import FriendRequestNotification from '../FriendRequestNotification/friendRequestNotification';
+/* import newMessageSound from '../../assets/audio/new-message.mp3'; */
 
 const Chat = ({ onLogout }) => {
     const [selectedUser, setSelectedUser] = useState(null);
@@ -26,7 +27,29 @@ const Chat = ({ onLogout }) => {
     const [hasSentRequest, setHasSentRequest] = useState(false);
     const [sentRequests, setSentRequests] = useState([]);
     const [pendingRequests, setPendingRequests] = useState([]);
+    /* const [isUserInteracted, setIsUserInteracted] = useState(false); */
+
+   /*  useEffect(() => {
+        const handleUserInteraction = () => {
+            console.log("User interaction detected!");
+            setIsUserInteracted(true);
+            document.removeEventListener('click', handleUserInteraction);
+        };
+        document.addEventListener('click', handleUserInteraction);
     
+        return () => {
+            document.removeEventListener('click', handleUserInteraction);
+        };
+    }, []);
+    
+    useEffect(() => {
+        if (hasSentRequest && isUserInteracted) {
+            const audio = new Audio(newMessageSound);
+            audio.play().catch(error => {
+                console.error('Error playing the notification sound:', error);
+            });
+        }
+    }, [hasSentRequest, isUserInteracted]); */
 
     const toggleEmojiPicker = () => {
         setEmojiPickerVisible(prev => !prev);
@@ -101,42 +124,39 @@ const Chat = ({ onLogout }) => {
         }
     };
 
-    const handleCloseNotification = () => {
-        setNotification('');
-    };
-
     const toggleAddContactForm = () => {
         setShowAddContactForm(prev => !prev);
     };
 
-    useEffect(() => {
+    const checkForRequests = () => {
         const userId = Cookies.get('userId');
+        axios.get(`http://localhost:8081/check-friend-request/${userId}`)
+            .then(response => {
+                if (response.data.type === 'success') {
+                    const { sentRequests, pendingRequests } = response.data;
+                    setSentRequests(sentRequests || []);
+                    setPendingRequests(pendingRequests || []);
+                    setHasSentRequest(sentRequests.length > 0);
+                } else {
+                    setHasSentRequest(false);
+                    setSentRequests([]);
+                    setPendingRequests([]);
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    };
 
-        const checkForRequests = () => {
-            axios.get(`http://localhost:8081/check-friend-request/${userId}`)
-                .then(response => {
-                    if (response.data.type === 'success') {
-                        const { sentRequests, pendingRequests } = response.data;
-                        setSentRequests(sentRequests || []);
-                        setPendingRequests(pendingRequests || []);
-                        setHasSentRequest(sentRequests.length > 0);
-                    } else {
-                        setHasSentRequest(false);
-                        setSentRequests([]);
-                        setPendingRequests([]);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error retrieving friend requests:', error.response || error);
-                });
-        };
-
-        const interval = setInterval(checkForRequests, 60000);
-
+    useEffect(() => {
         checkForRequests();
-
+        const interval = setInterval(checkForRequests, 60000);
         return () => clearInterval(interval);
     }, []);
+
+    const handleCloseNotification = () => {
+        setNotification('');
+    };
 
     return (
         <div className={`${styles.app} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>
@@ -157,12 +177,14 @@ const Chat = ({ onLogout }) => {
                 />
             </div>
             <div className={styles['main-content']}>
-                <ChatHeader onLogout={onLogout}
+                <ChatHeader 
+                    onLogout={onLogout}
                     isUserListOpen={isUserListOpen}
                     selectedUser={selectedUser} 
                     onBackClick={toggleUserList}
                     pendingRequestCount={pendingRequests.length + sentRequests.length}
                     pendingRequests={pendingRequests}
+                    checkForRequests={checkForRequests}
                 />
                 <div className={styles['chat-layout']}>
                     <div className={styles['chat-container']}>
@@ -192,7 +214,10 @@ const Chat = ({ onLogout }) => {
                 <FriendRequestNotification 
                     key={request.FriendID} 
                     request={request}
-                    onClose={() => setHasSentRequest(false)} 
+                    onClose={() => {
+                        setHasSentRequest(false);
+                        checkForRequests();
+                    }} 
                 />
             ))}
         </div>

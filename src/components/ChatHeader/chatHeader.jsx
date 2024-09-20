@@ -10,8 +10,9 @@ import defaultProfilePic from '../../assets/img/default-profile-img.png';
 import DropdownMenu from '../DropdownMenu/dropdownMenu';
 import MyProfile from '../MyProfile/myProfile';
 import NotificationsContainer from '../NotificationsContainer/notificationsContainer';
+import FriendRequestNotification from '../FriendRequestNotification/friendRequestNotification';
 
-function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests }) {
+function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests}) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -19,7 +20,8 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
     const menuRef = useRef(null);
     const menuIconRef = useRef(null);
     const notificationRef = useRef(null);
-    const noticicationIconRef = useRef(null);
+    const notificationIconRef = useRef(null);
+    const [selectedRequest, setSelectedRequest] = useState(null);
 
     useEffect(() => {
         if (isUserListOpen) {
@@ -34,7 +36,7 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                 setIsMenuOpen(false);
             }
 
-            if (notificationRef.current && !notificationRef.current.contains(event.target) && noticicationIconRef.current && !noticicationIconRef.current.contains(event.target)) {
+            if (notificationRef.current && !notificationRef.current.contains(event.target) && notificationIconRef.current && !notificationIconRef.current.contains(event.target)) {
                 setIsNotificationOpen(false);
             }
         };
@@ -106,6 +108,15 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
         // Nachricht suchen Logik hier
     };
 
+    const handleNotificationClick = (request) => {
+        setSelectedRequest(request);
+        setIsNotificationOpen(false);
+    };
+
+    const handleCloseNotification = () => {
+        setSelectedRequest(null);
+    };
+
     return (
         <header className={styles.header}>
             <div className={styles.profileContainer}>
@@ -129,7 +140,7 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                 <div 
                     className={styles.notificationContainer}
                     onClick={toggleNotification}
-                    ref={noticicationIconRef}
+                    ref={notificationIconRef}
                 >
                     <img
                         className={styles.notificationIcon}
@@ -169,7 +180,15 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                 isOpen={isNotificationOpen}
                 notificationRef={notificationRef}
                 pendingRequests={pendingRequests}
+                onNotificationClick={handleNotificationClick}
             />
+            {selectedRequest && (
+                <FriendRequestNotification
+                    request={selectedRequest}
+                    onClose={handleCloseNotification}
+                    checkForRequests={checkForRequests} 
+                />
+            )}
         </header>
     );
 }

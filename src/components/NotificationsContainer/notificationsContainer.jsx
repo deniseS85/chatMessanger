@@ -1,10 +1,9 @@
-// NotificationsContainer.jsx
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styles from './notificationsContainer.module.scss'; 
 import Avatar from 'react-nice-avatar';
 import defaultProfilePic from '../../assets/img/default-profile-img.png';
 
-const NotificationsContainer = ({ isOpen, notificationRef, pendingRequests }) => {
+const NotificationsContainer = ({ isOpen, notificationRef, pendingRequests, onNotificationClick }) => {
     return (
         <div 
             ref={notificationRef}
@@ -15,7 +14,11 @@ const NotificationsContainer = ({ isOpen, notificationRef, pendingRequests }) =>
 
                 {pendingRequests.length > 0 ? (
                     pendingRequests.map(request => (
-                        <div key={request.FriendID} className={styles.notificationItem}>
+                        <div 
+                            key={request.FriendID} 
+                            className={styles.notificationItem}
+                            onClick={() => onNotificationClick(request)}
+                        >
                             {request.profile_img ? (
                                 <img 
                                     src={`http://localhost:8081/uploads/${request.profile_img}`} 

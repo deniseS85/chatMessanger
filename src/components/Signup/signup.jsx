@@ -58,11 +58,28 @@ const Signup = () => {
         return true;
     };
 
-    const handleNextStep = () => {
-        if (validateForm()) {
-            setStep(2);
+    const handleNextStep = async () => {
+        if (!validateForm()) return;
+    
+        try {
+            const response = await axios.post('http://localhost:8081/signup/check-user', {
+                email: formData.email,
+                phoneNumber: formData.phoneNumber
+            });
+    
+            if (response.data.exists) {
+                setError('You are already registered!');
+                setStep(1);
+                setTimeout(() => {
+                    navigate('/');
+                }, 3000);
+            } else {
+                setStep(2);
+            }
+        } catch (error) {
+            setError('An error occurred while checking user existence.');
         }
-    }
+    };
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0];

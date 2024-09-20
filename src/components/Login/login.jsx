@@ -18,41 +18,40 @@ const Login = ({ onLoginSuccess }) => {
     const handleLogin = async (event) => {
         event.preventDefault();
         setError('');
-
+    
         if (!username || !password) {
             setError('Please enter username & password!');
             return;
         }
-
+    
         try {
             const response = await axios.post('http://localhost:8081/login', { username, password });
-
+    
             if (response.data.success) {
                 const token = uuidv4();
                 Cookies.set('authToken', token, { expires: 7, secure: true, sameSite: 'Strict' });
                 Cookies.set('userId', response.data.user.id); 
-
+    
                 if (rememberMe) {
                     Cookies.set('username', username, { expires: 7 });
                 }
-
+    
                 onLoginSuccess(response.data); 
-            }
-        } catch (error) {
-            if (error.response) {
-                if (error.response.status === 404) {
+            } else {
+                const errorMessage = response.data.message || 'Login failed. Please try again.';
+                if (response.data.message === 'User not found') {
                     setError('You are not yet registered!');
                     setTimeout(() => {
                         navigate('/signup');
                     }, 3000);
-                } else if (error.response.status === 401) {
+                } else if (response.data.message === 'Invalid password') {
                     setError('Wrong password. Please try again.');
                 } else {
-                    setError('Login failed. Please try again.');
+                    setError(errorMessage);
                 }
-            } else {
-                setError('Login failed. Please try again.');
             }
+        } catch (error) {
+            setError('Login failed. Please try again.');
         }
     };
 

@@ -27,16 +27,22 @@
             font-weight: bold;
             text-align: center;
             color: $purple;
-            padding-top: 10px;
+            padding-top: 20px;
+            @media (max-width: 428px) {
+                padding-top: 10px;
+            }
         }
         .notificationItem {
             display: flex;
-            gap: 20px;
+            gap: clamp(0.625rem, 0.5357rem + 0.4464vw, 1.25rem);
             align-items: center;
             font-size: clamp(0.875rem, 0.8214rem + 0.2679vw, 1.25rem);
             padding: 10px 20px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            @media (max-width: 428px) {
+                padding: 5px 10px;
+            }
             &:hover {
                 background-color: $purple;
             }
@@ -51,6 +57,10 @@
                 color: $turquise;
                 font-weight: bold;
             }
+        }
+        .noNotifications {
+            text-align: center;
+            font-weight: bold;
         }
     } 
 }

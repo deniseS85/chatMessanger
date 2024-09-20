@@ -69,4 +69,17 @@ router.post('/', upload.single('profile_img'), async (req, res) => {
     }
 });
 
+router.post('/check-user', async (req, res) => {
+    const { email, phoneNumber } = req.body;
+
+    try {
+        const userExists = await checkUserAlreadyExist(email, phoneNumber);
+        res.json({ exists: userExists });
+    } catch (err) {
+        console.error(err);
+        res.json({ message: 'Error checking user existence' });
+    }
+});
+
+
 module.exports = router;

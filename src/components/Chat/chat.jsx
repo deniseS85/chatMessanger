@@ -156,18 +156,25 @@ const Chat = ({ onLogout }) => {
 
     useEffect(() => {
         const userId = Cookies.get('userId');
-        socket.emit('registerUser', userId);
-    
-        socket.on('friendRequestReceived', (data) => {
+        
+        if (userId) {
+            checkForRequests(); 
+            socket.emit('registerUser', userId);
+        }
+        
+        const handleFriendRequestReceived = (data) => {
             if (data && data.recipientId) {
                 checkForRequests();
             }
-        });
+        };
+    
+        socket.on('friendRequestReceived', handleFriendRequestReceived);
     
         return () => {
-            socket.off('friendRequestReceived');
+            socket.off('friendRequestReceived', handleFriendRequestReceived);
         };
     }, []);
+    
 
 
     const handleCloseNotification = () => {
@@ -233,7 +240,7 @@ const Chat = ({ onLogout }) => {
                     onClose={() => {
                         setHasSentRequest(false);
                         checkForRequests();
-                    }} 
+                    }}
                 />
             ))}
             

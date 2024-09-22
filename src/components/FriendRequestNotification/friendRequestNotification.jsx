@@ -29,8 +29,6 @@ const FriendRequestNotification = ({ request, onClose, checkForRequests }) => {
                 .catch(error => {
                     console.error('Fehler beim Abrufen der Benutzerinformationen:', error);
                 });
-        } else {
-            setIsVisible(false);
         }
     }, [request]);
 
@@ -56,7 +54,11 @@ const FriendRequestNotification = ({ request, onClose, checkForRequests }) => {
     const handleClose = useCallback(() => {
         axios.post('http://localhost:8081/check-friend-request/update-request-status', { requestId: request.FriendID })
             .then(response => {
-                onClose();
+                setIsVisible(false);
+                setTimeout(() => {
+                    onClose();
+                }, 300)
+               
             })
             .catch(error => {
                 console.error('Fehler beim Aktualisieren des Anfrage-Status:', error);
@@ -101,8 +103,6 @@ const FriendRequestNotification = ({ request, onClose, checkForRequests }) => {
                 console.error('Fehler beim Ablehnen der Freundschaftsanfrage:', error);
             });
     };
-
-    if (!isVisible) return null;
 
     return (
         <div className={`${styles.overlay} ${isVisible ? styles.visible : ''}`}>

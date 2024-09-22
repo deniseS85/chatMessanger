@@ -46,9 +46,6 @@ const Notification = ({ message, onClose }) => {
         };
     }, [handleClickOutside]);
 
-
-    if (!isVisible) return null;
-
     const iconClass = message.type === 'success' ? styles.success : styles.error;
 
     return (

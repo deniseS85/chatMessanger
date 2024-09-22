@@ -12,7 +12,7 @@ import MyProfile from '../MyProfile/myProfile';
 import NotificationsContainer from '../NotificationsContainer/notificationsContainer';
 import FriendRequestNotification from '../FriendRequestNotification/friendRequestNotification';
 
-function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests}) {
+function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -186,7 +186,7 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                 <FriendRequestNotification
                     request={selectedRequest}
                     onClose={handleCloseNotification}
-                    checkForRequests={checkForRequests} 
+                    checkForRequests={checkForRequests}
                 />
             )}
         </header>

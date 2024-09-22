@@ -14,7 +14,6 @@ const NotificationsContainer = ({ isOpen, notificationRef, pendingRequests, onNo
 
                 {pendingRequests.length > 0 ? (
                     pendingRequests.map(request => (
-
                         <div 
                             key={request.FriendID} 
                             className={styles.notificationItem}

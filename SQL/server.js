@@ -2,12 +2,20 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const app = express();
+const http = require('http');
+const { Server } = require('socket.io');
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-require('./routes/cleanup');
 
 const loginRoute = require('./routes/login');
 const signupRoute = require('./routes/signup');
@@ -18,6 +26,7 @@ const userRoute = require('./routes/users');
 const editUser = require('./routes/editUser');
 const addContact = require('./routes/addContact');
 const checkFriendRequest = require('./routes/checkFriendRequest');
+const deleteOldRejectedRequests = require('./routes/cleanup');
 
 app.use('/login', loginRoute);
 app.use('/signup', signupRoute);
@@ -29,7 +38,32 @@ app.use('/edit-user', editUser);
 app.use('/add-contact', addContact);
 app.use('/check-friend-request', checkFriendRequest);
 
+deleteOldRejectedRequests();
+
+const userSocketMap = {};
+
+io.on('connection', (socket) => {
+    socket.on('registerUser', (userId) => {
+        userSocketMap[userId] = socket.id;
+    });
+
+    socket.on('sendFriendRequest', (data) => {
+        const { recipientId } = data;
+        const recipientSocketId = userSocketMap[recipientId];
+        
+        if (recipientSocketId) {
+            io.to(recipientSocketId).emit('friendRequestReceived', data);
+        } else {
+            console.log(`Keine Verbindung für den Benutzer ${recipientId}`);
+        }
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Benutzer hat die Verbindung getrennt:', socket.id);
+    });
+});
+
 const PORT = process.env.PORT || 8081;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+server.listen(PORT, () => {
+    console.log(`Server läuft auf Port ${PORT}`);
 });

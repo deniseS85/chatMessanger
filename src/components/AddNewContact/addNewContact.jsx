@@ -29,10 +29,10 @@ function AddNewContact({ onAddContact, onClose, showAddContactForm }) {
                 phoneNumber 
             });
 
-            const { message, type } = response.data;
+            const { message, type, recipientId } = response.data;
 
             if (type === 'success') {
-                onAddContact(message, true, name);
+                onAddContact(message, true, name, recipientId);
                 setName('');
                 setPhoneNumber('');
                 handleClose();

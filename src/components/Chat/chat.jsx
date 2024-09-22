@@ -11,6 +11,9 @@ import styles from './chat.module.scss';
 import Cookies from "js-cookie";
 import axios from 'axios';
 import FriendRequestNotification from '../FriendRequestNotification/friendRequestNotification';
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:8081');
 /* import newMessageSound from '../../assets/audio/new-message.mp3'; */
 
 const Chat = ({ onLogout }) => {
@@ -28,6 +31,7 @@ const Chat = ({ onLogout }) => {
     const [sentRequests, setSentRequests] = useState([]);
     const [pendingRequests, setPendingRequests] = useState([]);
     /* const [isUserInteracted, setIsUserInteracted] = useState(false); */
+    
 
    /*  useEffect(() => {
         const handleUserInteraction = () => {
@@ -108,13 +112,15 @@ const Chat = ({ onLogout }) => {
         }
     };
 
-    const handleAddNewContact = (message, isSuccess, contactName) => {
+    const handleAddNewContact = (message, isSuccess, contactName, recipientId) => {
         if (isSuccess) {
             setNotification({
                 message: `Request to <span style="color:#2BB8EE; font-weight:bold">${contactName}</span> successfully sent.`,
                 type: 'success',
                 isHtml: true 
             });
+
+            socket.emit('sendFriendRequest', { recipientId });
         } else {
             setNotification({
                 message: message,
@@ -149,10 +155,20 @@ const Chat = ({ onLogout }) => {
     };
 
     useEffect(() => {
-        checkForRequests();
-        const interval = setInterval(checkForRequests, 60000);
-        return () => clearInterval(interval);
+        const userId = Cookies.get('userId');
+        socket.emit('registerUser', userId);
+    
+        socket.on('friendRequestReceived', (data) => {
+            if (data && data.recipientId) {
+                checkForRequests();
+            }
+        });
+    
+        return () => {
+            socket.off('friendRequestReceived');
+        };
     }, []);
+
 
     const handleCloseNotification = () => {
         setNotification('');
@@ -220,6 +236,7 @@ const Chat = ({ onLogout }) => {
                     }} 
                 />
             ))}
+            
         </div>
     );
 };

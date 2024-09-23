@@ -15,7 +15,7 @@ function UserList({ onUserClick, isHovered, showOnlyProfilePics, addNewContact }
         { id: 2, name: 'Bob', status: 'offline', profilePic: dogPic },
         { id: 3, name: 'Charlie', status: 'online', profilePic: dogPic },
         { id: 4, name: 'David', status: 'offline', profilePic: dogPic },
-        { id: 5, name: 'Eve', status: 'online', profilePic: catPic }
+        { id: 5, name: 'Eve', status: 'online', profilePic: defaultProfilePic }
     ];
 
     const handleSearchChange = (event) => {

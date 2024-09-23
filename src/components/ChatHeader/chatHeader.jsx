@@ -11,6 +11,7 @@ import DropdownMenu from '../DropdownMenu/dropdownMenu';
 import MyProfile from '../MyProfile/myProfile';
 import NotificationsContainer from '../NotificationsContainer/notificationsContainer';
 import FriendRequestNotification from '../FriendRequestNotification/friendRequestNotification';
+import Avatar from 'react-nice-avatar';
 
 function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -22,6 +23,23 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
     const notificationRef = useRef(null);
     const notificationIconRef = useRef(null);
     const [selectedRequest, setSelectedRequest] = useState(null);
+    const [userData, setUserData] = useState(null);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const userId = Cookies.get('userId');
+            try {
+                const response = await axios.get(`http://localhost:8081/users/${userId}`);
+                setUserData(response.data);
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+    
+        fetchUserData();
+    }, []);
+
+    console.log(userData)
 
     useEffect(() => {
         if (isUserListOpen) {
@@ -117,6 +135,31 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
         setSelectedRequest(null);
     };
 
+    const getProfileImage = () => {
+        if (selectedUser && selectedUser.profilePic) {
+            return (
+                <img src={selectedUser.profilePic} alt={`${selectedUser.name}'s profile picture`} className={styles.profilePic} />
+            );
+        }
+    
+        const avatarConfig = selectedUser ? userData?.avatar_config : userData?.avatar_config;
+        const profileImg = userData?.profile_img;
+    
+        if (avatarConfig) {
+            return (
+                <Avatar {...JSON.parse(avatarConfig)} className={styles.profilePic} />
+            );
+        } else if (profileImg) {
+            return (
+                <img src={`http://localhost:8081/uploads/${profileImg}`} alt="Profile" className={styles.profilePic} />
+            );
+        }
+    
+        return (
+            <img src={defaultProfilePic} alt="Default Profile" className={styles.profilePic} />
+        );
+    };
+
     return (
         <header className={styles.header}>
             <div className={styles.profileContainer}>
@@ -126,14 +169,22 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                     className={styles.backIcon}
                     onClick={onBackClick}
                 />
-                <img 
-                    src={selectedUser ? (selectedUser.profilePic || defaultProfilePic) : ''}
-                    alt={selectedUser ? `${selectedUser.name}'s profile picture` : ''}
-                    className={selectedUser ? styles.profilePic : ''}
-                />
+                <div>
+                    {getProfileImage() || (
+                        <img src={defaultProfilePic} alt="Default Profile" className={styles.profilePic} />
+                    )}
+                </div>
                 <div className={styles.profileInfo}>
-                    <div>{selectedUser ? selectedUser.name : ''}</div>
-                    <div>{selectedUser ? selectedUser.status : ''}</div>
+                    <div>
+                        {selectedUser ? (
+                            selectedUser.name
+                        ) : (
+                            <>
+                                Hi <span style={{ color: '#2BB8EE', fontWeight: 'bold' }}>{userData?.username}</span> 😊 !
+                            </>
+                        )}
+                    </div>
+                    <div>{selectedUser ? selectedUser.status : 'Please choose a friend you would like to write to.'}</div>
                 </div>
             </div>
             <div className={styles.menuContainer}>
@@ -174,6 +225,7 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                 <MyProfile 
                     onClose={closeProfile} 
                     isProfileOpen={isProfileOpen}
+                    userData={userData} 
                 />
             )}
             <NotificationsContainer

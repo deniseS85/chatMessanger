@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ChatHeader from '../ChatHeader/chatHeader';
 import ChatContainer from '../ChatContainer/chatContainer';
 import UserList from '../UserList/userList';
@@ -11,10 +11,10 @@ import styles from './chat.module.scss';
 import Cookies from "js-cookie";
 import axios from 'axios';
 import FriendRequestNotification from '../FriendRequestNotification/friendRequestNotification';
+import newMessageSound from '../../assets/audio/new-message.mp3';
 import { io } from 'socket.io-client';
-
 const socket = io('http://localhost:8081');
-/* import newMessageSound from '../../assets/audio/new-message.mp3'; */
+
 
 const Chat = ({ onLogout }) => {
     const [selectedUser, setSelectedUser] = useState(null);
@@ -30,30 +30,7 @@ const Chat = ({ onLogout }) => {
     const [hasSentRequest, setHasSentRequest] = useState(false);
     const [sentRequests, setSentRequests] = useState([]);
     const [pendingRequests, setPendingRequests] = useState([]);
-    /* const [isUserInteracted, setIsUserInteracted] = useState(false); */
-    
-
-   /*  useEffect(() => {
-        const handleUserInteraction = () => {
-            console.log("User interaction detected!");
-            setIsUserInteracted(true);
-            document.removeEventListener('click', handleUserInteraction);
-        };
-        document.addEventListener('click', handleUserInteraction);
-    
-        return () => {
-            document.removeEventListener('click', handleUserInteraction);
-        };
-    }, []);
-    
-    useEffect(() => {
-        if (hasSentRequest && isUserInteracted) {
-            const audio = new Audio(newMessageSound);
-            audio.play().catch(error => {
-                console.error('Error playing the notification sound:', error);
-            });
-        }
-    }, [hasSentRequest, isUserInteracted]); */
+    const soundButton = useRef(null);
 
     const toggleEmojiPicker = () => {
         setEmojiPickerVisible(prev => !prev);
@@ -167,18 +144,41 @@ const Chat = ({ onLogout }) => {
                 checkForRequests();
             }
         };
-    
+
+        const handleFriendRequestResponse = (data) => {
+            const { status, userInfo } = data;
+            console.log(data)
+            if (status === 'accepted') {
+                setNotification({
+                    message: `<span style="color:#2BB8EE; font-weight:bold">${userInfo.username}</span> has accepted your friend request!`,
+                    type: 'success',
+                    isHtml: true,
+                });
+            } else if (status === 'rejected') {
+                setNotification({
+                    message: `<span style="color:#2BB8EE; font-weight:bold">${userInfo.username}</span> has rejected your friend request.`,
+                    type: 'error',
+                    isHtml: true,
+                });
+            }
+        };
+
         socket.on('friendRequestReceived', handleFriendRequestReceived);
+        socket.on('friendRequestResponse', handleFriendRequestResponse);
     
         return () => {
             socket.off('friendRequestReceived', handleFriendRequestReceived);
+            socket.off('friendRequestResponse', handleFriendRequestResponse);
         };
     }, []);
     
-
-
     const handleCloseNotification = () => {
         setNotification('');
+    };
+
+    const playSound = () => {
+        const audio = new Audio(newMessageSound);
+        audio.play();
     };
 
     return (
@@ -243,7 +243,7 @@ const Chat = ({ onLogout }) => {
                     }}
                 />
             ))}
-            
+            <button ref={soundButton} /* style={{ display: 'none' }} */ onClick={playSound}></button>
         </div>
     );
 };

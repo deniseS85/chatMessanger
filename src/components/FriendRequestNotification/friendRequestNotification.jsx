@@ -4,7 +4,8 @@ import styles from './friendRequestNotification.module.scss';
 import Avatar from 'react-nice-avatar';
 import defaultImage from '../../assets/img/default-profile-img.png';
 import closeIcon from '../../assets/img/close-icon.png';
-
+import { io } from 'socket.io-client';
+const socket = io('http://localhost:8081')
 
 const FriendRequestNotification = ({ request, onClose, checkForRequests }) => {
     const [isVisible, setIsVisible] = useState(false);
@@ -84,6 +85,8 @@ const FriendRequestNotification = ({ request, onClose, checkForRequests }) => {
                 if (typeof checkForRequests === 'function') {
                     checkForRequests();
                 }
+
+                socket.emit('respondToFriendRequest', { senderId: request.UserId1, status: 'accepted', userInfo });
                 onClose();
             })
             .catch(error => {
@@ -97,6 +100,8 @@ const FriendRequestNotification = ({ request, onClose, checkForRequests }) => {
                 if (typeof checkForRequests === 'function') {
                     checkForRequests();
                 }
+
+                socket.emit('respondToFriendRequest', { senderId: request.UserId1, status: 'rejected', userInfo });
                 onClose();
             })
             .catch(error => {

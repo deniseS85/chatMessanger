@@ -7,11 +7,7 @@ const Notification = ({ message, onClose }) => {
     const notificationRef = useRef(null);
 
     useEffect(() => {
-        if (message) {
-            setIsVisible(true);
-        } else {
-            setIsVisible(false);
-        }
+        setIsVisible(!!message);
     }, [message]);
 
     useLayoutEffect(() => {

@@ -47,6 +47,7 @@ io.on('connection', (socket) => {
         userSocketMap[userId] = socket.id;
     });
 
+     // Freundschaftsanfrage senden
     socket.on('sendFriendRequest', (data) => {
         const { recipientId } = data;
         const recipientSocketId = userSocketMap[recipientId];
@@ -55,6 +56,18 @@ io.on('connection', (socket) => {
             io.to(recipientSocketId).emit('friendRequestReceived', data);
         } else {
             console.log(`Keine Verbindung für den Benutzer ${recipientId}`);
+        }
+    });
+
+     // Freundschaftsanfrage angenommen oder abgelehnt
+     socket.on('respondToFriendRequest', (data) => {
+        const { senderId, status, userInfo } = data;
+        const senderSocketId = userSocketMap[senderId];
+
+        if (senderSocketId) {
+            io.to(senderSocketId).emit('friendRequestResponse', { status, userInfo });
+        } else {
+            console.log(`Keine Verbindung für den Absender ${senderId}`);
         }
     });
 

@@ -2,21 +2,31 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styles from './userList.module.scss';
 import logoIcon from '../../assets/img/logo.png';
 import defaultProfilePic from '../../assets/img/default-profile-img.png';
-import catPic from '../../assets/img/cat.jpg'; 
-import dogPic from '../../assets/img/dog.png';
 import addIcon from '../../assets/img/add-icon.png';
+import axios from 'axios';
+import Cookies from "js-cookie";
+import Avatar from 'react-nice-avatar';
 
 function UserList({ onUserClick, isHovered, showOnlyProfilePics, addNewContact }) {
     const [searchUser, setsearchUser] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
+    const [users, setUsers] = useState([]);
 
-    const users = [
-        { id: 1, name: 'Alice', status: 'online', profilePic: catPic },
-        { id: 2, name: 'Bob', status: 'offline', profilePic: dogPic },
-        { id: 3, name: 'Charlie', status: 'online', profilePic: dogPic },
-        { id: 4, name: 'David', status: 'offline', profilePic: dogPic },
-        { id: 5, name: 'Eve', status: 'online', profilePic: defaultProfilePic }
-    ];
+    useEffect(() => {
+        const fetchFriends = async () => {
+            const userId = Cookies.get('userId');
+            try {
+                const response = await axios.get(`http://localhost:8081/friends/${userId}`);
+                setUsers(response.data);
+                console.log(response.data) // Benutzerinformationen direkt setzen
+            } catch (error) {
+                console.error('Fehler beim Abrufen der Freunde:', error);
+            }
+        };
+    
+        fetchFriends();
+    }, []);
+
 
     const handleSearchChange = (event) => {
         setsearchUser(event.target.value);
@@ -47,7 +57,7 @@ function UserList({ onUserClick, isHovered, showOnlyProfilePics, addNewContact }
     }, [selectedUser, showOnlyProfilePics]);
 
     const filteredUsers = users.filter(user => 
-        user.name.toLowerCase().startsWith(searchUser.toLowerCase())
+        user.username.toLowerCase().startsWith(searchUser.toLowerCase())
     );
 
     return (
@@ -65,7 +75,7 @@ function UserList({ onUserClick, isHovered, showOnlyProfilePics, addNewContact }
                     onChange={handleSearchChange} 
                 />
             </div>
-            <ul className={styles.list} >
+            <ul className={styles.list}>
                 {filteredUsers.map(user => (
                     <li 
                         key={user.id}
@@ -74,9 +84,17 @@ function UserList({ onUserClick, isHovered, showOnlyProfilePics, addNewContact }
                         onClick={() => handleUserClick(user)}
                     >
                         <div className={styles.profilePicContainer}>
-                            <img src={user.profilePic || defaultProfilePic} className={styles.profilePic} alt="Profile" />
+                            {user?.profilePic ? (
+                                <img src={`http://localhost:8081/uploads/${user.profilePic}`} className={styles.profilePic} alt="Profile" />
+                            ) : user?.avatar_config ? (
+                                <div className={styles.profilePic}>
+                                    <Avatar {...JSON.parse(user.avatar_config)} className={styles.profilePic}/>
+                                </div>
+                            ) : (
+                                <img src={defaultProfilePic} className={styles.profilePic} alt="Default Profile" />
+                            )}
                         </div>
-                        {!showOnlyProfilePics && user.name}
+                        {!showOnlyProfilePics && user.username}
                     </li>
                 ))}
             </ul>

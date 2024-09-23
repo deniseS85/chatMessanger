@@ -27,6 +27,7 @@ const editUser = require('./routes/editUser');
 const addContact = require('./routes/addContact');
 const checkFriendRequest = require('./routes/checkFriendRequest');
 const deleteOldRejectedRequests = require('./routes/cleanup');
+const friendRoute = require('./routes/friends');
 
 app.use('/login', loginRoute);
 app.use('/signup', signupRoute);
@@ -37,6 +38,7 @@ app.use('/users', userRoute);
 app.use('/edit-user', editUser);
 app.use('/add-contact', addContact);
 app.use('/check-friend-request', checkFriendRequest);
+app.use('/friends', friendRoute);
 
 deleteOldRejectedRequests();
 

@@ -39,8 +39,6 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
         fetchUserData();
     }, []);
 
-    console.log(userData)
-
     useEffect(() => {
         if (isUserListOpen) {
             setIsMenuOpen(false);
@@ -138,11 +136,15 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
     const getProfileImage = () => {
         if (selectedUser && selectedUser.profilePic) {
             return (
-                <img src={selectedUser.profilePic} alt={`${selectedUser.name}'s profile picture`} className={styles.profilePic} />
-            );
+                <img
+                    src={`http://localhost:8081/uploads/${selectedUser.profilePic}`}
+                    alt={`${selectedUser.username}'s profile picture`}
+                    className={styles.profilePic}
+                />           
+                );
         }
     
-        const avatarConfig = selectedUser ? userData?.avatar_config : userData?.avatar_config;
+        const avatarConfig = selectedUser ? selectedUser?.avatar_config : userData?.avatar_config;
         const profileImg = userData?.profile_img;
     
         if (avatarConfig) {
@@ -177,14 +179,14 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                 <div className={styles.profileInfo}>
                     <div>
                         {selectedUser ? (
-                            selectedUser.name
+                            selectedUser.username
                         ) : (
                             <>
                                 Hi <span style={{ color: '#2BB8EE', fontWeight: 'bold' }}>{userData?.username}</span> 😊 !
                             </>
                         )}
                     </div>
-                    <div>{selectedUser ? selectedUser.status : 'Please choose a friend you would like to write to.'}</div>
+                    <div>{selectedUser ? selectedUser.online_status : 'Choose a friend to begin your conversation'}</div>
                 </div>
             </div>
             <div className={styles.menuContainer}>

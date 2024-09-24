@@ -28,7 +28,7 @@ function AddNewContact({ onAddContact, onClose, showAddContactForm }) {
                 name, 
                 phoneNumber 
             });
-
+            
             const { message, type, recipientId } = response.data;
 
             if (type === 'success') {

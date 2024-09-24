@@ -31,6 +31,22 @@ const Chat = ({ onLogout }) => {
     const [sentRequests, setSentRequests] = useState([]);
     const [pendingRequests, setPendingRequests] = useState([]);
     const soundButton = useRef(null);
+    const [users, setUsers] = useState([]);
+
+    const fetchFriends = async () => {
+        const userId = Cookies.get('userId');
+        try {
+            const response = await axios.get(`http://localhost:8081/friends/${userId}`);
+            console.log('Neue Benutzerliste:', response.data);
+            setUsers(response.data);
+        } catch (error) {
+            console.error('Fehler beim Abrufen der Freunde:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchFriends(); 
+    }, []);
 
     const toggleEmojiPicker = () => {
         setEmojiPickerVisible(prev => !prev);
@@ -145,21 +161,28 @@ const Chat = ({ onLogout }) => {
             }
         };
 
-        const handleFriendRequestResponse = (data) => {
-            const { status, userInfo } = data;
-            console.log(data)
-            if (status === 'accepted') {
-                setNotification({
-                    message: `<span style="color:#2BB8EE; font-weight:bold">${userInfo.username}</span> has accepted your friend request!`,
-                    type: 'success',
-                    isHtml: true,
-                });
-            } else if (status === 'rejected') {
-                setNotification({
-                    message: `<span style="color:#2BB8EE; font-weight:bold">${userInfo.username}</span> has rejected your friend request.`,
-                    type: 'error',
-                    isHtml: true,
-                });
+        const handleFriendRequestResponse = async (data) => {
+            try {
+                const response = await axios.get(`http://localhost:8081/users/${data.senderId}`);
+                const senderName = response.data.username;
+                const { status } = data;
+        
+                if (status === 'accepted') {
+                    setNotification({
+                        message: `<span style="color:#2BB8EE; font-weight:bold">${senderName}</span> has accepted your friend request!`,
+                        type: 'success',
+                        isHtml: true,
+                    });
+                    fetchFriends();
+                } else if (status === 'rejected') {
+                    setNotification({
+                        message: `<span style="color:#2BB8EE; font-weight:bold">${senderName}</span> has rejected your friend request.`,
+                        type: 'error',
+                        isHtml: true,
+                    });
+                }
+            } catch (error) {
+                console.error('Fehler beim Abrufen des Benutzernamens:', error);
             }
         };
 
@@ -185,6 +208,7 @@ const Chat = ({ onLogout }) => {
         <div className={`${styles.app} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>
             <div className={`${styles.sidebar} ${showOnlyProfilePics ? styles.showOnlyProfilePics : ''} ${isUserListOpen ? styles.expanded : ''}`}>
                 <UserList 
+                    users={users}
                     isHovered={isHovered} 
                     onUserClick={handleUserSelect}
                     showOnlyProfilePics={showOnlyProfilePics}
@@ -241,6 +265,7 @@ const Chat = ({ onLogout }) => {
                         setHasSentRequest(false);
                         checkForRequests();
                     }}
+                    fetchFriends={fetchFriends}
                 />
             ))}
             <button ref={soundButton} /* style={{ display: 'none' }} */ onClick={playSound}></button>

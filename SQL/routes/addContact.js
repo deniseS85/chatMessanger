@@ -42,7 +42,7 @@ router.post('/', (req, res) => {
                     if (err) {
                         return res.json({ message: 'Error sending the contact request', type: 'error' });
                     }
-                    return res.json({ message: 'Contact request sent successfully', type: 'success', recipientId: contactId });
+                    return res.json({ message: 'Contact request sent successfully', type: 'success', recipientId: contactId, senderId: userId });
                 });
             });
         } else {

@@ -3,30 +3,11 @@ import styles from './userList.module.scss';
 import logoIcon from '../../assets/img/logo.png';
 import defaultProfilePic from '../../assets/img/default-profile-img.png';
 import addIcon from '../../assets/img/add-icon.png';
-import axios from 'axios';
-import Cookies from "js-cookie";
 import Avatar from 'react-nice-avatar';
 
-function UserList({ onUserClick, isHovered, showOnlyProfilePics, addNewContact }) {
+function UserList({ users, onUserClick, isHovered, showOnlyProfilePics, addNewContact }) {
     const [searchUser, setsearchUser] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
-    const [users, setUsers] = useState([]);
-
-    useEffect(() => {
-        const fetchFriends = async () => {
-            const userId = Cookies.get('userId');
-            try {
-                const response = await axios.get(`http://localhost:8081/friends/${userId}`);
-                setUsers(response.data);
-                console.log(response.data) // Benutzerinformationen direkt setzen
-            } catch (error) {
-                console.error('Fehler beim Abrufen der Freunde:', error);
-            }
-        };
-    
-        fetchFriends();
-    }, []);
-
 
     const handleSearchChange = (event) => {
         setsearchUser(event.target.value);

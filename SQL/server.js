@@ -63,13 +63,13 @@ io.on('connection', (socket) => {
 
      // Freundschaftsanfrage angenommen oder abgelehnt
      socket.on('respondToFriendRequest', (data) => {
-        const { senderId, status, userInfo } = data;
-        const senderSocketId = userSocketMap[senderId];
+        const { responderId, senderId, status } = data;
+        const senderSocketId = userSocketMap[responderId];
 
         if (senderSocketId) {
-            io.to(senderSocketId).emit('friendRequestResponse', { status, userInfo });
+            io.to(senderSocketId).emit('friendRequestResponse', { responderId, senderId,  status });
         } else {
-            console.log(`Keine Verbindung für den Absender ${senderId}`);
+            console.log(`Keine Verbindung für den Absender ${responderId}`);
         }
     });
 

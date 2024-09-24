@@ -7,7 +7,7 @@ import closeIcon from '../../assets/img/close-icon.png';
 import { io } from 'socket.io-client';
 const socket = io('http://localhost:8081')
 
-const FriendRequestNotification = ({ request, onClose, checkForRequests }) => {
+const FriendRequestNotification = ({ request, onClose, checkForRequests, fetchFriends }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [userInfo, setUserInfo] = useState({ username: '', profile_img: '', avatar_config: '' });
     const infoImgRef = useRef(null);
@@ -85,8 +85,8 @@ const FriendRequestNotification = ({ request, onClose, checkForRequests }) => {
                 if (typeof checkForRequests === 'function') {
                     checkForRequests();
                 }
-
-                socket.emit('respondToFriendRequest', { senderId: request.UserId1, status: 'accepted', userInfo });
+                fetchFriends();
+                socket.emit('respondToFriendRequest', { responderId: request.UserId1, senderId: request.UserId2, status: 'accepted' });
                 onClose();
             })
             .catch(error => {
@@ -101,7 +101,7 @@ const FriendRequestNotification = ({ request, onClose, checkForRequests }) => {
                     checkForRequests();
                 }
 
-                socket.emit('respondToFriendRequest', { senderId: request.UserId1, status: 'rejected', userInfo });
+                socket.emit('respondToFriendRequest', { responderId: request.UserId1, senderId: request.UserId2, status: 'rejected' });
                 onClose();
             })
             .catch(error => {

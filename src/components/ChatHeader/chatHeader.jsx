@@ -13,7 +13,7 @@ import NotificationsContainer from '../NotificationsContainer/notificationsConta
 import FriendRequestNotification from '../FriendRequestNotification/friendRequestNotification';
 import Avatar from 'react-nice-avatar';
 
-function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests }) {
+function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -118,6 +118,40 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
         // Chat löschen Logik hier
     };
 
+    const handleRemoveContact = () => {
+        if (selectedUser) {
+            setIsMenuOpen(false);
+            const friendId = selectedUser.id;
+            const userId = Cookies.get('userId');
+            
+            setNotification({
+                message: `Do you really want to delete your contact with<br> <span style="color:#2BB8EE; font-weight:bold">${selectedUser.username}</span>?`,
+                type: 'error',
+                isHtml: true,
+                onConfirm: () => {
+                    axios.post('http://localhost:8081/removeFriend', { userId, friendId })
+                        .then(response => {
+                            if (response.data.type === 'success') {
+                                setNotification({
+                                    message: `<span style="color:#2BB8EE; font-weight:bold">${selectedUser.username}</span> successfully removed.`,
+                                    type: 'success',
+                                    isHtml: true,
+                                    onClose: () => {
+                                        setNotification(null);
+                                    }
+                                });
+                                setSelectedUser(null);
+                                fetchFriends();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error removing friend:', error);
+                        });
+                }
+            });
+        }
+    };
+
     const handleSearchMessages = () => {
         setIsMenuOpen(false);
         console.log('Nachricht suchen');
@@ -220,8 +254,9 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                 onLogout={handleLogout}
                 onSelectMessages={handleSelectMessages}
                 onDeleteChat={handleDeleteChat}
+                onRemoveContact={handleRemoveContact}
                 onSearchMessages={handleSearchMessages}
-                menuRef={menuRef} 
+                menuRef={menuRef}
             />
             {isProfileOpen && (
                 <MyProfile 
@@ -241,6 +276,7 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                     request={selectedRequest}
                     onClose={handleCloseNotification}
                     checkForRequests={checkForRequests}
+                    fetchFriends={fetchFriends}
                 />
             )}
         </header>

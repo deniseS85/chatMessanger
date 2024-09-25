@@ -5,8 +5,9 @@ import messageIcon from '../../assets/img/select-message-icon.png';
 import searchIcon from '../../assets/img/search-message-icon.png';
 import deleteIcon from '../../assets/img/delete-chat-icon.png';
 import logoutIcon from '../../assets/img/logout-icon.png';
+import removeContactIcon from '../../assets/img/delete-user.png';
 
-const DropdownMenu = ({ isOpen, onMyProfile, onLogout, onSelectMessages, onDeleteChat, onSearchMessages, menuRef }) => {
+const DropdownMenu = ({ isOpen, onMyProfile, onLogout, onSelectMessages, onDeleteChat, onRemoveContact, onSearchMessages, menuRef }) => {
     const [maxHeight, setMaxHeight] = useState('0px');
 
     useEffect(() => {
@@ -37,6 +38,10 @@ const DropdownMenu = ({ isOpen, onMyProfile, onLogout, onSelectMessages, onDelet
                 <li onClick={onDeleteChat}>
                     <img src={deleteIcon} alt="Delete Chat" className={styles.icon} />
                     Delete Chat
+                </li>
+                <li onClick={onRemoveContact}>
+                    <img src={removeContactIcon} alt="Remove Contact" className={styles.icon} />
+                    Remove Contact
                 </li>
                 <li onClick={onLogout}>
                     <img src={logoutIcon} alt="Logout" className={styles.icon} />

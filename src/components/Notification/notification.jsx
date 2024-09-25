@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState, useEffect, useCallback } from 'react';
 import styles from './notification.module.scss';
 
-const Notification = ({ message, onClose }) => {
+const Notification = ({ message, onClose, onConfirm }) => {
     const [isVisible, setIsVisible] = useState(false);
     const infoImgRef = useRef(null);
     const notificationRef = useRef(null);
@@ -53,7 +53,16 @@ const Notification = ({ message, onClose }) => {
                 ) : (
                     <div className={styles.header}>{message.message}</div>
                 )}
-                <button onClick={onClose}>Close</button>
+                <div className={styles.actions}>
+                    {onConfirm ? (
+                        <>
+                            <button onClick={onConfirm} className={styles.confirmButton}>Accept</button>
+                            <button onClick={onClose} className={styles.cancelButton}>Cancel</button>
+                        </>
+                    ) : (
+                        <button onClick={onClose} className={styles.closeButton}>Close</button>
+                    )}
+                </div>
             </div>
         </div> 
     );

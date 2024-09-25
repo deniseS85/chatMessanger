@@ -66,18 +66,52 @@
                 font-size: 18px;
             }
         }
-        button {
-            padding: 10px;
-            background-color: $purple;
-            color: $fontColor;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
+        .actions {
             width: 100%;
-            margin-right: auto; 
-            font-size: clamp(1rem, 0.9643rem + 0.1786vw, 1.25rem);
-            font-weight: bold;
-        }  
+            display: flex;
+            justify-content: space-between;
+            .confirmButton, .cancelButton {
+                flex: 1;
+                margin: 0 5px;
+                padding: 10px;
+                color: $fontColor;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                font-size: clamp(1rem, 0.9643rem + 0.1786vw, 1.25rem);
+                font-weight: bold;
+                transition: background 0.3s, box-shadow 0.3s;
+                &:first-child {
+                    margin-left: 0;
+                    background-color: #00BB89;
+                    &:hover {
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                        background-color: #02a579;
+                    }
+                }
+                &:last-child {
+                    margin-right: 0;
+                    background-color: #FD206A;
+                    &:hover {
+                        background-color: #d71b5a;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                    }
+                }
+            }
+            .closeButton {
+                padding: 10px;
+                background-color: $purple;
+                color: $fontColor;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                width: 100%;
+                margin-right: auto; 
+                font-size: clamp(1rem, 0.9643rem + 0.1786vw, 1.25rem);
+                font-weight: bold;
+            }  
+        }
+        
     }
 }
 

@@ -60,7 +60,7 @@ function UserList({ users, onUserClick, isHovered, showOnlyProfilePics, addNewCo
                 {filteredUsers.map(user => (
                     <li 
                         key={user.id}
-                        className={`${styles.item} ${selectedUser === user ? styles.selected : ''}`} 
+                        className={styles.item} 
                         data-userid={user.id}
                         onClick={() => handleUserClick(user)}
                     >

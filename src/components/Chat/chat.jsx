@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ChatHeader from '../ChatHeader/chatHeader';
 import ChatContainer from '../ChatContainer/chatContainer';
 import UserList from '../UserList/userList';
@@ -30,14 +30,12 @@ const Chat = ({ onLogout }) => {
     const [hasSentRequest, setHasSentRequest] = useState(false);
     const [sentRequests, setSentRequests] = useState([]);
     const [pendingRequests, setPendingRequests] = useState([]);
-    const soundButton = useRef(null);
     const [users, setUsers] = useState([]);
-
+    
     const fetchFriends = async () => {
         const userId = Cookies.get('userId');
         try {
             const response = await axios.get(`http://localhost:8081/friends/${userId}`);
-            console.log('Neue Benutzerliste:', response.data);
             setUsers(response.data);
         } catch (error) {
             console.error('Fehler beim Abrufen der Freunde:', error);
@@ -154,13 +152,19 @@ const Chat = ({ onLogout }) => {
             checkForRequests(); 
             socket.emit('registerUser', userId);
         }
-        
+
+        // Listener für eingehende Freundschaftsanfragen
         const handleFriendRequestReceived = (data) => {
             if (data && data.recipientId) {
                 checkForRequests();
+                const audio = new Audio(newMessageSound);
+                audio.play().catch(error => {
+                    console.error("Audio konnte nicht abgespielt werden:", error);
+                });
             }
         };
 
+        // Listener für die Antwort auf Freundschaftsanfragen
         const handleFriendRequestResponse = async (data) => {
             try {
                 const response = await axios.get(`http://localhost:8081/users/${data.senderId}`);
@@ -199,11 +203,6 @@ const Chat = ({ onLogout }) => {
         setNotification('');
     };
 
-    const playSound = () => {
-        const audio = new Audio(newMessageSound);
-        audio.play();
-    };
-
     return (
         <div className={`${styles.app} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>
             <div className={`${styles.sidebar} ${showOnlyProfilePics ? styles.showOnlyProfilePics : ''} ${isUserListOpen ? styles.expanded : ''}`}>
@@ -232,6 +231,9 @@ const Chat = ({ onLogout }) => {
                     pendingRequestCount={pendingRequests.length + sentRequests.length}
                     pendingRequests={pendingRequests}
                     checkForRequests={checkForRequests}
+                    fetchFriends={fetchFriends}
+                    setNotification={setNotification}
+                    setSelectedUser={setSelectedUser}
                 />
                 <div className={styles['chat-layout']}>
                     <div className={styles['chat-container']}>
@@ -256,6 +258,7 @@ const Chat = ({ onLogout }) => {
             <Notification 
                 message={notification}
                 onClose={handleCloseNotification}
+                onConfirm={notification?.onConfirm}
             />
             {hasSentRequest && sentRequests.map(request => (
                 <FriendRequestNotification 
@@ -268,7 +271,6 @@ const Chat = ({ onLogout }) => {
                     fetchFriends={fetchFriends}
                 />
             ))}
-            <button ref={soundButton} /* style={{ display: 'none' }} */ onClick={playSound}></button>
         </div>
     );
 };

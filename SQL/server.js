@@ -28,6 +28,7 @@ const addContact = require('./routes/addContact');
 const checkFriendRequest = require('./routes/checkFriendRequest');
 const deleteOldRejectedRequests = require('./routes/cleanup');
 const friendRoute = require('./routes/friends');
+const removeFriend = require('./routes/removeFriend');
 
 app.use('/login', loginRoute);
 app.use('/signup', signupRoute);
@@ -39,6 +40,7 @@ app.use('/edit-user', editUser);
 app.use('/add-contact', addContact);
 app.use('/check-friend-request', checkFriendRequest);
 app.use('/friends', friendRoute);
+app.use('/removeFriend', removeFriend);
 
 deleteOldRejectedRequests();
 
@@ -61,8 +63,8 @@ io.on('connection', (socket) => {
         }
     });
 
-     // Freundschaftsanfrage angenommen oder abgelehnt
-     socket.on('respondToFriendRequest', (data) => {
+    // Freundschaftsanfrage angenommen oder abgelehnt
+    socket.on('respondToFriendRequest', (data) => {
         const { responderId, senderId, status } = data;
         const senderSocketId = userSocketMap[responderId];
 

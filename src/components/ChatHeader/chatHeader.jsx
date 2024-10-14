@@ -152,6 +152,16 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                         });
                 }
             });
+        } else {
+            setIsMenuOpen(false);
+            setNotification({
+                message: 'Please select your friend first to remove them from your contacts.',
+                type: 'error',
+                isHtml: true,
+                onClose: () => {
+                    setNotification(null);
+                }
+            });
         }
     };
 

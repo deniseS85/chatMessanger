@@ -190,12 +190,20 @@ const Chat = ({ onLogout }) => {
             }
         };
 
+        // Listener für das Entfernen eines Freundes
+        const handleFriendRemoved = (data) => {
+            const { userId } = data;
+            fetchFriends();
+        };
+
         socket.on('friendRequestReceived', handleFriendRequestReceived);
         socket.on('friendRequestResponse', handleFriendRequestResponse);
+        socket.on('friendRemoved', handleFriendRemoved);
     
         return () => {
             socket.off('friendRequestReceived', handleFriendRequestReceived);
             socket.off('friendRequestResponse', handleFriendRequestResponse);
+            socket.off('friendRemoved', handleFriendRemoved);
         };
     }, []);
     

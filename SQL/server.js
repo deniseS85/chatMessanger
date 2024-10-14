@@ -75,6 +75,16 @@ io.on('connection', (socket) => {
         }
     });
 
+    // Freund entfernen
+    socket.on('removeFriend', (data) => {
+        const { userId, friendId } = data;
+        const friendSocketId = userSocketMap[friendId];
+
+        if (friendSocketId) {
+            io.to(friendSocketId).emit('friendRemoved', { userId });
+        }
+    });
+
     socket.on('disconnect', () => {
         console.log('Benutzer hat die Verbindung getrennt:', socket.id);
     });

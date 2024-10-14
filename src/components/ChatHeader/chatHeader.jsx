@@ -12,6 +12,8 @@ import MyProfile from '../MyProfile/myProfile';
 import NotificationsContainer from '../NotificationsContainer/notificationsContainer';
 import FriendRequestNotification from '../FriendRequestNotification/friendRequestNotification';
 import Avatar from 'react-nice-avatar';
+import { io } from 'socket.io-client';
+const socket = io('http://localhost:8081');
 
 function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -140,6 +142,7 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                                         setNotification(null);
                                     }
                                 });
+                                socket.emit('removeFriend', { userId, friendId });
                                 setSelectedUser(null);
                                 fetchFriends();
                             }

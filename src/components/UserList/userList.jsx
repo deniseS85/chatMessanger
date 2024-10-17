@@ -7,7 +7,7 @@ import Avatar from 'react-nice-avatar';
 
 function UserList({ users, onUserClick, selectedUser, isHovered, showOnlyProfilePics, addNewContact }) {
     const [searchUser, setsearchUser] = useState('');
-    
+
     const handleSearchChange = (event) => {
         setsearchUser(event.target.value);
     };
@@ -64,13 +64,37 @@ function UserList({ users, onUserClick, selectedUser, isHovered, showOnlyProfile
                     >
                         <div className={styles.profilePicContainer}>
                             {user?.profilePic ? (
-                                <img src={`http://localhost:8081/uploads/${user.profilePic}`} className={styles.profilePic} alt="Profile" />
+                                <>
+                                <img 
+                                    src={`http://localhost:8081/uploads/${user.profilePic}`} 
+                                    className={styles.profilePic} 
+                                    alt="Profile" 
+                                />
+                                {user.online_status === 'online' && (
+                                    <span className={styles.onlineIndicator}></span>
+                                )}
+                            </>
                             ) : user?.avatar_config ? (
-                                <div className={styles.profilePic}>
-                                    <Avatar {...JSON.parse(user.avatar_config)} className={styles.profilePic}/>
-                                </div>
+                                <>
+                                <Avatar 
+                                    {...JSON.parse(user.avatar_config)} 
+                                    className={styles.profilePic} 
+                                />
+                                {user.online_status === 'online' && (
+                                    <span className={styles.onlineIndicator}></span>
+                                )}
+                            </>
                             ) : (
-                                <img src={defaultProfilePic} className={styles.profilePic} alt="Default Profile" />
+                                <>
+                                <img 
+                                    src={defaultProfilePic} 
+                                    className={styles.profilePic} 
+                                    alt="Default Profile" 
+                                />
+                                {user.online_status === 'online' && (
+                                    <span className={styles.onlineIndicator}></span>
+                                )}
+                            </>
                             )}
                         </div>
                         {!showOnlyProfilePics && user.username}

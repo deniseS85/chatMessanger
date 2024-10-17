@@ -53,7 +53,12 @@ const userSocketMap = {};
 io.on('connection', (socket) => {
     socket.on('registerUser', (userId) => {
         userSocketMap[userId] = socket.id;
-        console.log(`Benutzer ${userId} registriert mit Socket-ID ${socket.id}`);
+        socket.broadcast.emit('userStatusChanged', { userId, status: 'online' });
+    });
+
+    // Listener für Statusänderungen (Login/Logout)
+    socket.on('userStatusChanged', (data) => {
+        socket.broadcast.emit('userStatusChanged', data);
     });
 
      // Freundschaftsanfrage senden
@@ -104,7 +109,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        console.log('Benutzer hat die Verbindung getrennt:', socket.id);
+        const userId = Object.keys(userSocketMap).find(key => userSocketMap[key] === socket.id);
+        if (userId) {
+            socket.broadcast.emit('userStatusChanged', { userId, status: 'offline' });
+            delete userSocketMap[userId];
+        }
     });
 });
 

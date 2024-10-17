@@ -196,14 +196,30 @@ const Chat = ({ onLogout }) => {
             fetchFriends();
         };
 
+        // Listener für Online-Offline Status
+        const handleStatusChanged = (data) => {
+            setUsers(prevUsers => {
+                const updatedUsers = prevUsers.map(user => {
+                    if (user.id === Number(data.userId)) {
+                        return { ...user, online_status: data.status };
+                    }
+                    return user;
+                });
+    
+                return updatedUsers;
+            });
+        };
+
         socket.on('friendRequestReceived', handleFriendRequestReceived);
         socket.on('friendRequestResponse', handleFriendRequestResponse);
         socket.on('friendRemoved', handleFriendRemoved);
+        socket.on('userStatusChanged', handleStatusChanged);
     
         return () => {
             socket.off('friendRequestReceived', handleFriendRequestReceived);
             socket.off('friendRequestResponse', handleFriendRequestResponse);
             socket.off('friendRemoved', handleFriendRemoved);
+            socket.off('userStatusChanged', handleStatusChanged);
         };
     }, []);
     
@@ -233,6 +249,7 @@ const Chat = ({ onLogout }) => {
             </div>
             <div className={styles['main-content']}>
                 <ChatHeader 
+                    users={users}
                     onLogout={onLogout}
                     isUserListOpen={isUserListOpen}
                     selectedUser={selectedUser} 

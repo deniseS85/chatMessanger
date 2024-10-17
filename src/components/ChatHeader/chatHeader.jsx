@@ -15,7 +15,7 @@ import Avatar from 'react-nice-avatar';
 import { io } from 'socket.io-client';
 const socket = io('http://localhost:8081');
 
-function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser }) {
+function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -40,6 +40,7 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
     
         fetchUserData();
     }, []);
+
 
     useEffect(() => {
         if (isUserListOpen) {
@@ -95,6 +96,10 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
     const handleLogout = async () => {
         setIsMenuOpen(false);
         const userId = Cookies.get('userId');
+
+        if (userId) {
+            socket.emit('userStatusChanged', { userId, status: 'offline' });
+        }
         
         try {
             await axios.post('http://localhost:8081/logout', { userId });
@@ -181,6 +186,9 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
     };
 
     const getProfileImage = () => {
+        const user = users.find(user => user.id === selectedUser?.id);
+        const onlineStatus = user ? user.online_status : selectedUser?.online_status;
+        
         if (selectedUser && selectedUser.profilePic) {
             return (
                 <div className={styles.profilePicWrapper}>
@@ -189,7 +197,7 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                         alt={`${selectedUser.username}'s profile picture`}
                         className={styles.profilePic}
                     />    
-                    {selectedUser.online_status === 'online' && (
+                    {onlineStatus === 'online' && (
                         <span className={styles.onlineIndicator}></span>
                 )}
                 </div> 
@@ -203,7 +211,7 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
             return (
                 <div className={styles.profilePicWrapper}>
                     <Avatar {...JSON.parse(avatarConfig)} className={styles.profilePic} />
-                    {selectedUser?.online_status === 'online' && (
+                    {onlineStatus === 'online' && (
                         <span className={styles.onlineIndicator}></span>
                     )}
                 </div>
@@ -212,9 +220,10 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
             return (
                 <div className={styles.profilePicWrapper}>
                     <img src={`http://localhost:8081/uploads/${profileImg}`} alt="Profile" className={styles.profilePic} />
-                    {selectedUser?.online_status === 'online' && (
+                    {onlineStatus === 'online' && (
                         <span className={styles.onlineIndicator}></span>
                     )}
+                   
                 </div>
             );
         }
@@ -222,7 +231,7 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
         return (
             <div className={styles.profilePicWrapper}>
                 <img src={defaultProfilePic} alt="Default Profile" className={styles.profilePic} />
-                {selectedUser?.online_status === 'online' && (
+                {onlineStatus === 'online' && (
                     <span className={styles.onlineIndicator}></span>
                 )}
             </div>
@@ -253,7 +262,7 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                             </>
                         )}
                     </div>
-                    <div>{selectedUser ? selectedUser.online_status : ''}</div>
+                    <div>{selectedUser ? users.find(user => user.id === selectedUser.id)?.online_status : ''}</div>
                 </div>
             </div>
             <div className={styles.menuContainer}>

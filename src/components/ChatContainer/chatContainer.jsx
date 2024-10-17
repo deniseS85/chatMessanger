@@ -2,61 +2,108 @@ import React, { useEffect, useRef, useState } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import styles from './chatContainer.module.scss';
 import ChatInput from '../ChatInput/chatInput';
+import welcomImage from '../../assets/img/welcome-image.png';
+import Cookies from 'js-cookie';
+import axios from 'axios';
+import { io } from 'socket.io-client';
+const socket = io('http://localhost:8081');
 
-function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji }) {
+function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser }) {
     const messagesContainerRef = useRef(null);
     const messagesEndRef = useRef(null);
     const [messages, setMessages] = useState([]);
     const [inputHeightDiff, setInputHeightDiff] = useState(0);
 
-    let messageCounter = useRef(0);
+    useEffect(() => {
+        const userId = Cookies.get('userId');
+        
+        const messageListener = (data) => {
+            const { sender_id, content } = data;
+            const friendId = selectedUser ? selectedUser.id  : null;
 
-    /* const addMessage = (message) => {
-        const newMessage = { text: message, type: 'send', id: Date.now() };
-        setMessages(prevMessages => [newMessage, ...prevMessages]);
-    }; */
+            if (sender_id === friendId.toString()) {
+                const newMessage = {
+                    content,
+                    sender_id,
+                    type: 'receive'
+                };
 
-    const addMessage = (messageText, type = 'send') => {
-        const newMessage = { 
-            text: messageText, 
-            type, 
-            id: `${Date.now()}-${messageCounter.current++}`
+                setMessages(prevMessages => [newMessage, ...prevMessages]);
+                console.log(`Nachricht empfangen von ${sender_id}: ${content}`);
+            }
         };
+    
+        if (userId) {
+            socket.emit('registerUser', userId);
+            fetchMessages();
+            
+            socket.on('messageReceived', messageListener); 
+    
+            return () => {
+                socket.off('messageReceived', messageListener);
+            };
+        }
+    }, [selectedUser]);
+
+    const addMessage = async (messageText) => {
+        const userId = Cookies.get('userId');
+        const friendId = selectedUser ? selectedUser.id : null;
+
+        if (!friendId || !userId) { return; }
+
+        const newMessage = { 
+            content: messageText,
+            type: 'send'
+        };
+
         setMessages(prevMessages => [newMessage, ...prevMessages]);
+
+        try {
+            await axios.post('http://localhost:8081/sendMessage', {
+                sender_id: userId, 
+                recipient_id: friendId,
+                content: messageText
+            });
+
+            socket.emit('sendMessage', { 
+                sender_id: userId, 
+                recipient_id: friendId, 
+                content: messageText 
+            });
+            console.log(`Nachricht gesendet an ${userId}: ${messageText}`);
+        } catch (error) {
+            console.error('Fehler beim Speichern der Nachricht:', error);
+        }
+    };
+
+    const fetchMessages = async () => {
+        const userId = Cookies.get('userId');
+        const friendId = selectedUser ? selectedUser.id : null;
+
+        if (friendId && userId) {
+            try {
+                const response = await axios.get('http://localhost:8081/getMessage', {
+                    params: {
+                        userId,
+                        friendId
+                    }
+                });
+                const messagesWithType = response.data.map(message => ({
+                    ...message,
+                    type: message.sender_id === Number(userId) ? 'send' : 'receive',
+                }));
+
+                setMessages(messagesWithType);
+            } catch (error) {
+                console.error('Fehler beim Abrufen der Nachrichten:', error);
+            }
+        }
     };
 
     useEffect(() => {
         scrollToBottom();
         adjustTriangleHeight();
     }, [messages]);
-
-    useEffect(() => {
-        const predefinedMessages = [
-            { text: "Hallo, wie geht's?", type: 'receive' },
-            { text: "Mir geht's gut, danke! Wie bei dir?", type: 'send' },
-            { text: "Ich bin auch gut. Hast du die neuen Updates gesehen?", type: 'receive' },
-            { text: "Ja, die neuen Features sind echt cool!", type: 'send' },
-            { text: "Das dachte ich auch. Besonders das neue Design.", type: 'receive' },
-            { text: "Absolut! Es sieht viel moderner aus.", type: 'send' },
-            { text: "Hast du schon den neuen Report gelesen?", type: 'receive' },
-            { text: "Noch nicht. Werde ich mir später anschauen.", type: 'send' },
-            { text: "Sollte wirklich ein interessantes Thema sein.", type: 'receive' },
-            { text: "Auf jeden Fall. Vielleicht können wir später darüber sprechen.", type: 'send' },
-            { text: "Klingt nach einem Plan!", type: 'receive' },
-            { text: "Ich freue mich darauf. Bis später!", type: 'send' },
-            { text: "Bis später!", type: 'receive' },
-            { text: "Hast du am Wochenende etwas vor?", type: 'send' },
-            { text: "Noch nichts Konkretes. Vielleicht entspannen?", type: 'receive' },
-            { text: "Das klingt gut. Ich werde wahrscheinlich auch nichts machen.", type: 'send' },
-            { text: "Manchmal ist ein entspannendes Wochenende genau das Richtige.", type: 'receive' },
-            { text: "Da stimme ich dir zu. Einfach mal abschalten.", type: 'send' },
-            { text: "Genau! Ich hoffe, du hast ein schönes Wochenende. Und du hast viel erlebt und gemacht. Wie war das Wetter? Und hast du Freunde kennengelernt? Ich freue mich wieder von dir zu hören.", type: 'receive' },
-            { text: "Danke, dir auch!", type: 'send' },
-        ];
-
-        // Füge die vordefinierten Nachrichten hinzu
-        predefinedMessages.forEach(message => addMessage(message.text, message.type));
-    }, []);
 
     const scrollToBottom = () => {
         if (messagesContainerRef.current) {
@@ -97,47 +144,59 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji })
     }, [marginBottom]);
 
     return (
-        <div className={`${styles.chatContainer} ${!emojiPickerVisible ? styles['emoji-hidden'] : ''}`}>
-            <div ref={messagesContainerRef} className={styles.messageContainer}>
-                <TransitionGroup component={null}>
-                    {messages.map((message, index) => {
-                        const nodeRef = React.createRef();
-                        const isFirstMessage = index === messages.length - 1;
-            
-                        return (
-                            <CSSTransition
-                                key={message.id} 
-                                nodeRef={nodeRef}
-                                timeout={500}
-                                classNames={{
-                                    enter: styles.messageEnter,
-                                    enterActive: styles.messageEnterActive,
-                                    exit: styles.messageExit,
-                                    exitActive: styles.messageExitActive,
-                                }}
-                            >
-                                <p 
-                                    ref={nodeRef} 
-                                    className={`${styles.message} ${styles[message.type]} ${isFirstMessage ? styles.firstMessage : ''}`}
+        <div 
+            className={`${styles.chatContainer} ${!emojiPickerVisible ? styles['emoji-hidden'] : ''}`} >
+            <div ref={messagesContainerRef} className={styles.messageContainer}
+                data-chat-id={selectedUser ? selectedUser.id : 'no-user'}
+            >
+                {selectedUser ? (
+                    <TransitionGroup component={null}>
+                        {messages.map((message, index) => {
+                            const nodeRef = React.createRef();
+                            const isFirstMessage = index === messages.length - 1;
+
+                            return (
+                                <CSSTransition
+                                    key={`${message.message_id}-${index}`}
+                                    nodeRef={nodeRef}
+                                    timeout={500}
+                                    classNames={{
+                                        enter: styles.messageEnter,
+                                        enterActive: styles.messageEnterActive,
+                                        exit: styles.messageExit,
+                                        exitActive: styles.messageExitActive,
+                                    }}
                                 >
-                                    {message.text}
-                                </p>
-                            </CSSTransition>
-                        );
-                    })}
-                </TransitionGroup>
+                                    <p 
+                                        ref={nodeRef} 
+                                        className={`${styles.message} ${styles[message.type]} ${isFirstMessage ? styles.firstMessage : ''}`}                            
+                                    >
+                                        {message.content}
+                                    </p>
+                                </CSSTransition>
+                            );
+                        })}
+                    </TransitionGroup>
+                ) : (
+                    <div className={styles.welcomeMessage}>
+                        <img src={welcomImage} alt="Welcome Image" />
+                        <p>Choose a <span style={{ color: '#2BB8EE', fontWeight: 'bold' }}>friend</span> to begin your conversation.</p>
+                    </div>
+                )}
                 <div ref={messagesEndRef} />
             </div>
 
-            <div className={styles.inputContainer}>
-                <ChatInput 
-                    toggleEmojiPicker={toggleEmojiPicker}
-                    selectedEmoji={selectedEmoji}
-                    onSendMessage={addMessage}
-                    emojiPickerVisible={emojiPickerVisible}
-                    onHeightChange={handleInputHeightChange}
-                />
-            </div>
+            {selectedUser && (
+                <div className={styles.inputContainer}>
+                    <ChatInput 
+                        toggleEmojiPicker={toggleEmojiPicker}
+                        selectedEmoji={selectedEmoji}
+                        onSendMessage={addMessage}
+                        emojiPickerVisible={emojiPickerVisible}
+                        onHeightChange={handleInputHeightChange}
+                    />
+                </div>
+            )}
         </div>
     );
 }

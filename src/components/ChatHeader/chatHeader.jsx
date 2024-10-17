@@ -233,7 +233,6 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                             </>
                         )}
                     </div>
-                    <div>{selectedUser ? selectedUser.online_status : 'Choose a friend to begin your conversation'}</div>
                 </div>
             </div>
             <div className={styles.menuContainer}>

@@ -29,6 +29,8 @@ const checkFriendRequest = require('./routes/checkFriendRequest');
 const deleteOldRejectedRequests = require('./routes/cleanup');
 const friendRoute = require('./routes/friends');
 const removeFriend = require('./routes/removeFriend');
+const sendMessage = require('./routes/sendMessage');
+const getMessage = require('./routes/getMessage');
 
 app.use('/login', loginRoute);
 app.use('/signup', signupRoute);
@@ -41,6 +43,8 @@ app.use('/add-contact', addContact);
 app.use('/check-friend-request', checkFriendRequest);
 app.use('/friends', friendRoute);
 app.use('/removeFriend', removeFriend);
+app.use('/sendMessage', sendMessage);
+app.use('/getMessage', getMessage);
 
 deleteOldRejectedRequests();
 
@@ -49,6 +53,7 @@ const userSocketMap = {};
 io.on('connection', (socket) => {
     socket.on('registerUser', (userId) => {
         userSocketMap[userId] = socket.id;
+        console.log(`Benutzer ${userId} registriert mit Socket-ID ${socket.id}`);
     });
 
      // Freundschaftsanfrage senden
@@ -83,6 +88,19 @@ io.on('connection', (socket) => {
         if (friendSocketId) {
             io.to(friendSocketId).emit('friendRemoved', { userId });
         }
+    });
+
+    // Empfangene Nachrichten
+    socket.on('sendMessage', (data) => {
+        const { sender_id, recipient_id, content } = data;
+        const recipientSocketId = userSocketMap[recipient_id];
+
+        console.log(`Sende Nachricht an ${recipient_id}, Socket-ID: ${recipientSocketId}`);
+
+        if (recipientSocketId) {
+            io.to(recipientSocketId).emit('messageReceived', { sender_id, content });
+            console.log(`Nachricht gesendet an ${recipient_id}: ${content}`);
+        } 
     });
 
     socket.on('disconnect', () => {

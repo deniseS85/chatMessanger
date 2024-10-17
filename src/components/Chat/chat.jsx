@@ -218,6 +218,7 @@ const Chat = ({ onLogout }) => {
                     users={users}
                     isHovered={isHovered} 
                     onUserClick={handleUserSelect}
+                    selectedUser={selectedUser}
                     showOnlyProfilePics={showOnlyProfilePics}
                     addNewContact={toggleAddContactForm}
                 />
@@ -248,7 +249,8 @@ const Chat = ({ onLogout }) => {
                         <ChatContainer 
                             toggleEmojiPicker={toggleEmojiPicker}
                             emojiPickerVisible={emojiPickerVisible}
-                            selectedEmoji={selectedEmoji} 
+                            selectedEmoji={selectedEmoji}
+                            selectedUser={selectedUser} 
                         />
                     </div>
                     <div className={`${styles['emoji-container']} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>

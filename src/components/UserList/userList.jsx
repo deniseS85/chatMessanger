@@ -5,17 +5,15 @@ import defaultProfilePic from '../../assets/img/default-profile-img.png';
 import addIcon from '../../assets/img/add-icon.png';
 import Avatar from 'react-nice-avatar';
 
-function UserList({ users, onUserClick, isHovered, showOnlyProfilePics, addNewContact }) {
+function UserList({ users, onUserClick, selectedUser, isHovered, showOnlyProfilePics, addNewContact }) {
     const [searchUser, setsearchUser] = useState('');
-    const [selectedUser, setSelectedUser] = useState(null);
-
+    
     const handleSearchChange = (event) => {
         setsearchUser(event.target.value);
     };
 
      const handleUserClick = useCallback((user) => {
-        setSelectedUser(user === selectedUser ? null : user);
-        onUserClick(user);
+        onUserClick(user === selectedUser ? null : user);
     }, [selectedUser, onUserClick]);
 
     useEffect(() => {

@@ -42,7 +42,13 @@ router.post('/', (req, res) => {
                     if (err) {
                         return res.json({ message: 'Error sending the contact request', type: 'error' });
                     }
-                    return res.json({ message: 'Contact request sent successfully', type: 'success', recipientId: contactId, senderId: userId });
+                    const createChatQuery = 'INSERT INTO chats (user1_id, user2_id) VALUES (?, ?)';
+                    db.query(createChatQuery, [userId, contactId], (err) => {
+                        if (err) {
+                            return res.json({ message: 'Error creating the chat', type: 'error' });
+                        }
+                        return res.json({ message: 'Contact request sent successfully and chat created', type: 'success', recipientId: contactId, senderId: userId });
+                    });
                 });
             });
         } else {

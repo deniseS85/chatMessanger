@@ -108,6 +108,22 @@
                 border-bottom-right-radius: 10px;
             }
         }
+        .welcomeMessage {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 50px;
+            img {
+                width: clamp(15.625rem, 13.3929rem + 11.1607vw, 31.25rem);
+            }
+            p {
+                font-size: clamp(1.125rem, 1.0179rem + 0.5357vw, 1.875rem);
+                text-align: center;
+            }
+        }
     }
     .inputContainer {
         position: absolute;

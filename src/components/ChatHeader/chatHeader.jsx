@@ -183,11 +183,16 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
     const getProfileImage = () => {
         if (selectedUser && selectedUser.profilePic) {
             return (
-                <img
-                    src={`http://localhost:8081/uploads/${selectedUser.profilePic}`}
-                    alt={`${selectedUser.username}'s profile picture`}
-                    className={styles.profilePic}
-                />           
+                <div className={styles.profilePicWrapper}>
+                    <img
+                        src={`http://localhost:8081/uploads/${selectedUser.profilePic}`}
+                        alt={`${selectedUser.username}'s profile picture`}
+                        className={styles.profilePic}
+                    />    
+                    {selectedUser.online_status === 'online' && (
+                        <span className={styles.onlineIndicator}></span>
+                )}
+                </div> 
                 );
         }
     
@@ -196,16 +201,31 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
     
         if (avatarConfig) {
             return (
-                <Avatar {...JSON.parse(avatarConfig)} className={styles.profilePic} />
+                <div className={styles.profilePicWrapper}>
+                    <Avatar {...JSON.parse(avatarConfig)} className={styles.profilePic} />
+                    {selectedUser?.online_status === 'online' && (
+                        <span className={styles.onlineIndicator}></span>
+                    )}
+                </div>
             );
         } else if (profileImg) {
             return (
-                <img src={`http://localhost:8081/uploads/${profileImg}`} alt="Profile" className={styles.profilePic} />
+                <div className={styles.profilePicWrapper}>
+                    <img src={`http://localhost:8081/uploads/${profileImg}`} alt="Profile" className={styles.profilePic} />
+                    {selectedUser?.online_status === 'online' && (
+                        <span className={styles.onlineIndicator}></span>
+                    )}
+                </div>
             );
         }
     
         return (
-            <img src={defaultProfilePic} alt="Default Profile" className={styles.profilePic} />
+            <div className={styles.profilePicWrapper}>
+                <img src={defaultProfilePic} alt="Default Profile" className={styles.profilePic} />
+                {selectedUser?.online_status === 'online' && (
+                    <span className={styles.onlineIndicator}></span>
+                )}
+            </div>
         );
     };
 
@@ -233,6 +253,7 @@ function ChatHeader({ isUserListOpen, selectedUser, onBackClick, onLogout, pendi
                             </>
                         )}
                     </div>
+                    <div>{selectedUser ? selectedUser.online_status : ''}</div>
                 </div>
             </div>
             <div className={styles.menuContainer}>

@@ -53,6 +53,25 @@
                 height: 42px;
             }
         }
+        .profilePicWrapper {
+            position: relative;
+            .onlineIndicator {
+                position: absolute;
+                bottom: 1px;
+                right: 3px;
+                width: 15px;
+                height: 15px;
+                background-color: #3ff03f;
+                border-radius: 50%;
+                border: 1.5px solid $purple;
+                @media (max-width: 428px) {
+                    bottom: 0px;
+                    right: 2px;
+                    width: 12px;
+                    height: 12px;
+                }
+            }
+        }
         .profileInfo {
             display: flex;
             flex-direction: column;

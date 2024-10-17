@@ -4,7 +4,8 @@ const db = mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "",
-    database: "chatMessenger"
+    database: "chatMessenger",
+    charset: 'utf8mb4'
 });
 
 db.connect((err) => {

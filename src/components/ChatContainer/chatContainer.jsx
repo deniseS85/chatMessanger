@@ -70,7 +70,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                 recipient_id: friendId, 
                 content: messageText 
             });
-            console.log(`Nachricht gesendet an ${userId}: ${messageText}`);
+            console.log(`Nachricht gesendet an ${friendId}: ${messageText}`);
         } catch (error) {
             console.error('Fehler beim Speichern der Nachricht:', error);
         }

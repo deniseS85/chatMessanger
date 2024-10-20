@@ -15,7 +15,7 @@ import Avatar from 'react-nice-avatar';
 import { io } from 'socket.io-client';
 const socket = io('http://localhost:8081');
 
-function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser }) {
+function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser, setUsers }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -40,7 +40,6 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
     
         fetchUserData();
     }, []);
-
 
     useEffect(() => {
         if (isUserListOpen) {
@@ -93,14 +92,64 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
         setIsProfileOpen(false);
     };
 
+    const fetchOfflineStatus = async (userId) => {
+        try {
+            const response = await axios.get(`http://localhost:8081/users/${userId}`);
+            const onlineStatus = response.data.online_status;
+            
+            setUsers(prevUsers => 
+                prevUsers.map(user => 
+                    user.id === userId ? { ...user, online_status: onlineStatus } : user
+                )
+            );
+            return onlineStatus; 
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            return null; 
+        }
+    };
+
+    const handleStatusChanged =  (data) => {
+        setUsers(prevUsers => {
+            const updatedUsers = prevUsers.map(user => {
+                if (user.id === Number(data.userId)) {
+                    user.online_status = data.status;
+                    fetchOfflineStatus(user.id);
+                }
+                return user;
+            });
+            return updatedUsers;
+        });
+    };
+    
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            users.forEach(user => {
+                fetchOfflineStatus(user.id);
+            });
+        }, 60000);
+    
+        return () => clearInterval(interval);
+    }, [users]);
+
+
+    useEffect(() => {
+        socket.on('userStatusChanged', handleStatusChanged);
+
+        return () => {
+            socket.off('userStatusChanged', handleStatusChanged);
+        };
+    }, []);
+
     const handleLogout = async () => {
         setIsMenuOpen(false);
         const userId = Cookies.get('userId');
-
+       
         if (userId) {
             socket.emit('userStatusChanged', { userId, status: 'offline' });
         }
-        
+    
         try {
             await axios.post('http://localhost:8081/logout', { userId });
             Cookies.remove('authToken');

@@ -8,11 +8,12 @@ import Avatar from 'react-nice-avatar';
 function UserList({ users, onUserClick, selectedUser, isHovered, showOnlyProfilePics, addNewContact }) {
     const [searchUser, setsearchUser] = useState('');
 
+
     const handleSearchChange = (event) => {
         setsearchUser(event.target.value);
     };
 
-     const handleUserClick = useCallback((user) => {
+    const handleUserClick = useCallback((user) => {
         onUserClick(user === selectedUser ? null : user);
     }, [selectedUser, onUserClick]);
 

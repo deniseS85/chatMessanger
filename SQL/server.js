@@ -109,11 +109,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        const userId = Object.keys(userSocketMap).find(key => userSocketMap[key] === socket.id);
+       /*  const userId = Object.keys(userSocketMap).find(key => userSocketMap[key] === socket.id);
         if (userId) {
             socket.broadcast.emit('userStatusChanged', { userId, status: 'offline' });
             delete userSocketMap[userId];
-        }
+        } */
     });
 });
 

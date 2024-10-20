@@ -34,16 +34,28 @@ const getUserById = (userId, callback) => {
                         } else if (timeDiff < 60) {
                             user.online_status = `last online ${timeDiff} minutes ago`;
                         } else {
+                            const lastLoginDate = lastLogin.toDateString();
+                            const todayDate = now.toDateString();
+
+                            const yesterday = new Date(now);
+                            yesterday.setDate(yesterday.getDate() - 1);
+                            const yesterdayDate = yesterday.toDateString();
+
                             const hours = lastLogin.getHours().toString().padStart(2, '0');
                             const minutes = lastLogin.getMinutes().toString().padStart(2, '0');
-                            user.online_status = `last online at ${hours}:${minutes}`;
+
+                            if (lastLoginDate === todayDate) {
+                                user.online_status = `last online today at ${hours}:${minutes}`;
+                            } else if (lastLoginDate === yesterdayDate) {
+                                user.online_status = `last online yesterday at ${hours}:${minutes}`;
+                            } else {
+                                user.online_status = `last online on ${lastLogin.toLocaleDateString()} at ${hours}:${minutes}`;
+                            }
                         }
                     }
                 } else {
                     user.online_status = 'Unbekannt';
                 }
-
-
                 return callback(null, user);
             });
         } else {

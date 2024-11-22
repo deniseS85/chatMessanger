@@ -16,7 +16,7 @@ import AvatarSelector from '../AvatarSelector/avatarSelector';
 import { formatPhoneNumberIntl } from 'react-phone-number-input';
 
 
-const MyProfile = ({ onClose, isProfileOpen }) => {
+const MyProfile = ({ onClose, isProfileOpen, updateUserData }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [userData, setUserData] = useState(null);
     const modalRef = useRef(null);
@@ -166,6 +166,7 @@ const MyProfile = ({ onClose, isProfileOpen }) => {
             setIsEditing(false);
             const response = await axios.get(`http://localhost:8081/users/${userId}`);
             setUserData(response.data);
+            updateUserData(response.data);
         } catch (error) {
             console.error('Error updating user data:', error);
         }

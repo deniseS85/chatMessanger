@@ -40,7 +40,7 @@ const getUserStatus = (userId, callback) => {
                     } else if (lastLoginDate === yesterdayDate) {
                         onlineStatus = `last online yesterday at ${hours}:${minutes}`;
                     } else {
-                        onlineStatus = `last online on ${lastLogin.toLocaleDateString()} at ${hours}:${minutes}`;
+                        onlineStatus = `last online ${new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }).format(lastLogin)}`;
                     }
                 }
             }

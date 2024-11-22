@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import axios from 'axios'; 
@@ -92,7 +92,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
         setIsProfileOpen(false);
     };
 
-    const fetchOfflineStatus = async (userId) => {
+    const fetchOfflineStatus = useCallback(async (userId) => {
         try {
             const response = await axios.get(`http://localhost:8081/users/${userId}`);
             const onlineStatus = response.data.online_status;
@@ -102,25 +102,18 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                     user.id === userId ? { ...user, online_status: onlineStatus } : user
                 )
             );
-            return onlineStatus; 
         } catch (error) {
             console.error('Error fetching user data:', error);
-            return null; 
         }
-    };
+    }, [setUsers]);
 
-    const handleStatusChanged =  (data) => {
+    const handleStatusChanged = useCallback((data) => {
         setUsers(prevUsers => {
-            const updatedUsers = prevUsers.map(user => {
-                if (user.id === Number(data.userId)) {
-                    user.online_status = data.status;
-                    fetchOfflineStatus(user.id);
-                }
-                return user;
-            });
-            return updatedUsers;
+            return prevUsers.map(user => 
+                user.id === Number(data.userId) ? { ...user, online_status: data.status } : user
+            );
         });
-    };
+    }, [setUsers]);
     
 
     useEffect(() => {
@@ -131,7 +124,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
         }, 60000);
     
         return () => clearInterval(interval);
-    }, [users]);
+    }, [users, fetchOfflineStatus]);
 
 
     useEffect(() => {
@@ -140,7 +133,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
         return () => {
             socket.off('userStatusChanged', handleStatusChanged);
         };
-    }, []);
+    }, [handleStatusChanged]);
 
     const handleLogout = async () => {
         setIsMenuOpen(false);
@@ -243,7 +236,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                 <div className={styles.profilePicWrapper}>
                     <img
                         src={`http://localhost:8081/uploads/${selectedUser.profilePic}`}
-                        alt={`${selectedUser.username}'s profile picture`}
+                        alt={`${selectedUser.username}`}
                         className={styles.profilePic}
                     />    
                     {onlineStatus === 'online' && (
@@ -353,7 +346,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                 <MyProfile 
                     onClose={closeProfile} 
                     isProfileOpen={isProfileOpen}
-                    userData={userData} 
+                    updateUserData={setUserData}
                 />
             )}
             <NotificationsContainer

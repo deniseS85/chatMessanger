@@ -192,7 +192,7 @@ const Chat = ({ onLogout }) => {
 
         // Listener für das Entfernen eines Freundes
         const handleFriendRemoved = (data) => {
-            const { userId } = data;
+            /* const { userId } = data; */
             fetchFriends();
         };
 

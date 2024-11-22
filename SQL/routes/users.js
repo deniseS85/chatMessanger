@@ -36,7 +36,6 @@ const getUserById = (userId, callback) => {
                         } else {
                             const lastLoginDate = lastLogin.toDateString();
                             const todayDate = now.toDateString();
-
                             const yesterday = new Date(now);
                             yesterday.setDate(yesterday.getDate() - 1);
                             const yesterdayDate = yesterday.toDateString();
@@ -49,7 +48,7 @@ const getUserById = (userId, callback) => {
                             } else if (lastLoginDate === yesterdayDate) {
                                 user.online_status = `last online yesterday at ${hours}:${minutes}`;
                             } else {
-                                user.online_status = `last online on ${lastLogin.toLocaleDateString()} at ${hours}:${minutes}`;
+                                user.online_status = `last online ${new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }).format(lastLogin)}`;
                             }
                         }
                     }

@@ -32,6 +32,8 @@ const removeFriend = require('./routes/removeFriend');
 const sendMessage = require('./routes/sendMessage');
 const getMessage = require('./routes/getMessage');
 
+
+
 app.use('/login', loginRoute);
 app.use('/signup', signupRoute);
 app.use('/forgot-password', forgotRoute);
@@ -97,13 +99,13 @@ io.on('connection', (socket) => {
 
     // Empfangene Nachrichten
     socket.on('sendMessage', (data) => {
-        const { sender_id, recipient_id, content } = data;
+        const { sender_id, recipient_id, content, timestamp } = data;
         const recipientSocketId = userSocketMap[recipient_id];
 
         console.log(`Sende Nachricht an ${recipient_id}, Socket-ID: ${recipientSocketId}`);
 
         if (recipientSocketId) {
-            io.to(recipientSocketId).emit('messageReceived', { sender_id, content });
+            io.to(recipientSocketId).emit('messageReceived', { sender_id, content, timestamp });
             console.log(`Nachricht gesendet an ${recipient_id}: ${content}`);
         } 
     });

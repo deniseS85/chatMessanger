@@ -48,64 +48,135 @@
         &::-webkit-scrollbar-track-piece:end {
             margin-bottom: 10px;
         }
-        .message {
-            max-width: clamp(11.5625rem, 1.7857rem + 48.8839vw, 80rem);
-            word-wrap: break-word;
-            padding: 10px 20px;
-            border-radius: 25px;
-            position: relative;
-            font-size: 16px;
-            display: inline-block;
-            margin-bottom: 10px;
-            &:before, &:after {
-                content: "";
-                position: absolute;
-                bottom: 0;
-                height: var(--triangle-height, 25px);
-            }
-            @media (max-width: 768px) {
-                padding: 8px 15px;
+        .messageByDate {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            .dateSeparator {
+                text-align: center;
+                margin: 20px auto;
+                width: 150px;
                 font-size: 14px;
+                color: $fontColor;
+                padding: clamp(0.0625rem, 0.0357rem + 0.1339vw, 0.25rem) 10px;
+                background: rgba(169, 169, 169, 0.4);
+                border-radius: 16px;
+                box-shadow: 0 0 3px #7F76FF;
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                position: sticky;
+                top: 10px;
+                z-index: 1;
             }
-            @media (max-width:428px) {
-                border-radius: 10px;
+            .message {
+                max-width: clamp(11.5625rem, 1.7857rem + 48.8839vw, 80rem);
+                word-wrap: break-word;
+                padding: 10px 60px 10px 20px;
+                border-radius: 25px;
+                position: relative;
+                font-size: 16px;
+                display: inline-block;
+                margin-bottom: 10px;
+                &.sendPadding {
+                    padding: 10px 70px 10px 20px;
+                }
+                span:first-child {
+                    display: inline-block;
+                    overflow-wrap: break-word;
+                }
+                &:before, &:after {
+                    content: "";
+                    position: absolute;
+                    bottom: 0;
+                    height: var(--triangle-height, 25px);
+                }
+                @media (max-width: 768px) {
+                    padding: 5px 60px 5px 12px;
+                    font-size: 14px;
+                    &.sendPadding {
+                        padding: 5px 70px 5px 12px;
+                    }
+                }
+                @media (max-width:428px) {
+                    border-radius: 10px;
+                }
+                .messageTime {
+                    font-size: clamp(0.6875rem, 0.7768rem + -0.4464vw, 0.0625rem);
+                    white-space: nowrap;
+                    position: absolute;
+                    bottom: 5px;
+                    right: 15px;
+                    opacity: 0.8;
+                    @media (max-width: 768px) {
+                        bottom: 2px;
+                        right: 7px;
+                    }
+                }
+                .sendMessageTime {
+                    right: 25px;
+                    @media (max-width: 768px) {
+                        right: 22px;
+                    }
+                }
+                .sentIcon, .deliveredIcon, .readIcon {
+                    position: absolute;
+                    opacity: 0.8; 
+                }
+                .sentIcon {
+                    height: 10px;
+                    bottom: 9px;
+                    right: 9px;
+                    @media (max-width: 768px) {
+                        bottom: 5.5px;
+                        right: 6px;
+                    }
+                }
+                .deliveredIcon, .readIcon {
+                    height: 16px;
+                    bottom: 5px;
+                    right: 6px;
+                    @media (max-width: 768px) {
+                        bottom: 3px;
+                        right: 4px;
+                    }
+                }
+                .readIcon {
+                    opacity: 1;
+                }
             }
-        }
-        .firstMessage {
-            margin-top: 5px;
-        }
-        .send {
-            align-self: flex-end;
-            color: $fontColor;
-            background-color: $purple;
-            &:before {
-                right: -7px;
-                width: 20px;
+            .send {
+                align-self: flex-end;
+                color: $fontColor;
                 background-color: $purple;
-                border-bottom-left-radius: 16px 14px;
+                &:before {
+                    right: -7px;
+                    width: 20px;
+                    background-color: $purple;
+                    border-bottom-left-radius: 16px 14px;
+                }
+                &:after {
+                    right: -26px;
+                    width: 26px;
+                    background-color: $itemColor;
+                    border-bottom-left-radius: 10px;
+                }
             }
-            &:after {
-                right: -26px;
-                width: 26px;
-                background-color: $itemColor;
-                border-bottom-left-radius: 10px;
-            }
-        }
-        .receive {
-            align-self: flex-start;
-            background-color: $turquise;
-            color: $itemColor;
-            &:before {
-                left: -7px;
-                width: 20px;
+            .receive {
+                align-self: flex-start;
                 background-color: $turquise;
-                border-bottom-right-radius: 16px 14px;
-            }
-            &:after {
-                left: -26px;
-                width: 26px;
-                background-color: $itemColor;
-                border-bottom-right-radius: 10px;
+                color: $itemColor;
+                &:before {
+                    left: -7px;
+                    width: 20px;
+                    background-color: $turquise;
+                    border-bottom-right-radius: 16px 14px;
+                }
+                &:after {
+                    left: -26px;
+                    width: 26px;
+                    background-color: $itemColor;
+                    border-bottom-right-radius: 10px;
+                }
             }
         }
         .welcomeMessage {
@@ -148,7 +219,7 @@
 
 .messageExitActive {
     transform: translateY(-20px);
-    transition: transform 0.5s ease;
+    transition: transform 500ms;
 }
 
 

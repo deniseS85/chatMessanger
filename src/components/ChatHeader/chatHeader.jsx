@@ -15,7 +15,7 @@ import Avatar from 'react-nice-avatar';
 import { io } from 'socket.io-client';
 const socket = io('http://localhost:8081');
 
-function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser, setUsers }) {
+function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser, setUsers, handleSelectMessagesStatus }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -156,15 +156,33 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
     };
 
     const handleSelectMessages = () => {
-        setIsMenuOpen(false);
-        console.log('Nachrichten auswählen');
-        // Nachrichten auswählen Logik hier
+        if (selectedUser) {
+            setIsMenuOpen(false);
+            handleSelectMessagesStatus(true);
+        } else {
+            setIsMenuOpen(false);
+            handleSelectMessagesStatus(false);
+            setNotification({
+                message: 'Please open a chat first to select messages.',
+                type: 'error',
+                isHtml: true,
+                onClose: () => {
+                    setNotification(null);
+                }
+            });
+        }
     };
 
     const handleDeleteChat = () => {
         setIsMenuOpen(false);
         console.log('Chat löschen');
         // Chat löschen Logik hier
+    };
+
+    const handleSearchMessages = () => {
+        setIsMenuOpen(false);
+        console.log('Nachricht suchen');
+        // Nachricht suchen Logik hier
     };
 
     const handleRemoveContact = () => {
@@ -210,12 +228,6 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                 }
             });
         }
-    };
-
-    const handleSearchMessages = () => {
-        setIsMenuOpen(false);
-        console.log('Nachricht suchen');
-        // Nachricht suchen Logik hier
     };
 
     const handleNotificationClick = (request) => {

@@ -31,6 +31,7 @@ const friendRoute = require('./routes/friends');
 const removeFriend = require('./routes/removeFriend');
 const sendMessage = require('./routes/sendMessage');
 const getMessage = require('./routes/getMessage');
+const deleteMessages = require('./routes/deleteMessages');
 
 
 
@@ -47,6 +48,7 @@ app.use('/friends', friendRoute);
 app.use('/removeFriend', removeFriend);
 app.use('/sendMessage', sendMessage);
 app.use('/getMessage', getMessage);
+app.use('/deleteMessages', deleteMessages);
 
 deleteOldRejectedRequests();
 

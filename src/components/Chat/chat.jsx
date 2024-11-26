@@ -31,6 +31,7 @@ const Chat = ({ onLogout }) => {
     const [sentRequests, setSentRequests] = useState([]);
     const [pendingRequests, setPendingRequests] = useState([]);
     const [users, setUsers] = useState([]);
+    const [hasSelectedMessages, setHasSelectedMessages] = useState(false);
     
     const fetchFriends = async () => {
         const userId = Cookies.get('userId');
@@ -211,6 +212,14 @@ const Chat = ({ onLogout }) => {
         setNotification('');
     };
 
+    const handleSelectMessagesStatus = () => {
+        setHasSelectedMessages((prevStatus) => !prevStatus);
+    };
+
+    const handleCloseEditMode = () => {
+        setHasSelectedMessages(false);
+    };
+
     return (
         <div className={`${styles.app} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>
             <div className={`${styles.sidebar} ${showOnlyProfilePics ? styles.showOnlyProfilePics : ''} ${isUserListOpen ? styles.expanded : ''}`}>
@@ -245,6 +254,7 @@ const Chat = ({ onLogout }) => {
                     setNotification={setNotification}
                     setSelectedUser={setSelectedUser}
                     setUsers={setUsers}
+                    handleSelectMessagesStatus={handleSelectMessagesStatus}
                 />
                 <div className={styles['chat-layout']}>
                     <div className={styles['chat-container']}>
@@ -253,6 +263,8 @@ const Chat = ({ onLogout }) => {
                             emojiPickerVisible={emojiPickerVisible}
                             selectedEmoji={selectedEmoji}
                             selectedUser={selectedUser} 
+                            hasSelectedMessages={hasSelectedMessages} 
+                            setHasSelectedMessages={handleCloseEditMode} 
                         />
                     </div>
                     <div className={`${styles['emoji-container']} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>

@@ -4,8 +4,6 @@ const db = require('../config/db');
 
 router.post('/', (req, res) => {
     const { userId, friendId } = req.body;
-
-
     const deleteFriendQuery = 'DELETE FROM Friends WHERE (UserId1 = ? AND UserId2 = ?) OR (UserId1 = ? AND UserId2 = ?)';
 
     db.query(deleteFriendQuery, [userId, friendId, friendId, userId], (err, result) => {

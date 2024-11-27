@@ -101,15 +101,30 @@ io.on('connection', (socket) => {
 
     // Empfangene Nachrichten
     socket.on('sendMessage', (data) => {
-        const { sender_id, recipient_id, content, timestamp } = data;
+        const { sender_id, recipient_id, content, timestamp, message_id } = data;
         const recipientSocketId = userSocketMap[recipient_id];
 
-        console.log(`Sende Nachricht an ${recipient_id}, Socket-ID: ${recipientSocketId}`);
+        console.log(`Sende Nachricht ID: ${message_id} an ${recipient_id}, Socket-ID: ${recipientSocketId}`);
 
         if (recipientSocketId) {
-            io.to(recipientSocketId).emit('messageReceived', { sender_id, content, timestamp });
-            console.log(`Nachricht gesendet an ${recipient_id}: ${content}`);
+            io.to(recipientSocketId).emit('messageReceived', { sender_id, content, timestamp, message_id });
+            console.log(`Nachricht gesendet an ${recipient_id}: ${content} mit ID: ${message_id}`);
         } 
+    });
+
+    // Nachricht löschen und andere Benutzer informieren
+    socket.on('deleteMessages', (data) => {
+        const { messageIds, userId, friendId } = data;
+        const friendSocketId = userSocketMap[friendId];
+
+        console.log(`Empfangenes deleteMessages-Event von Benutzer ${userId}:`, data);
+
+        if (friendSocketId) {
+            console.log(`Sende messagesDeleted an Freund (Socket ID: ${friendSocketId})`);
+            io.to(friendSocketId).emit('messagesDeleted', { messageIds });
+        }
+
+        console.log(`Benutzer ${userId} hat Nachrichten gelöscht: ${messageIds}`);
     });
 
     socket.on('disconnect', () => {

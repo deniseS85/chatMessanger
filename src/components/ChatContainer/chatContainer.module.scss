@@ -148,6 +148,9 @@
                 @media (max-width: 768px) {
                     padding: 5px 60px 5px 12px;
                     font-size: 14px;
+                    &:before, &:after {
+                        height: var(--triangle-height, 18px);
+                    }
                     &.sendPadding {
                         padding: 5px 70px 5px 12px;
                     }

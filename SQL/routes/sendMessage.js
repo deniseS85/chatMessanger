@@ -6,10 +6,7 @@ const db = require('../config/db');
 router.post('/', (req, res) => {
     const { sender_id, recipient_id, content } = req.body;
 
-    const chatQuery = `
-        SELECT chat_id FROM chats 
-        WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)
-    `;
+    const chatQuery = `SELECT chat_id FROM chats WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)`;
 
     db.query(chatQuery, [sender_id, recipient_id, recipient_id, sender_id], (error, results) => {
         if (error) {

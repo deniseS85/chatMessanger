@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-/* import { CSSTransition, TransitionGroup } from 'react-transition-group'; */
 import styles from './chatContainer.module.scss';
 import ChatInput from '../ChatInput/chatInput';
 import welcomImage from '../../assets/img/welcome-image.png';
@@ -21,6 +20,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
     const [inputHeightDiff, setInputHeightDiff] = useState(0);
     const [selectedMessages, setSelectedMessages] = useState([]);
     const [isInitalAnimation, setInitialAnimation] = useState(true);
+    const [groupedMessages, setGroupedMessages] = useState({});
 
     const fetchMessages = async () => {
         const userId = Cookies.get('userId');
@@ -29,10 +29,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         if (friendId && userId) {
             try {
                 const response = await axios.get('http://localhost:8081/getMessage', {
-                    params: {
-                        userId,
-                        friendId
-                    }
+                    params: { userId, friendId }
                 });
 
                 const messagesWithType = response.data.map(message => ({
@@ -54,7 +51,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         const userId = Cookies.get('userId');
         
         const messageListener = (data) => {
-            const { sender_id, content, timestamp, status } = data;
+            const { sender_id, content, timestamp, status, message_id } = data;
             const friendId = selectedUser ? selectedUser.id  : null;
 
             if (friendId && sender_id === friendId.toString()) {
@@ -62,7 +59,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                     content,
                     sender_id,
                     type: 'receive',
-                    message_id: Date.now(),
+                    message_id: message_id,
                     timestamp: timestamp || new Date().toISOString(),
                     status: status || 'sent'
                 };
@@ -103,32 +100,32 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         setHasSelectedMessages(false);
 
         try {
-            await axios.post('http://localhost:8081/sendMessage', {
+            const response = await axios.post('http://localhost:8081/sendMessage', {
                 sender_id: userId, 
                 recipient_id: friendId,
                 content: messageText,
                 timestamp: newMessage.timestamp,
-                status: newMessage.status
+                status: newMessage.status,
+                message_id: newMessage.message_id
             });
+
+            const messageId = response.data.messageId;
 
             socket.emit('sendMessage', { 
                 sender_id: userId, 
                 recipient_id: friendId, 
                 content: messageText,
                 timestamp: newMessage.timestamp,
-                status: newMessage.status
+                status: newMessage.status,
+                message_id: messageId
             });
+            
             /* console.log(`Nachricht gesendet an ${friendId}: ${messageText}`); */
             await fetchMessages();
         } catch (error) {
             console.error('Fehler beim Speichern der Nachricht:', error);
         }
     };
-
-    useEffect(() => {
-        scrollToBottom();
-        adjustTriangleHeight();
-    }, [messages]);
 
     const scrollToBottom = () => {
         if (messagesContainerRef.current) {
@@ -156,6 +153,11 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         });
     };
 
+    useEffect(() => {
+        scrollToBottom();
+        adjustTriangleHeight();
+    }, [messages]);
+
     const handleInputHeightChange = (heightDifference) => {
         setInputHeightDiff(heightDifference);
     };
@@ -177,18 +179,20 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
-    const groupMessagesByDate = messages => {
-        return messages.reduce((groups, message) => {
-            const messageDate = new Date(message.timestamp).toLocaleDateString('de-DE');
-            if (!groups[messageDate]) {
-                groups[messageDate] = [];
-            }
-            groups[messageDate].push(message);
-            return groups;
-        }, {});
-    };
-
-    const groupedMessages = groupMessagesByDate(messages);
+    useEffect(() => {
+        const groupMessagesByDate = messages => {
+            return messages.reduce((groups, message) => {
+                const messageDate = new Date(message.timestamp).toLocaleDateString('de-DE');
+                if (!groups[messageDate]) {
+                    groups[messageDate] = [];
+                }
+                groups[messageDate].push(message);
+                return groups;
+            }, {});
+        };
+    
+        setGroupedMessages(groupMessagesByDate(messages));
+    }, [messages]);
 
     useEffect(() => {
         if (!hasSelectedMessages && selectedMessages.length > 0) {
@@ -208,9 +212,61 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
             }
         });
     };
+
+    useEffect(() => {
+        const deleteMessengerSocket = ({ messageIds }) => {
+            const groupedMessagesCopy = { ...groupedMessages };
+
+            messageIds.forEach(messageId => {
+                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                if (messageElement) {
+                    createDustEffect(messageElement);
+                }
+            });
+
+            Object.entries(groupedMessagesCopy).forEach(([date, messagesForDate]) => {
+                const remainingMessagesForDate = messagesForDate.filter(
+                    message => !messageIds.includes(message.message_id)
+                );
+    
+                if (remainingMessagesForDate.length === 0) {
+                    const dateElement = document.querySelector(`[data-date="${date}"]`);
+                    if (dateElement) {
+                        createDustEffect(dateElement);
+                    } 
+                }
+            });
+
+            setTimeout(() => {
+                setGroupedMessages(prevGroupedMessages => {
+                    const updatedGroupedMessages = { ...prevGroupedMessages };
+                    messageIds.forEach(messageId => {
+                        Object.keys(updatedGroupedMessages).forEach(date => {
+                            updatedGroupedMessages[date] = updatedGroupedMessages[date].filter(
+                                message => message.message_id !== messageId
+                            );
+                            if (updatedGroupedMessages[date].length === 0) {
+                                delete updatedGroupedMessages[date];
+                            }
+                        });
+                    });
+                    return updatedGroupedMessages;
+                });
+            }, 2000); 
+        };
+    
+        socket.on('messagesDeleted', deleteMessengerSocket);
+    
+        return () => {
+            socket.off('messagesDeleted', deleteMessengerSocket);
+        };
+    }, [groupedMessages]);
+    
     
     const handleDeleteMessages = async () => {
         if (selectedMessages.length === 0) return;
+        const userId = Cookies.get('userId');
+        const friendId = selectedUser ? selectedUser.id : null;
     
         try {
             const response = await axios.post('http://localhost:8081/deleteMessages', {
@@ -218,26 +274,27 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
             });
     
             if (response.data.success) {
+                socket.emit('deleteMessages', { messageIds: selectedMessages, userId, friendId });
+
                 selectedMessages.forEach(messageId => {
                     const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
                     if (messageElement) {
                       createDustEffect(messageElement);
                     }
-                  });
+                });
 
-                  Object.entries(groupedMessages).forEach(([date, messagesForDate]) => {
+                Object.entries(groupedMessages).forEach(([date, messagesForDate]) => {
                     const remainingMessagesForDate = messagesForDate.filter(
                         message => !selectedMessages.includes(message.message_id)
                     );
-    
+
                     if (remainingMessagesForDate.length === 0) {
                         const dateElement = document.querySelector(`[data-date="${date}"]`);
                         if (dateElement) {
-                            createDustEffect(dateElement, true);
+                            createDustEffect(dateElement);
                         }
                     }
                 });
-
                 setSelectedMessages([]);
                 setHasSelectedMessages(false);
             } 
@@ -246,10 +303,9 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         }
     };
 
-    const createDustEffect = (element, isDate = false) => {
+    const createDustEffect = (element) => {
         const isDateElement = element.hasAttribute("data-date");
         const rect = element.getBoundingClientRect();
-        const particles = 500;
         const container = document.createElement("div");
         container.style.position = "absolute";
         container.style.left = `${rect.left}px`;
@@ -262,23 +318,18 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         document.body.appendChild(container);
 
         const animationPromises = [];
-
-        const particleColor = isDateElement ? "#a9a9a966" : "#7F76FF";
-        console.log(isDateElement)
     
-        for (let i = 0; i < particles; i++) {
+        for (let i = 0; i < 500; i++) {
             const particle = document.createElement("div");
             particle.style.position = "absolute";
             particle.style.width = "2px";
             particle.style.height = "2px";
-            particle.style.background = particleColor;
+            particle.style.background = isDateElement ? "#a9a9a966" : "#7F76FF";
             particle.style.borderRadius = "50%";
             particle.style.left = `${Math.random() * rect.width}px`;
             particle.style.top = `${Math.random() * rect.height}px`;
             container.appendChild(particle);
 
-            const animationDuration = 2000;
-            const animationDelay = 40;
             const animation = particle.animate(
                 [
                     { transform: "translate(0, 0) scale(1)", opacity: 1 },
@@ -288,8 +339,8 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                     },
                 ],
                 {
-                    duration: animationDuration,
-                    delay: animationDelay,
+                    duration: 2000,
+                    delay: 40,
                     easing: "ease-out",
                     fill: "forwards",
                 }
@@ -312,7 +363,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
             container.remove(); 
         });
 
-        element.style.opacity = "0";
+        element.style.setProperty('opacity', '0', 'important');
         element.style.transition = "height 2s ease, margin 2s ease, padding 2s ease"; 
         element.style.height = "0";
         element.style.margin = "0";

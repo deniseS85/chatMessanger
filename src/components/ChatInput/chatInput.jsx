@@ -3,6 +3,32 @@ import styles from './chatInput.module.scss';
 import sendMessage from '../../assets/img/send-message-icon.png';
 import smileyIcon from '../../assets/img/smiley-icon.png';
 
+const emojiMap = {
+    ':-)': '🙂',
+    ':)': '😊',
+    ':D': '😄',
+    ':>': '😆',
+    ':(': '😞',
+    '>:(': '😠',
+    ':P': '😜',
+    ':-P': '😜',
+    ';)': '😉',
+    ':-|': '😐',
+    ':|': '😐',
+    ':o': '😮',
+    ':O': '😮',
+    '8-)': '😎',
+    '8)': '😎',
+    'D:': '😧',
+    ':((': '😢',
+    ":'(": '😢',
+    'xD': '😆',
+    ':*)': '😘',
+    ':*': '💋',
+    '<3': '❤️',
+    '</3': '💔',
+};
+
 function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPickerVisible, onHeightChange }) {
     const textAreaRef = useRef(null);
     const [textAreaHeight, setTextAreaHeight] = useState(window.innerWidth <= 428 ? '35px' : '44px');
@@ -19,6 +45,17 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
         }
         return window.innerWidth < 450 ? 'Message...' : 'Type your message here...';
     }
+
+    const replaceShortcutsWithEmojis = (text) => {
+        let newText = text;
+        Object.keys(emojiMap).forEach(shortcut => {
+            const emoji = emojiMap[shortcut];
+            const escapedShortcut = shortcut.replace(/[.*+?^=!:${}()|[\]/\\]/g, "\\$&");
+            const regex = new RegExp(escapedShortcut, 'g');
+            newText = newText.replace(regex, emoji);
+        });
+        return newText;
+    };
 
     // Fokussiert das Inputfeld am Anfang und beim Auswählen eines Emojis
     useEffect(() => {
@@ -175,7 +212,7 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
                 rows="1"
                 value={textValue}
                 onChange={(e) => {
-                    setTextValue(e.target.value);
+                    setTextValue(replaceShortcutsWithEmojis(e.target.value));
                     adjustHeight();
                 }}
                 onClick={hideEmojiPickerByText}

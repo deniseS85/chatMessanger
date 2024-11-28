@@ -127,6 +127,11 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         }
     };
 
+    useEffect(() => {
+        scrollToBottom();
+        adjustTriangleHeight();
+    }, [messages]);
+
     const scrollToBottom = () => {
         if (messagesContainerRef.current) {
             messagesContainerRef.current.scrollTo({
@@ -152,11 +157,6 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
             }
         });
     };
-
-    useEffect(() => {
-        scrollToBottom();
-        adjustTriangleHeight();
-    }, [messages]);
 
     const handleInputHeightChange = (heightDifference) => {
         setInputHeightDiff(heightDifference);

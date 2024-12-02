@@ -2,6 +2,9 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import styles from './chatInput.module.scss';
 import sendMessage from '../../assets/img/send-message-icon.png';
 import smileyIcon from '../../assets/img/smiley-icon.png';
+import Cookies from 'js-cookie';
+import { io } from 'socket.io-client';
+const socket = io('http://localhost:8081');
 
 const emojiMap = {
     ':-)': '🙂',
@@ -29,12 +32,23 @@ const emojiMap = {
     '</3': '💔',
 };
 
-function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPickerVisible, onHeightChange }) {
+function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPickerVisible, onHeightChange, selectedUser }) {
     const textAreaRef = useRef(null);
     const [textAreaHeight, setTextAreaHeight] = useState(window.innerWidth <= 428 ? '35px' : '44px');
     const [textValue, setTextValue] = useState('');
     const [placeholder, setPlaceholder] = useState(getPlaceholder());
+    const [typingStatus, setTypingStatus] = useState(false);
 
+    const sendTypingStatus = useCallback((status) => {
+        const userId = Cookies.get('userId');
+        const friendId = selectedUser ? selectedUser.id : null;
+    
+        if (friendId) {
+            socket.emit('typing', { status, userId, friendId });
+        }
+    }, [selectedUser]);
+    
+        
     function getPlaceholder() {
         const textArea = textAreaRef.current;
         if (textArea) {
@@ -57,12 +71,11 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
         return newText;
     };
 
-    // Fokussiert das Inputfeld am Anfang und beim Auswählen eines Emojis
     useEffect(() => {
-        if (textAreaRef.current && window.innerWidth > 811) {
+        if (textAreaRef.current && selectedUser?.id && window.innerWidth > 811) {
             textAreaRef.current.focus();
         }
-    }, [textValue, selectedEmoji]);
+    }, [selectedUser?.id]);
 
     // Passt die Höhe des Textfeldes automatisch auf den Inhalt an
     const adjustHeight = useCallback(() => {
@@ -131,7 +144,7 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
             window.removeEventListener('resize', handleResize);
             cleanupResizeObserver();
         };
-    }, [adjustHeight, textValue]);
+    }, [adjustHeight]);
 
     // Zeigt ausgewählten Emoji im Textfeld an
     const insertEmoji = useCallback(() => {
@@ -150,12 +163,24 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
             if (textAreaRef.current && window.innerWidth > 811) {
                 textAreaRef.current.focus();
             }
-        }
-    }, [selectedEmoji]);
+        } 
+    }, [selectedEmoji]);  
 
     useEffect(() => {
         insertEmoji();
     }, [selectedEmoji, insertEmoji]);
+
+    useEffect(() => {
+        if (textValue.trim().length > 0) {
+            setTypingStatus(true);
+        } else {
+            setTypingStatus(false);
+        }
+    }, [textValue]);
+
+    useEffect(() => {
+        sendTypingStatus(typingStatus); 
+    }, [typingStatus, sendTypingStatus]);
 
     // Nachricht senden, überprüft ob Textfeld nicht leer ist
     const sendNewMessage = (e) => {
@@ -166,8 +191,9 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
         if (!trimmedTextValue) return;
     
         onSendMessage(trimmedTextValue);
-        setTextValue('');
-    
+        setTextValue('');  
+        sendTypingStatus(false)     
+
         if (textAreaRef.current) {
             textAreaRef.current.style.height = 'auto';
 
@@ -203,6 +229,13 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
         cursor: isSendDisabled ? 'default' : 'pointer',
     };
 
+    const handleTextChange = (e) => {
+        const newText = replaceShortcutsWithEmojis(e.target.value);
+        setTextValue(newText);
+        adjustHeight();
+        sendTypingStatus(newText.trim().length > 0);
+    };
+    
     return (
         <div className={styles.inputContainer}>
             <textarea 
@@ -211,10 +244,7 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
                 placeholder={placeholder}
                 rows="1"
                 value={textValue}
-                onChange={(e) => {
-                    setTextValue(replaceShortcutsWithEmojis(e.target.value));
-                    adjustHeight();
-                }}
+                onChange={handleTextChange}
                 onClick={hideEmojiPickerByText}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {

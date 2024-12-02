@@ -32,6 +32,8 @@ const Chat = ({ onLogout }) => {
     const [pendingRequests, setPendingRequests] = useState([]);
     const [users, setUsers] = useState([]);
     const [hasSelectedMessages, setHasSelectedMessages] = useState(false);
+    const [isTyping, setIsTyping] = useState(false);
+    const [typingStatuses, setTypingStatuses] = useState({});
     
     const fetchFriends = async () => {
         const userId = Cookies.get('userId');
@@ -97,13 +99,6 @@ const Chat = ({ onLogout }) => {
         }
     };
 
-    const handleUserSelect = (user) => {
-        setSelectedUser(user);
-        if (window.innerWidth <= 428) {
-            setIsUserListOpen(false);
-        }
-    };
-
     const handleAddNewContact = (message, isSuccess, contactName, recipientId) => {
         if (isSuccess) {
             setNotification({
@@ -152,7 +147,7 @@ const Chat = ({ onLogout }) => {
         if (userId) {
             checkForRequests(); 
             socket.emit('registerUser', userId);
-        }
+        }       
 
         // Listener für eingehende Freundschaftsanfragen
         const handleFriendRequestReceived = (data) => {
@@ -200,6 +195,7 @@ const Chat = ({ onLogout }) => {
         socket.on('friendRequestReceived', handleFriendRequestReceived);
         socket.on('friendRequestResponse', handleFriendRequestResponse);
         socket.on('friendRemoved', handleFriendRemoved);
+        
     
         return () => {
             socket.off('friendRequestReceived', handleFriendRequestReceived);
@@ -207,6 +203,45 @@ const Chat = ({ onLogout }) => {
             socket.off('friendRemoved', handleFriendRemoved);
         };
     }, []);
+
+    useEffect(() => {
+        if (typingStatuses[selectedUser?.id] !== undefined) {
+            setIsTyping(typingStatuses[selectedUser.id]);
+        } else {
+            setIsTyping(false); 
+        }
+
+        const handleTypingStatus = ({ status, userId, friendId }) => {
+            setTypingStatuses(prev => ({
+                ...prev,
+                [userId]: status
+            }));
+
+            if (selectedUser && String(selectedUser.id) === String(userId)) {
+                setIsTyping(status);
+            }
+        };
+    
+        socket.on('typing', handleTypingStatus);
+    
+        return () => {
+            socket.off('typing', handleTypingStatus); 
+        };
+    }, [selectedUser, typingStatuses]);    
+
+    const handleUserSelect = (user) => {
+        setSelectedUser(user);
+
+        if (user && typingStatuses[user.id] !== undefined) {
+            setIsTyping(typingStatuses[user.id]);
+        } else {
+            setIsTyping(false);
+        }
+    
+        if (window.innerWidth <= 428) {
+            setIsUserListOpen(false);
+        }
+    };
     
     const handleCloseNotification = () => {
         setNotification('');
@@ -255,6 +290,7 @@ const Chat = ({ onLogout }) => {
                     setSelectedUser={setSelectedUser}
                     setUsers={setUsers}
                     handleSelectMessagesStatus={handleSelectMessagesStatus}
+                    isTyping={isTyping}
                 />
                 <div className={styles['chat-layout']}>
                     <div className={styles['chat-container']}>
@@ -264,7 +300,7 @@ const Chat = ({ onLogout }) => {
                             selectedEmoji={selectedEmoji}
                             selectedUser={selectedUser} 
                             hasSelectedMessages={hasSelectedMessages} 
-                            setHasSelectedMessages={handleCloseEditMode} 
+                            setHasSelectedMessages={handleCloseEditMode}
                         />
                     </div>
                     <div className={`${styles['emoji-container']} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>

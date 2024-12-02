@@ -128,8 +128,11 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
     };
 
     useEffect(() => {
-        scrollToBottom();
         adjustTriangleHeight();
+
+        setTimeout(() => {
+            scrollToBottom();
+        }, 0); 
     }, [messages]);
 
     const scrollToBottom = () => {
@@ -318,6 +321,28 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         document.body.appendChild(container);
 
         const animationPromises = [];
+
+        const particleAnimation = (particle) => {
+            return new Promise(resolve => {
+                const animation = particle.animate(
+                    [
+                        { transform: "translate(0, 0) scale(1)", opacity: 1 },
+                        { transform: `translate(${(Math.random() - 0.5) * 200}px, ${(Math.random() - 0.5) * 200}px) scale(0.5)`, opacity: 0 },
+                    ],
+                    {
+                        duration: 2000,
+                        delay: 40,
+                        easing: "ease-out",
+                        fill: "forwards",
+                    }
+                );
+    
+                animation.onfinish = () => {
+                    particle.remove();
+                    resolve();
+                };
+            });
+        };
     
         for (let i = 0; i < 500; i++) {
             const particle = document.createElement("div");
@@ -330,30 +355,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
             particle.style.top = `${Math.random() * rect.height}px`;
             container.appendChild(particle);
 
-            const animation = particle.animate(
-                [
-                    { transform: "translate(0, 0) scale(1)", opacity: 1 },
-                    {
-                        transform: `translate(${(Math.random() - 0.5) * 200}px, ${(Math.random() - 0.5) * 200}px) scale(0.5)`,
-                        opacity: 0,
-                    },
-                ],
-                {
-                    duration: 2000,
-                    delay: 40,
-                    easing: "ease-out",
-                    fill: "forwards",
-                }
-            );
-
-            animationPromises.push(
-                new Promise(resolve => {
-                    animation.onfinish = () => {
-                        particle.remove();
-                        resolve();
-                    };
-                })
-            );
+            animationPromises.push(particleAnimation(particle));
         }
         setTimeout(() => {
             container.style.overflow = "visible";
@@ -487,6 +489,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                             onSendMessage={addMessage}
                             emojiPickerVisible={emojiPickerVisible}
                             onHeightChange={handleInputHeightChange}
+                            selectedUser={selectedUser}
                         />
                     )}
                 </div>

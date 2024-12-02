@@ -15,7 +15,7 @@ import Avatar from 'react-nice-avatar';
 import { io } from 'socket.io-client';
 const socket = io('http://localhost:8081');
 
-function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser, setUsers, handleSelectMessagesStatus }) {
+function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser, setUsers, handleSelectMessagesStatus, isTyping }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -292,6 +292,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
         );
     };
 
+
     return (
         <header className={styles.header}>
             <div className={styles.profileContainer}>
@@ -315,9 +316,16 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                                 Hi <span style={{ color: '#2BB8EE', fontWeight: 'bold' }}>{userData?.username}</span> 😊 !
                             </>
                         )}
+                        
                     </div>
-                    <div>{selectedUser ? users.find(user => user.id === selectedUser.id)?.online_status : ''}</div>
-                </div>
+                    <div>
+                        {isTyping && selectedUser
+                            ? "typing..." 
+                            : (selectedUser 
+                                ? users.find(user => user.id === selectedUser.id)?.online_status 
+                                : '')}
+                    </div>
+                    </div>
             </div>
             <div className={styles.menuContainer}>
                 <div 

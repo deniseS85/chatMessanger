@@ -57,6 +57,7 @@ const userSocketMap = {};
 io.on('connection', (socket) => {
     socket.on('registerUser', (userId) => {
         userSocketMap[userId] = socket.id;
+        socket.join(`user_${userId}`);
         socket.broadcast.emit('userStatusChanged', { userId, status: 'online' });
     });
 
@@ -127,12 +128,22 @@ io.on('connection', (socket) => {
         console.log(`Benutzer ${userId} hat Nachrichten gelöscht: ${messageIds}`);
     });
 
+    // Typing an Freund senden
+    socket.on('typing', ({ status, userId, friendId }) => {
+        socket.to(`user_${friendId}`).emit('typing', { status, userId, friendId });
+    });
+    
+
     socket.on('disconnect', () => {
-       /*  const userId = Object.keys(userSocketMap).find(key => userSocketMap[key] === socket.id);
+        const userId = Object.keys(userSocketMap).find(key => userSocketMap[key] === socket.id);
         if (userId) {
+            // Broadcast, dass der Benutzer offline ist
             socket.broadcast.emit('userStatusChanged', { userId, status: 'offline' });
+    
+            // Benutzer aus der Map entfernen
             delete userSocketMap[userId];
-        } */
+            console.log(`Benutzer ${userId} wurde bei disconnect entfernt.`);
+        }
     });
 });
 

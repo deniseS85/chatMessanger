@@ -4,6 +4,7 @@
 /node_modules
 SQL/node_modules/
 SQL/utils/
+src/config_base_url.js
 /.pnp
 .pnp.js
 

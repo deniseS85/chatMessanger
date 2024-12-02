@@ -4,6 +4,7 @@ import logoIcon from '../../assets/img/logo.png';
 import defaultProfilePic from '../../assets/img/default-profile-img.png';
 import addIcon from '../../assets/img/add-icon.png';
 import Avatar from 'react-nice-avatar';
+import BASE_URL from '../../config_base_url';
 
 function UserList({ users, onUserClick, selectedUser, isHovered, showOnlyProfilePics, addNewContact }) {
     const [searchUser, setsearchUser] = useState('');
@@ -67,7 +68,7 @@ function UserList({ users, onUserClick, selectedUser, isHovered, showOnlyProfile
                             {user?.profilePic ? (
                                 <>
                                 <img 
-                                    src={`http://localhost:8081/uploads/${user.profilePic}`} 
+                                    src={`${BASE_URL}/uploads/${user.profilePic}`} 
                                     className={styles.profilePic} 
                                     alt="Profile" 
                                 />

@@ -9,8 +9,9 @@ import closeIcon from '../../assets/img/close-icon.png';
 import deleteIcon from '../../assets/img/delete-messages.png';
 import Cookies from 'js-cookie';
 import axios from 'axios';
+import BASE_URL from '../../config_base_url';
 import { io } from 'socket.io-client';
-const socket = io('http://localhost:8081');
+const socket = io(BASE_URL);
 
 
 function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser, hasSelectedMessages, setHasSelectedMessages }) {
@@ -28,7 +29,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
 
         if (friendId && userId) {
             try {
-                const response = await axios.get('http://localhost:8081/getMessage', {
+                const response = await axios.get(`${BASE_URL}/getMessage`, {
                     params: { userId, friendId }
                 });
 
@@ -100,7 +101,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         setHasSelectedMessages(false);
 
         try {
-            const response = await axios.post('http://localhost:8081/sendMessage', {
+            const response = await axios.post(`${BASE_URL}/sendMessage`, {
                 sender_id: userId, 
                 recipient_id: friendId,
                 content: messageText,
@@ -272,7 +273,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         const friendId = selectedUser ? selectedUser.id : null;
     
         try {
-            const response = await axios.post('http://localhost:8081/deleteMessages', {
+            const response = await axios.post(`${BASE_URL}/deleteMessages`, {
                 messageIds: selectedMessages,
             });
     

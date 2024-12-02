@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styles from './forgotPassword.module.scss';
 import backIcon from '../../assets/img/back-icon.png';
+import BASE_URL from '../../config_base_url';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -16,7 +17,7 @@ const ForgotPassword = () => {
         setMessage('');
 
         try {
-            const response = await axios.post('http://localhost:8081/forgot-password', { email });
+            const response = await axios.post(`${BASE_URL}/forgot-password`, { email });
             setMessage(response.data.message);
             setEmail('');
             setTimeout(() => {

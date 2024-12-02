@@ -6,6 +6,7 @@ import styles from './login.module.scss';
 import hidePassword from '../../assets/img/password-hide.png';
 import visiblePassword from '../../assets/img/password-visible.png';
 import { v4 as uuidv4 } from 'uuid';
+import BASE_URL from '../../config_base_url';
 
 const Login = ({ onLoginSuccess }) => {
     const [username, setUsername] = useState('');
@@ -25,7 +26,7 @@ const Login = ({ onLoginSuccess }) => {
         }
     
         try {
-            const response = await axios.post('http://localhost:8081/login', { username, password });
+            const response = await axios.post(`${BASE_URL}/login`, { username, password });
     
             if (response.data.success) {
                 const token = uuidv4();

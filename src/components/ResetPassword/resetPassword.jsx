@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import styles from './resetPassword.module.scss';
 import hidePassword from '../../assets/img/password-hide.png';
 import visiblePassword from '../../assets/img/password-visible.png';
+import BASE_URL from '../../config_base_url';
 
 const ResetPassword = () => {
     const { token } = useParams();
@@ -26,7 +27,7 @@ const ResetPassword = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:8081/reset-password', { token, password });
+            const response = await axios.post(`${BASE_URL}/reset-password`, { token, password });
             setMessage(response.data.message);
             setTimeout(() => {
                 navigate('/');

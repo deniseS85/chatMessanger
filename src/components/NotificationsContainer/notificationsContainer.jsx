@@ -2,6 +2,7 @@ import React from 'react';
 import styles from './notificationsContainer.module.scss'; 
 import Avatar from 'react-nice-avatar';
 import defaultProfilePic from '../../assets/img/default-profile-img.png';
+import BASE_URL from '../../config_base_url';
 
 const NotificationsContainer = ({ isOpen, notificationRef, pendingRequests, onNotificationClick }) => {
     return (
@@ -21,7 +22,7 @@ const NotificationsContainer = ({ isOpen, notificationRef, pendingRequests, onNo
                         >
                             {request.profile_img ? (
                                 <img 
-                                    src={`http://localhost:8081/uploads/${request.profile_img}`} 
+                                    src={`${BASE_URL}/uploads/${request.profile_img}`} 
                                     alt={`${request.username}'s profile`} 
                                     className={styles.profilePic}
                                 />

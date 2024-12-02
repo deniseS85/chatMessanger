@@ -5,6 +5,7 @@ import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import Cookies from "js-cookie";
 import axios from 'axios';
+import BASE_URL from '../../config_base_url';
 
 function AddNewContact({ onAddContact, onClose, showAddContactForm }) {
     const [name, setName] = useState('');
@@ -23,7 +24,7 @@ function AddNewContact({ onAddContact, onClose, showAddContactForm }) {
         const userId = Cookies.get('userId');
 
         try {
-            const response = await axios.post('http://localhost:8081/add-contact', { 
+            const response = await axios.post(`${BASE_URL}/add-contact`, {
                 userId, 
                 name, 
                 phoneNumber 

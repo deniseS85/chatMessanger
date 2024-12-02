@@ -3,8 +3,9 @@ import styles from './chatInput.module.scss';
 import sendMessage from '../../assets/img/send-message-icon.png';
 import smileyIcon from '../../assets/img/smiley-icon.png';
 import Cookies from 'js-cookie';
+import BASE_URL from '../../config_base_url';
 import { io } from 'socket.io-client';
-const socket = io('http://localhost:8081');
+const socket = io(BASE_URL);
 
 const emojiMap = {
     ':-)': '🙂',

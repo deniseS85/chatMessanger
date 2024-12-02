@@ -12,8 +12,9 @@ import MyProfile from '../MyProfile/myProfile';
 import NotificationsContainer from '../NotificationsContainer/notificationsContainer';
 import FriendRequestNotification from '../FriendRequestNotification/friendRequestNotification';
 import Avatar from 'react-nice-avatar';
+import BASE_URL from '../../config_base_url';
 import { io } from 'socket.io-client';
-const socket = io('http://localhost:8081');
+const socket = io(BASE_URL);
 
 function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser, setUsers, handleSelectMessagesStatus, isTyping }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,7 +32,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
         const fetchUserData = async () => {
             const userId = Cookies.get('userId');
             try {
-                const response = await axios.get(`http://localhost:8081/users/${userId}`);
+                const response = await axios.get(`${BASE_URL}/users/${userId}`);
                 setUserData(response.data);
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -94,7 +95,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
 
     const fetchOfflineStatus = useCallback(async (userId) => {
         try {
-            const response = await axios.get(`http://localhost:8081/users/${userId}`);
+            const response = await axios.get(`${BASE_URL}/users/${userId}`);
             const onlineStatus = response.data.online_status;
             
             setUsers(prevUsers => 
@@ -144,7 +145,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
         }
     
         try {
-            await axios.post('http://localhost:8081/logout', { userId });
+            await axios.post(`${BASE_URL}/logout`, { userId });
             Cookies.remove('authToken');
             Cookies.remove('username');
             Cookies.remove('userId');
@@ -196,7 +197,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                 type: 'error',
                 isHtml: true,
                 onConfirm: () => {
-                    axios.post('http://localhost:8081/removeFriend', { userId, friendId })
+                    axios.post(`${BASE_URL}/removeFriend`, { userId, friendId })
                         .then(response => {
                             if (response.data.type === 'success') {
                                 setNotification({
@@ -247,7 +248,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
             return (
                 <div className={styles.profilePicWrapper}>
                     <img
-                        src={`http://localhost:8081/uploads/${selectedUser.profilePic}`}
+                        src={`${BASE_URL}/uploads/${selectedUser.profilePic}`}
                         alt={`${selectedUser.username}`}
                         className={styles.profilePic}
                     />    
@@ -273,7 +274,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
         } else if (profileImg) {
             return (
                 <div className={styles.profilePicWrapper}>
-                    <img src={`http://localhost:8081/uploads/${profileImg}`} alt="Profile" className={styles.profilePic} />
+                    <img src={`${BASE_URL}/uploads/${profileImg}`} alt="Profile" className={styles.profilePic} />
                     {onlineStatus === 'online' && (
                         <span className={styles.onlineIndicator}></span>
                     )}

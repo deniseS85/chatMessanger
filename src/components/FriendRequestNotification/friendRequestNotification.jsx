@@ -4,8 +4,9 @@ import styles from './friendRequestNotification.module.scss';
 import Avatar from 'react-nice-avatar';
 import defaultImage from '../../assets/img/default-profile-img.png';
 import closeIcon from '../../assets/img/close-icon.png';
+import BASE_URL from '../../config_base_url';
 import { io } from 'socket.io-client';
-const socket = io('http://localhost:8081')
+const socket = io(BASE_URL);
 
 const FriendRequestNotification = ({ request, onClose, checkForRequests, fetchFriends }) => {
     const [isVisible, setIsVisible] = useState(false);
@@ -17,7 +18,7 @@ const FriendRequestNotification = ({ request, onClose, checkForRequests, fetchFr
         if (request) {
             setIsVisible(true);
 
-            axios.get(`http://localhost:8081/users/${request.UserId1}`)
+            axios.get(`${BASE_URL}/users/${request.UserId1}`)
                 .then(response => {
                     const { username, profile_img, avatar_config } = response.data;
 
@@ -53,7 +54,7 @@ const FriendRequestNotification = ({ request, onClose, checkForRequests, fetchFr
     }, [isVisible]);
 
     const handleClose = useCallback(() => {
-        axios.post('http://localhost:8081/check-friend-request/update-request-status', { requestId: request.FriendID })
+        axios.post(`${BASE_URL}/check-friend-request/update-request-status`, { requestId: request.FriendID })
             .then(response => {
                 setIsVisible(false);
                 setTimeout(() => {
@@ -80,7 +81,7 @@ const FriendRequestNotification = ({ request, onClose, checkForRequests, fetchFr
     }, [handleClickOutside]);
 
     const handleAccept = () => {
-        axios.post('http://localhost:8081/check-friend-request/accept', { requestId: request.FriendID })
+        axios.post(`${BASE_URL}/check-friend-request/accept`, { requestId: request.FriendID })
             .then(response => {
                 if (typeof checkForRequests === 'function') {
                     checkForRequests();
@@ -95,7 +96,7 @@ const FriendRequestNotification = ({ request, onClose, checkForRequests, fetchFr
     };
 
     const handleReject = () => {
-        axios.post('http://localhost:8081/check-friend-request/reject', { requestId: request.FriendID })
+        axios.post(`${BASE_URL}/check-friend-request/reject`, { requestId: request.FriendID })
             .then(response => {
                 if (typeof checkForRequests === 'function') {
                     checkForRequests();
@@ -116,7 +117,7 @@ const FriendRequestNotification = ({ request, onClose, checkForRequests, fetchFr
                     {userInfo.profile_img ? (
                         <img 
                             className={styles.profileImage} 
-                            src={`http://localhost:8081/uploads/${userInfo.profile_img}`} 
+                            src={`${BASE_URL}/uploads/${userInfo.profile_img}`} 
                             alt={`${userInfo.username}'s profile`} 
                         />
                     ) : userInfo.avatar_config ? (

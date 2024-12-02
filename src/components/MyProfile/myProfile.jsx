@@ -14,6 +14,7 @@ import Cookies from "js-cookie";
 import Avatar from 'react-nice-avatar';
 import AvatarSelector from '../AvatarSelector/avatarSelector'; 
 import { formatPhoneNumberIntl } from 'react-phone-number-input';
+import BASE_URL from '../../config_base_url';
 
 
 const MyProfile = ({ onClose, isProfileOpen, updateUserData }) => {
@@ -41,14 +42,14 @@ const MyProfile = ({ onClose, isProfileOpen, updateUserData }) => {
             const fetchUserData = async () => {
                 const userId = Cookies.get('userId');
                 try {
-                    const response = await axios.get(`http://localhost:8081/users/${userId}`);
+                    const response = await axios.get(`${BASE_URL}/users/${userId}`);
                     setUserData(response.data);
                     setFormData({
                         username: response.data.username,
                         email: response.data.email,
                         phone_number: response.data.phone_number,
                         profile_img: response.data.profile_img,
-                        profile_img_preview: response.data.profile_img ? `http://localhost:8081/uploads/${response.data.profile_img}` : '',
+                        profile_img_preview: response.data.profile_img ? `${BASE_URL}/uploads/${response.data.profile_img}` : '',
                         selectedAvatar: response.data.avatar_config ? JSON.parse(response.data.avatar_config) : null,
                     });
                 } catch (error) {
@@ -70,7 +71,7 @@ const MyProfile = ({ onClose, isProfileOpen, updateUserData }) => {
             email: userData?.email || '',
             phone_number: userData?.phone_number || '',
             profile_img: userData?.profile_img || null,
-            profile_img_preview: userData?.profile_img ? `http://localhost:8081/uploads/${userData.profile_img}` : '',
+            profile_img_preview: userData?.profile_img ? `${BASE_URL}/uploads/${userData.profile_img}` : '',
             selectedAvatar: userData?.avatar_config ? JSON.parse(userData.avatar_config) : null,
         });
     };
@@ -158,13 +159,13 @@ const MyProfile = ({ onClose, isProfileOpen, updateUserData }) => {
         }
     
         try {
-            await axios.put(`http://localhost:8081/edit-user/${userId}`, formDataToSend, {
+            await axios.put(`${BASE_URL}/edit-user/${userId}`, formDataToSend, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
             setIsEditing(false);
-            const response = await axios.get(`http://localhost:8081/users/${userId}`);
+            const response = await axios.get(`${BASE_URL}/users/${userId}`);
             setUserData(response.data);
             updateUserData(response.data);
         } catch (error) {
@@ -197,7 +198,7 @@ const MyProfile = ({ onClose, isProfileOpen, updateUserData }) => {
     }, [handleClickOutside]);
 
     const renderProfileImage = () => {
-        const imageSrc = formData.profile_img_preview || (userData?.profile_img ? `http://localhost:8081/uploads/${userData.profile_img}` : defaultProfileImg);
+        const imageSrc = formData.profile_img_preview || (userData?.profile_img ? `${BASE_URL}/uploads/${userData.profile_img}` : defaultProfileImg);
     
         return isEditing ? (
             <>

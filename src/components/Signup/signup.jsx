@@ -11,6 +11,7 @@ import visiblePassword from '../../assets/img/password-visible.png';
 import uploadImage from '../../assets/img/upload-image-icon.png';
 import Avatar from 'react-nice-avatar';
 import AvatarSelector from '../AvatarSelector/avatarSelector';
+import BASE_URL from '../../config_base_url';
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -62,7 +63,7 @@ const Signup = () => {
         if (!validateForm()) return;
     
         try {
-            const response = await axios.post('http://localhost:8081/signup/check-user', {
+            const response = await axios.post(`${BASE_URL}/signup/check-user`, {
                 email: formData.email,
                 phoneNumber: formData.phoneNumber
             });
@@ -120,7 +121,7 @@ const Signup = () => {
         }
 
         try {
-            await axios.post('http://localhost:8081/signup', formDataToSend, {
+            await axios.post(`${BASE_URL}/signup`, formDataToSend, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

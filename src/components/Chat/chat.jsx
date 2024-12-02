@@ -12,8 +12,9 @@ import Cookies from "js-cookie";
 import axios from 'axios';
 import FriendRequestNotification from '../FriendRequestNotification/friendRequestNotification';
 import newMessageSound from '../../assets/audio/new-message.mp3';
+import BASE_URL from '../../config_base_url';
 import { io } from 'socket.io-client';
-const socket = io('http://localhost:8081');
+const socket = io(BASE_URL);
 
 
 const Chat = ({ onLogout }) => {
@@ -38,7 +39,7 @@ const Chat = ({ onLogout }) => {
     const fetchFriends = async () => {
         const userId = Cookies.get('userId');
         try {
-            const response = await axios.get(`http://localhost:8081/friends/${userId}`);
+            const response = await axios.get(`${BASE_URL}/friends/${userId}`);
             setUsers(response.data);
         } catch (error) {
             console.error('Fehler beim Abrufen der Freunde:', error);
@@ -123,7 +124,7 @@ const Chat = ({ onLogout }) => {
 
     const checkForRequests = () => {
         const userId = Cookies.get('userId');
-        axios.get(`http://localhost:8081/check-friend-request/${userId}`)
+        axios.get(`${BASE_URL}/check-friend-request/${userId}`)
             .then(response => {
                 if (response.data.type === 'success') {
                     const { sentRequests, pendingRequests } = response.data;
@@ -163,7 +164,7 @@ const Chat = ({ onLogout }) => {
         // Listener für die Antwort auf Freundschaftsanfragen
         const handleFriendRequestResponse = async (data) => {
             try {
-                const response = await axios.get(`http://localhost:8081/users/${data.senderId}`);
+                const response = await axios.get(`${BASE_URL}/users/${data.senderId}`);
                 const senderName = response.data.username;
                 const { status } = data;
         

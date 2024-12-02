@@ -35,7 +35,8 @@ const emojiMap = {
 function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPickerVisible, onHeightChange, selectedUser }) {
     const textAreaRef = useRef(null);
     const [textAreaHeight, setTextAreaHeight] = useState(window.innerWidth <= 428 ? '35px' : '44px');
-    const [textValue, setTextValue] = useState('');
+   /*  const [textValue, setTextValue] = useState(''); */
+    const [textValues, setTextValues] = useState({});
     const [placeholder, setPlaceholder] = useState(getPlaceholder());
     const [typingStatus, setTypingStatus] = useState(false);
 
@@ -95,7 +96,8 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
             onHeightChange(heightDifference);
     
             if (window.innerWidth <= 428) {
-                if (textValue.trim() === '') {
+                if (textValues[selectedUser.id]?.trim() === '') {
+                /* if (textValue.trim() === '') { */
                     textArea.style.height = '35px';
                     setTextAreaHeight('35px');
                 } else {
@@ -107,7 +109,7 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
                 setTextAreaHeight(newHeight);
             }
         }
-    }, [textValue, onHeightChange]);
+    }, [textValues, onHeightChange, selectedUser?.id]);
     
 
     useEffect(() => {
@@ -147,7 +149,7 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
     }, [adjustHeight]);
 
     // Zeigt ausgewählten Emoji im Textfeld an
-    const insertEmoji = useCallback(() => {
+    /* const insertEmoji = useCallback(() => {
         if (selectedEmoji) {
             setTextValue(prevValue => {
                 const needsLeadingSpace = prevValue.trim().length === 0 || prevValue.trim().endsWith(' ');
@@ -164,19 +166,51 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
                 textAreaRef.current.focus();
             }
         } 
-    }, [selectedEmoji]);  
+    }, [selectedEmoji]);   */
+    const insertEmoji = useCallback(() => {
+        if (selectedEmoji) {
+            const inputId = textAreaRef.current.getAttribute('data-input-id');
+
+            setTextValues(prevValues => {
+                const currentText = prevValues[inputId] || '';
+                const needsLeadingSpace = currentText.trim().length === 0 || currentText.trim().endsWith(' ');
+                const hasTrailingSpace = currentText.endsWith(' ');
+    
+                // Füge Emoji zum Text des aktuellen Benutzers hinzu
+                const newText = (needsLeadingSpace || hasTrailingSpace)
+                    ? currentText + selectedEmoji.emoji + ' '
+                    : currentText + ' ' + selectedEmoji.emoji + ' ';
+    
+                return {
+                    ...prevValues,
+                    [inputId]: newText,
+                };
+            });
+    
+            if (textAreaRef.current && window.innerWidth > 811) {
+                textAreaRef.current.focus();
+            }
+        }
+    }, [selectedEmoji]);    
 
     useEffect(() => {
         insertEmoji();
     }, [selectedEmoji, insertEmoji]);
 
-    useEffect(() => {
+    /* useEffect(() => {
         if (textValue.trim().length > 0) {
             setTypingStatus(true);
         } else {
             setTypingStatus(false);
         }
-    }, [textValue]);
+    }, [textValue]); */
+    useEffect(() => {
+        if (textValues[selectedUser.id]?.trim().length > 0) {
+            setTypingStatus(true);
+        } else {
+            setTypingStatus(false);
+        }
+    }, [textValues, selectedUser.id]);
 
     useEffect(() => {
         sendTypingStatus(typingStatus); 
@@ -186,12 +220,18 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
     const sendNewMessage = (e) => {
         e.preventDefault();
     
-        const trimmedTextValue = textValue.trim();
+       /*  const trimmedTextValue = textValue.trim(); */
+       const trimmedTextValue = textValues[selectedUser.id]?.trim();
+       const inputId = textAreaRef.current.getAttribute('data-input-id');
     
         if (!trimmedTextValue) return;
     
         onSendMessage(trimmedTextValue);
-        setTextValue('');  
+        /* setTextValue('');   */
+        setTextValues(prevValues => ({
+            ...prevValues,
+            [inputId]: '',
+        }));
         sendTypingStatus(false)     
 
         if (textAreaRef.current) {
@@ -202,7 +242,6 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
             }
         }
         hideEmojiPickerByText();
-       
     };
 
     const hideEmojiPickerByText = () => {
@@ -222,7 +261,8 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
     };
 
     const buttonStyle = parseInt(textAreaHeight) > 67 ? '10px' : 'auto';
-    const isSendDisabled = textValue.trim() === '';
+   /*  const isSendDisabled = textValue.trim() === ''; */
+   const isSendDisabled = textValues[selectedUser.id]?.trim() === '';
     const sendIconStyle = {
         bottom: buttonStyle,
         opacity: isSendDisabled ? '0.5' : '1',
@@ -231,7 +271,16 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
 
     const handleTextChange = (e) => {
         const newText = replaceShortcutsWithEmojis(e.target.value);
-        setTextValue(newText);
+        const inputId = e.target.getAttribute('data-input-id');
+        /* setTextValue(newText); */
+        setTextValues(prevValues => {
+            return {
+                ...prevValues,
+                [inputId]: newText, 
+            };
+        });
+
+        console.log(e.target.value);
         adjustHeight();
         sendTypingStatus(newText.trim().length > 0);
     };
@@ -239,11 +288,13 @@ function ChatInput({ toggleEmojiPicker, selectedEmoji, onSendMessage, emojiPicke
     return (
         <div className={styles.inputContainer}>
             <textarea 
+                data-input-id={selectedUser?.id}
                 ref={textAreaRef}
                 className={styles.chatInput}
                 placeholder={placeholder}
                 rows="1"
-                value={textValue}
+              /*   value={textValue} */
+                value={textValues[selectedUser.id] || ''} 
                 onChange={handleTextChange}
                 onClick={hideEmojiPickerByText}
                 onKeyDown={(e) => {

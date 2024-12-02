@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 SQL/node_modules/
+SQL/utils/
 /.pnp
 .pnp.js
 

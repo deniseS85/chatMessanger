@@ -302,6 +302,7 @@ const Chat = ({ onLogout }) => {
                             selectedUser={selectedUser} 
                             hasSelectedMessages={hasSelectedMessages} 
                             setHasSelectedMessages={handleCloseEditMode}
+                            setSelectedEmoji={setSelectedEmoji}
                         />
                     </div>
                     <div className={`${styles['emoji-container']} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>

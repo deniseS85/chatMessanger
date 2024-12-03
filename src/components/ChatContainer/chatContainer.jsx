@@ -14,7 +14,7 @@ import { io } from 'socket.io-client';
 const socket = io(BASE_URL);
 
 
-function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser, hasSelectedMessages, setHasSelectedMessages }) {
+function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser, hasSelectedMessages, setHasSelectedMessages, setSelectedEmoji }) {
     const messagesContainerRef = useRef(null);
     const messagesEndRef = useRef(null);
     const [messages, setMessages] = useState([]);
@@ -99,6 +99,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         setMessages(prevMessages => [newMessage, ...prevMessages]);
         setInitialAnimation(true);
         setHasSelectedMessages(false);
+        
 
         try {
             const response = await axios.post(`${BASE_URL}/sendMessage`, {
@@ -202,7 +203,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         if (!hasSelectedMessages && selectedMessages.length > 0) {
             setSelectedMessages([]);
         }
-    }, [hasSelectedMessages]); 
+    }, [hasSelectedMessages, selectedMessages.length]); 
 
     const handleSelectMessage = (messageId, isChecked) => {
         setSelectedMessages(prevState => {
@@ -491,6 +492,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                             emojiPickerVisible={emojiPickerVisible}
                             onHeightChange={handleInputHeightChange}
                             selectedUser={selectedUser}
+                            setSelectedEmoji={setSelectedEmoji}
                         />
                     )}
                 </div>

@@ -7,6 +7,8 @@ import menuIcon from '../../assets/img/menu-icon.png';
 import backIcon from '../../assets/img/send-message-icon.png';
 import notificationIcon from '../../assets/img/notification.png';
 import defaultProfilePic from '../../assets/img/default-profile-img.png';
+import searchIcon from '../../assets/img/search-icon.png';
+import closeIcon from '../../assets/img/close-icon.png';
 import DropdownMenu from '../DropdownMenu/dropdownMenu';
 import MyProfile from '../MyProfile/myProfile';
 import NotificationsContainer from '../NotificationsContainer/notificationsContainer';
@@ -16,7 +18,7 @@ import BASE_URL from '../../config_base_url';
 import { io } from 'socket.io-client';
 const socket = io(BASE_URL);
 
-function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser, setUsers, handleSelectMessagesStatus, isTyping }) {
+function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser, setUsers, handleSelectMessagesStatus, handleSearchMessagesStatus, setHasSelectedMessages, isSearchOpen, setIsSearchOpen, isTyping, messages }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -27,7 +29,11 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
     const notificationIconRef = useRef(null);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [userData, setUserData] = useState(null);
+    const inputRef = useRef(null);
+    const [searchValue, setSearchValue] = useState('');
 
+    console.log(messages);
+    
     useEffect(() => {
         const fetchUserData = async () => {
             const userId = Cookies.get('userId');
@@ -87,6 +93,8 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
     const showProfile = () => {
         setIsMenuOpen(false);
         setIsProfileOpen(true);
+        setIsSearchOpen(false);
+        setHasSelectedMessages(false);
     }
 
     const closeProfile = () => {
@@ -160,6 +168,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
         if (selectedUser) {
             setIsMenuOpen(false);
             handleSelectMessagesStatus(true);
+            setIsSearchOpen(false);
         } else {
             setIsMenuOpen(false);
             handleSelectMessagesStatus(false);
@@ -176,19 +185,36 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
 
     const handleDeleteChat = () => {
         setIsMenuOpen(false);
+        setHasSelectedMessages(false);
+        setIsSearchOpen(false);
         console.log('Chat löschen');
         // Chat löschen Logik hier
     };
 
     const handleSearchMessages = () => {
-        setIsMenuOpen(false);
-        console.log('Nachricht suchen');
-        // Nachricht suchen Logik hier
+        if (selectedUser) {
+            setIsMenuOpen(false);
+            handleSearchMessagesStatus(true);
+            setHasSelectedMessages(false);
+        } else {
+            setIsMenuOpen(false);
+            handleSearchMessagesStatus(false);
+            setNotification({
+                message: 'Please open a chat first to search for messages.',
+                type: 'error',
+                isHtml: true,
+                onClose: () => {
+                    setNotification(null);
+                }
+            });
+        }
     };
 
     const handleRemoveContact = () => {
         if (selectedUser) {
             setIsMenuOpen(false);
+            setHasSelectedMessages(false);
+            setIsSearchOpen(false);
             const friendId = selectedUser.id;
             const userId = Cookies.get('userId');
             
@@ -240,63 +266,107 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
         setSelectedRequest(null);
     };
 
-    const getProfileImage = () => {
-        const user = users.find(user => user.id === selectedUser?.id);
-        const onlineStatus = user ? user.online_status : selectedUser?.online_status;
-        
-        if (selectedUser && selectedUser.profilePic) {
+    // zeigt Online/Offline-Status an
+    const getOnlineIndicator = (onlineStatus) => {
+        if (onlineStatus === 'online') {
+            return <span className={styles.onlineIndicator}></span>;
+        }
+        return null;
+    };
+
+    // wenn Upload Profilbild vorhanden ist
+    const renderUploadedProfilePic = (profilePic, username) => (
+        <div className={styles.profilePicWrapper}>
+            <img
+                src={`${BASE_URL}/uploads/${profilePic}`}
+                alt={username}
+                className={styles.profilePic}
+            />
+        </div>
+    );
+    
+    // wenn Avatar Profilbild vorhanden ist
+    const renderAvatar = (avatarConfig, onlineStatus) => (
+        <div className={styles.profilePicWrapper}>
+            <Avatar {...JSON.parse(avatarConfig)} className={styles.profilePic} />
+            {getOnlineIndicator(onlineStatus)}
+        </div>
+    );
+
+    // wenn Profilbild in userData (eigenes Profil) vorhanden ist
+    const renderLoginImg = (profileImg, onlineStatus) => (
+        <div className={styles.profilePicWrapper}>
+            <img
+                src={`${BASE_URL}/uploads/${profileImg}`}
+                alt="Profile"
+                className={styles.profilePic}
+            />
+            {getOnlineIndicator(onlineStatus)}
+        </div>
+    );
+
+    // Profilbild wird gesetzt
+    const getProfileImage = (user = selectedUser || userData) => {
+        if (!user) {
             return (
                 <div className={styles.profilePicWrapper}>
                     <img
-                        src={`${BASE_URL}/uploads/${selectedUser.profilePic}`}
-                        alt={`${selectedUser.username}`}
+                        src={defaultProfilePic}
+                        alt="Default Profile"
                         className={styles.profilePic}
-                    />    
-                    {onlineStatus === 'online' && (
-                        <span className={styles.onlineIndicator}></span>
-                )}
-                </div> 
-                );
-        }
-    
-        const avatarConfig = selectedUser ? selectedUser?.avatar_config : userData?.avatar_config;
-        const profileImg = userData?.profile_img;
-    
-        if (avatarConfig) {
-            return (
-                <div className={styles.profilePicWrapper}>
-                    <Avatar {...JSON.parse(avatarConfig)} className={styles.profilePic} />
-                    {onlineStatus === 'online' && (
-                        <span className={styles.onlineIndicator}></span>
-                    )}
-                </div>
-            );
-        } else if (profileImg) {
-            return (
-                <div className={styles.profilePicWrapper}>
-                    <img src={`${BASE_URL}/uploads/${profileImg}`} alt="Profile" className={styles.profilePic} />
-                    {onlineStatus === 'online' && (
-                        <span className={styles.onlineIndicator}></span>
-                    )}
-                   
+                    />
                 </div>
             );
         }
-    
+
+        const foundUser = users.find(u => u.id === user.id);
+        const onlineStatus = foundUser ? foundUser.online_status : user.online_status;
+       
+        // wenn Upload Profilbild (Freund)
+        if (user.profilePic) {
+            return renderUploadedProfilePic(user.profilePic, user.username);
+        }
+
+        // wenn Avatar Profilbild (Freund)
+        if (user.avatar_config) {
+            return renderAvatar(user.avatar_config, onlineStatus);
+        }
+
+        // wenn Upload oder Avatar (eigenes Profil)
+        if (user.profile_img) {
+            return renderLoginImg(user.profile_img, onlineStatus);
+        }
+
+        // wenn kein Profilbild, setze defaultbild
         return (
             <div className={styles.profilePicWrapper}>
-                <img src={defaultProfilePic} alt="Default Profile" className={styles.profilePic} />
-                {onlineStatus === 'online' && (
-                    <span className={styles.onlineIndicator}></span>
-                )}
+                <img
+                    src={defaultProfilePic}
+                    alt="Default Profile"
+                    className={styles.profilePic}
+                />
+                {getOnlineIndicator(onlineStatus)}
             </div>
         );
     };
 
+    useEffect(() => {
+        if (isSearchOpen && inputRef.current) {
+            const timeout = setTimeout(() => {
+                inputRef.current.focus();
+            }, 300); 
+            return () => clearTimeout(timeout);
+        }
+    }, [isSearchOpen]);
+
+    const handleInputChange = (e) => {
+        const value = e.target.value;
+        setSearchValue(value);
+    };
 
     return (
-        <header className={styles.header}>
-            <div className={styles.profileContainer}>
+        <header className={`${styles.header} ${isSearchOpen ? styles.searchOpen : ''}`}>
+            <div className={`${styles.profileContainer} ${isSearchOpen ? styles.searchOpen : ''}`}>
                 <img 
                     src={backIcon}
                     alt='Back'
@@ -317,7 +387,6 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                                 Hi <span style={{ color: '#2BB8EE', fontWeight: 'bold' }}>{userData?.username}</span> 😊 !
                             </>
                         )}
-                        
                     </div>
                     <div>
                         {isTyping && selectedUser
@@ -326,9 +395,66 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                                 ? users.find(user => user.id === selectedUser.id)?.online_status 
                                 : '')}
                     </div>
-                    </div>
+                </div>
             </div>
-            <div className={styles.menuContainer}>
+
+            <div className={`${styles.searchContainer} ${isSearchOpen ? styles.visible : styles.hidden}`}>
+                <img 
+                    src={searchIcon} 
+                    alt="Search" 
+                    className={styles.searchIcon} 
+                />
+                <input 
+                    ref={inputRef}
+                    type="text" 
+                    value={searchValue}
+                    onChange={handleInputChange}
+                    className={`${styles.searchInput} ${searchValue ? styles.searchResults : ''}`} 
+                    placeholder="Search messages..." 
+                />
+                <img
+                    src={closeIcon}
+                    alt="Close"
+                    className={styles.closeButton} 
+                    onClick={() => handleSearchMessagesStatus(false)}  
+                />
+                <div className={`${styles.searchResultsContainer} ${searchValue ? styles.visible : styles.hidden}`}>
+                    {messages
+                        .filter(message => message.content.toLowerCase().includes(searchValue.toLowerCase()))
+                        .map(message => {
+                            const allUsers = [userData, ...users];
+                            const user = allUsers.find(user => user.id === message.sender_id);
+                            const userName = user?.username;
+                            const date = new Date(message.timestamp).toLocaleString();
+
+                            const highlightedMessage = message.content.split(new RegExp(`(${searchValue})`, 'gi')).map((part, index) => 
+                                part.toLowerCase() === searchValue.toLowerCase() ? 
+                                    <span key={index} className={styles.highlight}>{part}</span> : part
+                            );
+
+                            return (
+                                <div key={message.message_id} className={styles.searchResultItem}>
+                                    <div>
+                                        {getProfileImage(user) || (
+                                            <img src={defaultProfilePic} alt="Default Profile" className={styles.profilePic} />
+                                        )}
+                                    </div>
+                                    <div className={styles.resultContent}>
+                                        <div className={styles.resultProfileInfo}>
+                                            <div>{userName}</div>
+                                            <div>{date}</div>
+                                        </div>
+                                        <div className={styles.resultMessage}>
+                                            <span>{highlightedMessage}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                </div>
+            </div>
+
+            <div className={`${styles.menuContainer} ${isSearchOpen ? styles.searchOpen : ''}`}>
                 <div 
                     className={styles.notificationContainer}
                     onClick={toggleNotification}

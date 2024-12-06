@@ -7,6 +7,7 @@ import deliveredIcon from '../../assets/img/delivered-icon.png';
 import readIcon from '../../assets/img/read-icon.png';
 import closeIcon from '../../assets/img/close-icon.png';
 import deleteIcon from '../../assets/img/delete-messages.png';
+import calenderIcon from '../../assets/img/calender.png';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import BASE_URL from '../../config_base_url';
@@ -14,10 +15,9 @@ import { io } from 'socket.io-client';
 const socket = io(BASE_URL);
 
 
-function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser, hasSelectedMessages, setHasSelectedMessages, setSelectedEmoji }) {
+function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser, hasSelectedMessages, setHasSelectedMessages, setSelectedEmoji, isSearchOpen, messages, setMessages }) {
     const messagesContainerRef = useRef(null);
     const messagesEndRef = useRef(null);
-    const [messages, setMessages] = useState([]);
     const [inputHeightDiff, setInputHeightDiff] = useState(0);
     const [selectedMessages, setSelectedMessages] = useState([]);
     const [isInitalAnimation, setInitialAnimation] = useState(true);
@@ -99,7 +99,6 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         setMessages(prevMessages => [newMessage, ...prevMessages]);
         setInitialAnimation(true);
         setHasSelectedMessages(false);
-        
 
         try {
             const response = await axios.post(`${BASE_URL}/sendMessage`, {
@@ -483,6 +482,15 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                                 className={`${styles.deleteIcon} ${selectedMessages.length === 0 ? styles.disabled : ''}`}
                                 onClick={handleDeleteMessages}
                             />
+                        </div>
+                    ) : isSearchOpen ? (
+                        <div className={styles.searchMessagesContainer}>
+                            <img src={calenderIcon}
+                                alt="Calender"
+                                className={styles.calenderIcon}
+                            />
+                            <div>Select a date</div>
+                            
                         </div>
                     ) : (
                         <ChatInput

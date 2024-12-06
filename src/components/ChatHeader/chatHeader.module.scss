@@ -11,13 +11,22 @@
     box-shadow: 0 0 3px $purple;
     height: 80px;
     min-height: 80px;
-    /* position: relative; */
+    @media (max-width: 570px) {
+        &.searchOpen {
+          padding: 10px 20px;
+        }
+    }
     @media (max-width: 428px) {
         margin-top: 10px;
         border-radius: 10px;
         height: 50px;
         min-height: 50px;
         padding: 10px;
+        &.searchOpen {
+            background-color: transparent;
+            box-shadow: none;
+            padding: 0;
+        }
     }
     .profileContainer {
         display: flex;
@@ -25,6 +34,11 @@
         gap: 20px;
         @media (max-width: 428px) {
             gap: 10px;
+        }
+        @media (max-width: 570px) {
+            &.searchOpen {
+              display: none;
+            }
         }
         .backIcon {
             width: 30px;
@@ -78,14 +92,193 @@
             > div:first-child {
                 font-size: 18px;
                 font-weight: bold;
-
+                white-space: nowrap;
                 @media (max-width: 428px) {
                     font-size: 16px;
                 }
             }
+            > div:last-child {
+                white-space: nowrap;
+            }
             @media (max-width: 428px) {
                 > div:last-child {
                     font-size: 12px;
+                }
+            }
+        }
+    }
+    .searchContainer {
+        display: flex;
+        align-items: center;
+        position: relative;
+        flex: 1;
+        margin: 0 20px;
+        opacity: 0;
+        width: 0;
+        transition: opacity 0.3s ease;
+        @media (max-width: 570px) {
+           margin: 0;
+        }
+        &.visible {
+            opacity: 1;
+            width: 100%;
+        }
+        &.hidden {
+            opacity: 0;
+            width: 0;
+            pointer-events: none; 
+        }
+        .searchIcon {
+            width: clamp(1.25rem, 1.2054rem + 0.2232vw, 1.5625rem);
+            position: absolute;
+            left: 10px;
+        }
+        .searchInput {
+            flex: 1;
+            padding: 10px 50px;
+            border-radius: 18px;
+            border: none;
+            box-shadow: 0 0 3px #7F76FF;
+            outline: none;
+            background-color: #2d2d44;
+            color: $fontColor;
+            font-size: 16px;
+            overflow-y: auto;
+            &.searchResults {
+                border-radius: 18px 18px 0 0; 
+            }
+            @media (max-width: 570px) {
+               border-radius: 20px;
+            }
+            @media (max-width: 428px) {
+                border-radius: 10px;
+                font-size: 14px;
+            }
+        }
+        .closeButton {
+            width: clamp(1.25rem, 1.2054rem + 0.2232vw, 1.5625rem);
+            cursor: pointer;
+            position: absolute;
+            right: 10px;
+            transition: transform 0.3s;
+            &:hover {
+                transform: scale(1.2);
+            }
+        }
+        .searchResultsContainer {
+            position: absolute;
+            top: 44px;
+            box-shadow: 0 0 3px #7F76FF;
+            clip-path: inset(0px -5px -5px -5px);
+            background-color: #2d2d44;
+            width: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+            padding: 0px;
+            color: $fontColor;
+            font-size: 16px;
+            height: 0;
+            border-radius: 0 0 18px 18px; 
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            @media (max-width: 428px) {
+                top: 40px;
+                font-size: 14px;
+            }
+            &.visible {
+                opacity: 1;
+                width: 100%;
+                height: auto; 
+                padding: 10px 6px;
+                @media (max-width: 428px) {
+                    padding: 5px;
+                }
+            }
+            &.hidden {
+                opacity: 0;
+                width: 0;
+                height: 0;
+                padding: 0px;
+            }
+        }
+        .searchResultItem {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: $fontColor;
+            cursor: pointer;
+            padding: 8px 10px;
+            border-radius: 18px;
+            transition: background-color 0.3s ease, border-radius 0.3s ease; 
+            @media (max-width: 428px) {
+                padding: 10px;
+            }
+            &:hover {
+                background-color: $itemColor;
+                border-radius: 18px;
+            }
+            .profilePic {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 1.5px solid $purple;
+    
+                @media (max-width: 428px) {
+                    width: 42px;
+                    height: 42px;
+                }
+            }
+            .profilePicWrapper {
+                position: relative;
+                .onlineIndicator {
+                    position: absolute;
+                    bottom: 1px;
+                    right: 3px;
+                    width: 15px;
+                    height: 15px;
+                    background-color: #3ff03f;
+                    border-radius: 50%;
+                    border: 1.5px solid $purple;
+                    @media (max-width: 428px) {
+                        bottom: 0px;
+                        right: 2px;
+                        width: 12px;
+                        height: 12px;
+                    }
+                }
+            }
+            .resultContent{
+                display: flex;
+                flex: 1;
+                flex-direction: column;
+                gap: 5px;
+                .resultProfileInfo{
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    div:first-child {
+                        font-size: 14px;
+                    }
+                    div:last-child {
+                        font-size: 12px;
+                        opacity: 0.6;
+                    }
+                }
+                .resultMessage {
+                    font-size: 14px;
+                    opacity: 0.8;
+                    .highlight {
+                        background-color: $turquise;
+                        color: $itemColor;
+                        opacity: 1;
+                        font-weight: bold;
+                        padding: 0px 2px;
+                        border-radius: 4px;
+                        margin-right: 1px;
+                    }
                 }
             }
         }
@@ -95,6 +288,11 @@
         align-items: center;
         display: flex;
         gap: clamp(0.3125rem, 0.2679rem + 0.2232vw, 0.625rem);
+        @media (max-width: 570px) {
+            &.searchOpen {
+              display: none;
+            }
+        }
         .notificationContainer {
             position: relative;
             cursor: pointer;

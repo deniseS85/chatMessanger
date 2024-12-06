@@ -33,8 +33,10 @@ const Chat = ({ onLogout }) => {
     const [pendingRequests, setPendingRequests] = useState([]);
     const [users, setUsers] = useState([]);
     const [hasSelectedMessages, setHasSelectedMessages] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
     const [typingStatuses, setTypingStatuses] = useState({});
+    const [messages, setMessages] = useState([]);
     
     const fetchFriends = async () => {
         const userId = Cookies.get('userId');
@@ -252,6 +254,10 @@ const Chat = ({ onLogout }) => {
         setHasSelectedMessages((prevStatus) => !prevStatus);
     };
 
+    const handleSearchMessagesStatus = (status) => {
+        setIsSearchOpen(status);
+    };
+
     const handleCloseEditMode = () => {
         setHasSelectedMessages(false);
     };
@@ -291,7 +297,12 @@ const Chat = ({ onLogout }) => {
                     setSelectedUser={setSelectedUser}
                     setUsers={setUsers}
                     handleSelectMessagesStatus={handleSelectMessagesStatus}
+                    setHasSelectedMessages={setHasSelectedMessages}
+                    handleSearchMessagesStatus={handleSearchMessagesStatus}
+                    isSearchOpen={isSearchOpen}
+                    setIsSearchOpen={setIsSearchOpen}
                     isTyping={isTyping}
+                    messages={messages}
                 />
                 <div className={styles['chat-layout']}>
                     <div className={styles['chat-container']}>
@@ -303,6 +314,9 @@ const Chat = ({ onLogout }) => {
                             hasSelectedMessages={hasSelectedMessages} 
                             setHasSelectedMessages={handleCloseEditMode}
                             setSelectedEmoji={setSelectedEmoji}
+                            isSearchOpen={isSearchOpen}
+                            messages={messages}
+                            setMessages={setMessages}
                         />
                     </div>
                     <div className={`${styles['emoji-container']} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>

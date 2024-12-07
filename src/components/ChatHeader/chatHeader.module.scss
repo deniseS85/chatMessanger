@@ -89,6 +89,9 @@
         .profileInfo {
             display: flex;
             flex-direction: column;
+            &.searchOpen {
+                display: none;
+            }
             > div:first-child {
                 font-size: 18px;
                 font-weight: bold;
@@ -225,7 +228,6 @@
                 border-radius: 50%;
                 object-fit: cover;
                 border: 1.5px solid $purple;
-    
                 @media (max-width: 428px) {
                     width: 42px;
                     height: 42px;
@@ -250,7 +252,7 @@
                     }
                 }
             }
-            .resultContent{
+            .resultContent {
                 display: flex;
                 flex: 1;
                 flex-direction: column;
@@ -260,7 +262,7 @@
                     justify-content: space-between;
                     align-items: center;
                     div:first-child {
-                        font-size: 14px;
+                        font-size: clamp(0.875rem, 0.8571rem + 0.0893vw, 1rem);
                     }
                     div:last-child {
                         font-size: 12px;
@@ -268,7 +270,7 @@
                     }
                 }
                 .resultMessage {
-                    font-size: 14px;
+                    font-size: clamp(0.8125rem, 0.7946rem + 0.0893vw, 0.9375rem);
                     opacity: 0.8;
                     .highlight {
                         background-color: $turquise;
@@ -281,6 +283,10 @@
                     }
                 }
             }
+        }
+        .noResults {
+            text-align: center;
+            font-size: clamp(0.875rem, 0.8571rem + 0.0893vw, 1rem);
         }
     }
     

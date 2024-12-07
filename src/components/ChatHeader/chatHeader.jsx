@@ -31,8 +31,6 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
     const [userData, setUserData] = useState(null);
     const inputRef = useRef(null);
     const [searchValue, setSearchValue] = useState('');
-
-    console.log(messages);
     
     useEffect(() => {
         const fetchUserData = async () => {
@@ -210,6 +208,56 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
         }
     };
 
+    useEffect(() => {
+        if (isSearchOpen && inputRef.current) {
+            const timeout = setTimeout(() => {
+                inputRef.current.focus();
+            }, 300); 
+            return () => clearTimeout(timeout);
+        }
+    }, [isSearchOpen]);
+
+    const handleInputChange = (e) => {
+        const value = e.target.value;
+        setSearchValue(value);
+    };
+
+    const handleCloseSearch = () => {
+        handleSearchMessagesStatus(false);
+        setSearchValue('');
+    };
+
+    useEffect(() => {
+        handleSearchMessagesStatus(false);
+        setSearchValue('');
+    }, [selectedUser]);
+
+    const getFormattedDate = (timestamp) => {
+        const messageDate = new Date(timestamp);
+        const now = new Date();
+    
+        const isToday = messageDate.getDate() === now.getDate() && messageDate.getMonth() === now.getMonth() && messageDate.getFullYear() === now.getFullYear();
+        const dayDifference = Math.floor((now - messageDate) / (1000 * 60 * 60 * 24));
+        const isThisWeek = dayDifference <= now.getDay() && dayDifference > 0;
+    
+        return isToday
+            ? messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            : isThisWeek
+            ? messageDate.toLocaleDateString('en-US', { weekday: 'short' })
+            : messageDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    };
+
+    const highlightSearch = (messageContent, searchValue) => {
+        return messageContent
+            .split(new RegExp(`(${searchValue})`, 'gi'))
+            .map((part, index) =>
+                part.toLowerCase() === searchValue.toLowerCase() ?
+                    <span key={index} className={styles.highlight}>{part}</span> : part
+            );
+    };
+    
+    
+
     const handleRemoveContact = () => {
         if (selectedUser) {
             setIsMenuOpen(false);
@@ -350,20 +398,6 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
         );
     };
 
-    useEffect(() => {
-        if (isSearchOpen && inputRef.current) {
-            const timeout = setTimeout(() => {
-                inputRef.current.focus();
-            }, 300); 
-            return () => clearTimeout(timeout);
-        }
-    }, [isSearchOpen]);
-
-    const handleInputChange = (e) => {
-        const value = e.target.value;
-        setSearchValue(value);
-    };
-
     return (
         <header className={`${styles.header} ${isSearchOpen ? styles.searchOpen : ''}`}>
             <div className={`${styles.profileContainer} ${isSearchOpen ? styles.searchOpen : ''}`}>
@@ -378,7 +412,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                         <img src={defaultProfilePic} alt="Default Profile" className={styles.profilePic} />
                     )}
                 </div>
-                <div className={styles.profileInfo}>
+                <div className={`${styles.profileInfo} ${isSearchOpen ? styles.searchOpen : ''}`}>
                     <div>
                         {selectedUser ? (
                             selectedUser.username
@@ -416,42 +450,53 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                     src={closeIcon}
                     alt="Close"
                     className={styles.closeButton} 
-                    onClick={() => handleSearchMessagesStatus(false)}  
+                    onClick={handleCloseSearch} 
                 />
                 <div className={`${styles.searchResultsContainer} ${searchValue ? styles.visible : styles.hidden}`}>
-                    {messages
-                        .filter(message => message.content.toLowerCase().includes(searchValue.toLowerCase()))
-                        .map(message => {
-                            const allUsers = [userData, ...users];
-                            const user = allUsers.find(user => user.id === message.sender_id);
-                            const userName = user?.username;
-                            const date = new Date(message.timestamp).toLocaleString();
+                    {searchValue ? (
+                        messages.filter(message => 
+                            message.content.toLowerCase().includes(searchValue.toLowerCase())
+                        ).length > 0 ? (
+                            messages
+                                .filter(message => 
+                                    message.content.toLowerCase().includes(searchValue.toLowerCase())
+                                )
+                                .map(message => {
+                                    const allUsers = [userData, ...users];
+                                    const user = allUsers.find(user => user.id === message.sender_id);
+                                    const userName = user?.username;
+                                    const date = getFormattedDate(message.timestamp);
+                                    const highlightedMessage = highlightSearch(message.content, searchValue);
 
-                            const highlightedMessage = message.content.split(new RegExp(`(${searchValue})`, 'gi')).map((part, index) => 
-                                part.toLowerCase() === searchValue.toLowerCase() ? 
-                                    <span key={index} className={styles.highlight}>{part}</span> : part
-                            );
-
-                            return (
-                                <div key={message.message_id} className={styles.searchResultItem}>
-                                    <div>
-                                        {getProfileImage(user) || (
-                                            <img src={defaultProfilePic} alt="Default Profile" className={styles.profilePic} />
-                                        )}
-                                    </div>
-                                    <div className={styles.resultContent}>
-                                        <div className={styles.resultProfileInfo}>
-                                            <div>{userName}</div>
-                                            <div>{date}</div>
+                                    return (
+                                        <div key={message.message_id} className={styles.searchResultItem}>
+                                            <div>
+                                                {getProfileImage(user) || (
+                                                    <img 
+                                                        src={defaultProfilePic} 
+                                                        alt="Default Profile" 
+                                                        className={styles.profilePic} 
+                                                    />
+                                                )}
+                                            </div>
+                                            <div className={styles.resultContent}>
+                                                <div className={styles.resultProfileInfo}>
+                                                    <div>{userName}</div>
+                                                    <div>{date}</div>
+                                                </div>
+                                                <div className={styles.resultMessage}>
+                                                    <span>{highlightedMessage}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className={styles.resultMessage}>
-                                            <span>{highlightedMessage}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                    );
+                                })
+                        ) : (
+                            <div className={styles.noResults}>No results found for "{searchValue}".</div>
+                        )
+                    ) : null}
                 </div>
+
             </div>
 
             <div className={`${styles.menuContainer} ${isSearchOpen ? styles.searchOpen : ''}`}>

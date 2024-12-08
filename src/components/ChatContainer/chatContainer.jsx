@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
+import 'react-datepicker/dist/react-datepicker.css';
 import styles from './chatContainer.module.scss';
+import DatePicker from 'react-datepicker';
+import { format } from "date-fns"; 
 import ChatInput from '../ChatInput/chatInput';
 import welcomImage from '../../assets/img/welcome-image.png';
 import sentIcon from '../../assets/img/sent-icon.png';
@@ -15,7 +18,7 @@ import { io } from 'socket.io-client';
 const socket = io(BASE_URL);
 
 
-function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser, hasSelectedMessages, setHasSelectedMessages, setSelectedEmoji, isSearchOpen, messages, setMessages, showMessageFoundId }) {
+function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser, hasSelectedMessages, setHasSelectedMessages, setSelectedEmoji, isSearchOpen, messages, setMessages, showMessageFoundId, handleSearchMessagesStatus }) {
     const messagesContainerRef = useRef(null);
     const messagesEndRef = useRef(null);
     const [inputHeightDiff, setInputHeightDiff] = useState(0);
@@ -23,7 +26,11 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
     const [isInitalAnimation, setInitialAnimation] = useState(true);
     const [groupedMessages, setGroupedMessages] = useState({});
     const messageRefs = useRef({});
+    const dateRefs = useRef({});
     const [messageHighlight, setMessageHighlight] = useState(null);
+    const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [displayDate, setDisplayDate] = useState(new Date());
 
     const fetchMessages = async () => {
         const userId = Cookies.get('userId');
@@ -398,10 +405,10 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
     }, [selectedUser]);
 
     useEffect(() => {
-        if (showMessageFoundId && messageRefs.current[showMessageFoundId]) {
-            const element = messageRefs.current[showMessageFoundId];
-            element.scrollIntoView({ behavior: "smooth", block: "center" });
+        const element = messageRefs.current[showMessageFoundId];
 
+        if (showMessageFoundId && element) {
+            element.scrollIntoView({ behavior: "smooth", block: "center" });
             setMessageHighlight(showMessageFoundId);
 
             setTimeout(() => {
@@ -409,6 +416,51 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
             }, 2100);
         }
     }, [showMessageFoundId]); 
+
+    const toggleCalendar = () => {
+        setIsCalendarVisible(!isCalendarVisible);
+    };
+
+    useEffect(() => {
+        if (isCalendarVisible) {
+            setDisplayDate(new Date());
+        }
+    }, [isCalendarVisible]);
+
+    const handleDateChange = (date) => {
+        setSelectedDate(date); 
+        setIsCalendarVisible(false);
+        scrollToDate(date);
+    };
+    
+    useEffect(() => {
+        if (selectedDate) {
+            scrollToDate(selectedDate);
+        }
+    }, [selectedDate]);
+
+    const activeDates = Object.keys(groupedMessages).map((date) => {
+        const [day, month, year] = date.split('.');
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    });
+
+    const scrollToDate = (targetDate) => {
+        const formattedDate = format(targetDate, "d.M.yyyy");
+        const targetElement = dateRefs.current[formattedDate];
+        const parentElement = targetElement.parentElement;
+        const firstMessageElement = parentElement.children[1];
+        
+        if (targetElement && firstMessageElement) {
+            handleSearchMessagesStatus(false);
+            targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+            const firstMessageId = parseInt(firstMessageElement.dataset.messageId, 10);
+            setMessageHighlight(firstMessageId);
+
+            setTimeout(() => {
+                setMessageHighlight(null);
+            }, 2100);
+        }
+    };
 
     return (
         <div className={`${styles.chatContainer} ${!emojiPickerVisible ? styles['emoji-hidden'] : ''}`} >
@@ -419,8 +471,10 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
     
                         return (
                             <div key={date} className={styles.messageByDate}>
-                                <div className={styles.dateSeparator}
+                                <div
+                                    className={styles.dateSeparator}
                                     data-date={date}
+                                    ref={(el) => { dateRefs.current[date] = el; }}
                                 >
                                     {date}
                                 </div>
@@ -430,6 +484,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
     
                                     return (
                                     <div key={message.message_id} 
+                                        data-message-id={message.message_id}
                                         className={`${styles.messageWrapper} 
                                             ${isSendMessage ? styles.send : styles.receive}
                                             ${messageHighlight === message.message_id ? styles.highlight : ''}
@@ -438,9 +493,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                                         >
                                         <div
                                             data-message-id={message.message_id}
-                                            ref={(el) => {
-                                                messageRefs.current[message.message_id] = el;
-                                            }}
+                                            ref={(el) => { messageRefs.current[message.message_id] = el; }}
                                             className={`${styles.message}
                                                         ${styles[message.type]}
                                                         ${hasSelectedMessages && isSendMessage ? styles.selectMessageOption : ''}
@@ -512,9 +565,25 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                             <img src={calenderIcon}
                                 alt="Calender"
                                 className={styles.calenderIcon}
+                                onClick={toggleCalendar}
                             />
                             <div>Select a date</div>
-                            
+                            <div className={`${styles.datePickerWrapper} ${isCalendarVisible ? styles.visible : ''}`}>
+                                <DatePicker
+                                    selected={displayDate}
+                                    onChange={handleDateChange}
+                                    inline
+                                    onClickOutside={() => setIsCalendarVisible(false)}
+                                    dayClassName={(date) => {
+                                        const formattedDate = format(date, "yyyy-MM-dd");
+                                        return activeDates.includes(formattedDate) ? `day-${formattedDate}` : 'react-datepicker__day--disabled';
+                                    }}
+                                    filterDate={(date) => {
+                                        const formattedDate = format(date, "yyyy-MM-dd");
+                                        return activeDates.includes(formattedDate);
+                                    }}
+                                />
+                            </div>
                         </div>
                     ) : (
                         <ChatInput

@@ -320,6 +320,7 @@ const Chat = ({ onLogout }) => {
                             messages={messages}
                             setMessages={setMessages}
                             showMessageFoundId={showMessageFoundId}
+                            handleSearchMessagesStatus={handleSearchMessagesStatus}
                         />
                     </div>
                     <div className={`${styles['emoji-container']} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>

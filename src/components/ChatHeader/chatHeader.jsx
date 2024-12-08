@@ -18,7 +18,7 @@ import BASE_URL from '../../config_base_url';
 import { io } from 'socket.io-client';
 const socket = io(BASE_URL);
 
-function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser, setUsers, handleSelectMessagesStatus, handleSearchMessagesStatus, setHasSelectedMessages, isSearchOpen, setIsSearchOpen, isTyping, messages }) {
+function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser, setUsers, handleSelectMessagesStatus, handleSearchMessagesStatus, setHasSelectedMessages, isSearchOpen, setIsSearchOpen, isTyping, messages, setShowMessageFoundId }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -228,8 +228,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
     };
 
     useEffect(() => {
-        handleSearchMessagesStatus(false);
-        setSearchValue('');
+        handleCloseSearch();
     }, [selectedUser]);
 
     const getFormattedDate = (timestamp) => {
@@ -255,9 +254,15 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                     <span key={index} className={styles.highlight}>{part}</span> : part
             );
     };
-    
-    
 
+    const showFoundMessage = (messageId) => {
+        setShowMessageFoundId(null);  
+        setTimeout(() => {
+            setShowMessageFoundId(messageId);
+        }, 0); 
+        handleCloseSearch();
+    };
+    
     const handleRemoveContact = () => {
         if (selectedUser) {
             setIsMenuOpen(false);
@@ -469,7 +474,11 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                                     const highlightedMessage = highlightSearch(message.content, searchValue);
 
                                     return (
-                                        <div key={message.message_id} className={styles.searchResultItem}>
+                                        <div 
+                                            key={message.message_id} 
+                                            className={styles.searchResultItem}
+                                            onClick={() => showFoundMessage(message.message_id)}
+                                        >
                                             <div>
                                                 {getProfileImage(user) || (
                                                     <img 
@@ -496,7 +505,6 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                         )
                     ) : null}
                 </div>
-
             </div>
 
             <div className={`${styles.menuContainer} ${isSearchOpen ? styles.searchOpen : ''}`}>

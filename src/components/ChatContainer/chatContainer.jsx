@@ -15,13 +15,15 @@ import { io } from 'socket.io-client';
 const socket = io(BASE_URL);
 
 
-function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser, hasSelectedMessages, setHasSelectedMessages, setSelectedEmoji, isSearchOpen, messages, setMessages }) {
+function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser, hasSelectedMessages, setHasSelectedMessages, setSelectedEmoji, isSearchOpen, messages, setMessages, showMessageFoundId }) {
     const messagesContainerRef = useRef(null);
     const messagesEndRef = useRef(null);
     const [inputHeightDiff, setInputHeightDiff] = useState(0);
     const [selectedMessages, setSelectedMessages] = useState([]);
     const [isInitalAnimation, setInitialAnimation] = useState(true);
     const [groupedMessages, setGroupedMessages] = useState({});
+    const messageRefs = useRef({});
+    const [messageHighlight, setMessageHighlight] = useState(null);
 
     const fetchMessages = async () => {
         const userId = Cookies.get('userId');
@@ -395,10 +397,22 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         }
     }, [selectedUser]);
 
+    useEffect(() => {
+        if (showMessageFoundId && messageRefs.current[showMessageFoundId]) {
+            const element = messageRefs.current[showMessageFoundId];
+            element.scrollIntoView({ behavior: "smooth", block: "center" });
+
+            setMessageHighlight(showMessageFoundId);
+
+            setTimeout(() => {
+                setMessageHighlight(null);
+            }, 2100);
+        }
+    }, [showMessageFoundId]); 
+
     return (
         <div className={`${styles.chatContainer} ${!emojiPickerVisible ? styles['emoji-hidden'] : ''}`} >
             <div ref={messagesContainerRef} className={styles.messageContainer} data-chat-id={selectedUser ? selectedUser.id : 'no-user'}>
-    
                 {selectedUser ? (
                     Object.entries(groupedMessages).map(([date, messagesForDate]) => {
                         const sortedMessagesForDate = messagesForDate.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
@@ -415,9 +429,18 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                                     const isSendMessage = message.type === 'send';
     
                                     return (
+                                    <div key={message.message_id} 
+                                        className={`${styles.messageWrapper} 
+                                            ${isSendMessage ? styles.send : styles.receive}
+                                            ${messageHighlight === message.message_id ? styles.highlight : ''}
+                                            ${hasSelectedMessages && isSendMessage ? styles.hoverMessage : ''}`}
+                                            onClick={() => hasSelectedMessages && handleSelectMessage(message.message_id, !selectedMessages.includes(message.message_id))}
+                                        >
                                         <div
-                                            key={message.message_id}
                                             data-message-id={message.message_id}
+                                            ref={(el) => {
+                                                messageRefs.current[message.message_id] = el;
+                                            }}
                                             className={`${styles.message}
                                                         ${styles[message.type]}
                                                         ${hasSelectedMessages && isSendMessage ? styles.selectMessageOption : ''}
@@ -425,8 +448,8 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                                                         ${isSendMessage ? styles.sendPadding : ''}
                                                         ${selectedMessages.includes(message.message_id) ? styles.selected : ''}
                                                         ${!hasSelectedMessages && !isInitalAnimation ? styles.hideSelectMessageOption : ''}
-                                                        ${!hasSelectedMessages && isInitalAnimation ? styles.messageEnter : ''}`}
-                                            onClick={() => hasSelectedMessages && handleSelectMessage(message.message_id, !selectedMessages.includes(message.message_id))}
+                                                        ${!hasSelectedMessages && isInitalAnimation ? styles.messageEnter : ''}
+                                                        ${hasSelectedMessages && isSendMessage ? styles.hoverMessage : ''}`}
                                         >
                                             {hasSelectedMessages && isSendMessage && (
                                                 <input
@@ -451,6 +474,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                                                 <img className={styles.readIcon} src={readIcon} alt="Read" />
                                             )}
                                         </div>
+                                    </div>
                                     );
                                 })}
                             </div>

@@ -2,7 +2,7 @@
 
 .chatContainer {
     background-color: $itemColor;
-    padding: 0 0 10px 10px;
+    padding-bottom: 10px;
     border-radius: 30px;
     margin-top: 20px;
     margin-bottom: 20px;
@@ -32,14 +32,12 @@
         flex-direction: column-reverse;
         align-items: flex-start;
         margin: 0px;
-        padding: 0 20px;
         overflow-y: auto;
         overflow-x: hidden;
         background-color: $itemColor;
-        border-radius: 30px;
+        border-radius: 30px 30px 0 0;
         transition: margin-bottom 0.3s ease;
         @media (max-width: 428px) {
-            padding: 0 12px;
             border-radius: 10px;
         }
         &::-webkit-scrollbar-track-piece:start {
@@ -68,227 +66,275 @@
                 top: 10px;
                 z-index: 1;
             }
-            .message {
-                max-width: clamp(11.5625rem, 1.7857rem + 48.8839vw, 80rem);
-                word-wrap: break-word;
-                padding: 10px 60px 10px 20px;
-                border-radius: 25px;
-                position: relative;
-                font-size: 16px;
-                display: inline-block;
-                margin-bottom: 10px;
-                &.selectMessageOption {
-                    animation: moveToLeft 0.3s ease forwards;
-                    cursor: pointer;
+            .messageWrapper {
+                display: flex;
+                margin: 0 10px 10px 10px;
+                padding: 10px 20px;
+                border-radius: 18px;
+                transition: background-color 0.2s ease;
+                &.send {
+                    justify-content: flex-end;
                 }
-                &.hideSelectMessageOption {
-                    animation: moveToRight 0.3s ease forwards;
+                &.receive {
+                    justify-content: flex-start;
                 }
-                @keyframes moveToLeft {
-                    from {
-                      margin-right: 0;
+                @keyframes highlightMessage {
+                    0% {
+                        background-color: #650091;
                     }
-                    to {
-                      margin-right: clamp(1.5rem, 1.4464rem + 0.2679vw, 1.875rem);
+                    50% {
+                        background-color: #650091;
                     }
-                }
-                @keyframes moveToRight {
-                    from {
-                        margin-right: clamp(1.5rem, 1.4464rem + 0.2679vw, 1.875rem);;
-                    }
-                    to {
-                        margin-right: 0;
+                    100% {
+                        background-color: $itemColor;
                     }
                 }
-                &.messageEnter {
-                    animation: messageEnter 0.5s ease forwards;
-                }
-                
-                &.messageExit {
-                    animation: messageExit 0.5s ease forwards;
-                }
-                @keyframes messageEnter {
-                    from {
-                        transform: translateY(20px);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: translateY(0);
-                        opacity: 1;
+                &.highlight {
+                    animation: highlightMessage 2s ease-in-out 0.1s;
+                    .send, .receive {
+                        &:after {
+                            animation: highlightMessage 2s ease-in-out 0.1s;
+                        }
                     }
                 }
-                @keyframes messageExit {
-                    from {
-                        transform: translateY(0);
-                        opacity: 1;
+                &.hoverMessage {
+                    &:hover {
+                        background-color: #2d2d44;
+                        cursor: pointer;
+                        border-radius: 10px;
+                        .send {
+                            &:after {
+                                background-color: #2d2d44;
+                            }
+                        }
                     }
-                    to {
-                        transform: translateY(-20px);
-                        opacity: 0;
-                    }
-                }
-        
-                &.sendPadding {
-                    padding: 10px 70px 10px 20px;
-                }
-                &.selected :not(.checkbox) {
-                    opacity: 0.5;
-                    transition: opacity 0.3s ease;
-                }
-                span:first-child {
+                }      
+                .message {
+                    max-width: clamp(11.5625rem, 1.7857rem + 48.8839vw, 80rem);
+                    word-wrap: break-word;
+                    padding: 10px 60px 10px 20px;
+                    border-radius: 25px;
+                    position: relative;
+                    font-size: 16px;
                     display: inline-block;
-                    overflow-wrap: break-word;
-                }
-                &:before, &:after {
-                    content: "";
-                    position: absolute;
-                    bottom: 0;
-                    height: var(--triangle-height, 25px);
-                }
-                @media (max-width: 768px) {
-                    padding: 5px 60px 5px 12px;
-                    font-size: 14px;
-                    &:before, &:after {
-                        height: var(--triangle-height, 18px);
+                    &.selectMessageOption {
+                        animation: moveToLeft 0.3s ease forwards;
+                        cursor: pointer;
+                    }
+                    &.hideSelectMessageOption {
+                        animation: moveToRight 0.3s ease forwards;
+                    }
+                    @keyframes moveToLeft {
+                        from {
+                          margin-right: 0;
+                        }
+                        to {
+                          margin-right: clamp(1.5rem, 1.4464rem + 0.2679vw, 1.875rem);
+                        }
+                    }
+                    @keyframes moveToRight {
+                        from {
+                            margin-right: clamp(1.5rem, 1.4464rem + 0.2679vw, 1.875rem);;
+                        }
+                        to {
+                            margin-right: 0;
+                        }
+                    }
+                    &.messageEnter {
+                        animation: messageEnter 0.5s ease forwards;
+                    }
+                    
+                    &.messageExit {
+                        animation: messageExit 0.5s ease forwards;
+                    }
+                    @keyframes messageEnter {
+                        from {
+                            transform: translateY(20px);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateY(0);
+                            opacity: 1;
+                        }
+                    }
+                    @keyframes messageExit {
+                        from {
+                            transform: translateY(0);
+                            opacity: 1;
+                        }
+                        to {
+                            transform: translateY(-20px);
+                            opacity: 0;
+                        }
                     }
                     &.sendPadding {
-                        padding: 5px 70px 5px 12px;
+                        padding: 10px 70px 10px 20px;
                     }
-                }
-                @media (max-width:428px) {
-                    border-radius: 10px;
-                }
-                .messageTime {
-                    font-size: clamp(0.6875rem, 0.7768rem + -0.4464vw, 0.0625rem);
-                    white-space: nowrap;
-                    position: absolute;
-                    bottom: 5px;
-                    right: 15px;
-                    opacity: 0.8;
-                    @media (max-width: 768px) {
-                        bottom: 2px;
-                        right: 7px;
+                    &.selected :not(.checkbox) {
+                        opacity: 0.5;
+                        transition: opacity 0.3s ease;
                     }
-                }
-                .sendMessageTime {
-                    right: 25px;
-                    @media (max-width: 768px) {
-                        right: 22px;
+                    span:first-child {
+                        display: inline-block;
+                        overflow-wrap: break-word;
                     }
-                }
-                .sentIcon, .deliveredIcon, .readIcon {
-                    position: absolute;
-                    opacity: 0.8; 
-                }
-                .sentIcon {
-                    height: 10px;
-                    bottom: 9px;
-                    right: 9px;
+                    &:before, &:after {
+                        content: "";
+                        position: absolute;
+                        bottom: 0;
+                        height: var(--triangle-height, 25px);
+                    }
                     @media (max-width: 768px) {
-                        bottom: 5.5px;
+                        padding: 5px 60px 5px 12px;
+                        font-size: 14px;
+                        &:before, &:after {
+                            height: var(--triangle-height, 18px);
+                        }
+                        &.sendPadding {
+                            padding: 5px 70px 5px 12px;
+                        }
+                    }
+                    @media (max-width:428px) {
+                        border-radius: 10px;
+                    }
+                    .messageTime {
+                        font-size: clamp(0.6875rem, 0.7768rem + -0.4464vw, 0.0625rem);
+                        white-space: nowrap;
+                        position: absolute;
+                        bottom: 5px;
+                        right: 15px;
+                        opacity: 0.8;
+                        @media (max-width: 768px) {
+                            bottom: 2px;
+                            right: 7px;
+                        }
+                    }
+                    .sendMessageTime {
+                        right: 25px;
+                        @media (max-width: 768px) {
+                            right: 22px;
+                        }
+                    }
+                    .sentIcon, .deliveredIcon, .readIcon {
+                        position: absolute;
+                        opacity: 0.8; 
+                    }
+                    .sentIcon {
+                        height: 10px;
+                        bottom: 9px;
+                        right: 9px;
+                        @media (max-width: 768px) {
+                            bottom: 5.5px;
+                            right: 6px;
+                        }
+                    }
+                    .deliveredIcon, .readIcon {
+                        height: 16px;
+                        bottom: 5px;
                         right: 6px;
+                        @media (max-width: 768px) {
+                            bottom: 3px;
+                            right: 4px;
+                        }
                     }
-                }
-                .deliveredIcon, .readIcon {
-                    height: 16px;
-                    bottom: 5px;
-                    right: 6px;
-                    @media (max-width: 768px) {
-                        bottom: 3px;
-                        right: 4px;
+                    .readIcon {
+                        opacity: 1;
                     }
-                }
-                .readIcon {
-                    opacity: 1;
-                }
-                .checkbox {
-                    -webkit-appearance: none;
-                    -moz-appearance: none;
-                    appearance: none;
-                    width: clamp(1.25rem, 1.2143rem + 0.1786vw, 1.5rem);
-                    height: clamp(1.25rem, 1.2143rem + 0.1786vw, 1.5rem);
-                    border: 1.5px solid $fontColor;
-                    border-radius: 50%; 
-                    position: relative;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    position: absolute;
-                    right: clamp(-37px, calc(-27px + -0.4464vw), -27px);
-                    z-index: 1;
-                    box-shadow: 0 0 5px silver;
-                    &:checked {
-                        background-color: $purple;
-                        &::before {
-                            content: '\2713';
-                            font-family: sans-serif;
-                            color: $fontColor;
-                            position: absolute;
-                            top: 50%;
-                            left: 50%;
-                            transform: translate(-50%, -50%) scale(1);
-                            animation: checkmark 0.4s ease-in-out forwards;
-                            @keyframes checkmark {
-                                0% {
-                                    transform: translate(-50%, -50%) scale(0);
-                                }
-                                50% {
-                                    transform: translate(-50%, -50%) scale(1.2);
-                                }
-                                100% {
-                                    transform: translate(-50%, -50%) scale(1);
+                    .checkbox {
+                        -webkit-appearance: none;
+                        -moz-appearance: none;
+                        appearance: none;
+                        width: clamp(1.25rem, 1.2143rem + 0.1786vw, 1.5rem);
+                        height: clamp(1.25rem, 1.2143rem + 0.1786vw, 1.5rem);
+                        border: 1.5px solid $fontColor;
+                        border-radius: 50%; 
+                        position: relative;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        position: absolute;
+                        right: clamp(-37px, calc(-27px + -0.4464vw), -27px);
+                        z-index: 1;
+                        box-shadow: 0 0 5px silver;
+                        &:checked {
+                            background-color: $purple;
+                            &::before {
+                                content: '\2713';
+                                font-family: sans-serif;
+                                color: $fontColor;
+                                position: absolute;
+                                top: 50%;
+                                left: 50%;
+                                transform: translate(-50%, -50%) scale(1);
+                                animation: checkmark 0.4s ease-in-out forwards;
+                                @keyframes checkmark {
+                                    0% {
+                                        transform: translate(-50%, -50%) scale(0);
+                                    }
+                                    50% {
+                                        transform: translate(-50%, -50%) scale(1.2);
+                                    }
+                                    100% {
+                                        transform: translate(-50%, -50%) scale(1);
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-            .send {
-                align-self: flex-end;
-                color: $fontColor;
-                background-color: $purple;
-                align-items: center;
-                display: flex;
-                transition: background-color 0.3s ease;
-                &.selectedContainer {
-                    background-color: rgba(127, 118, 255, 0.6);
-                    background-color: #534fa7;
-                }
-                &.selectedContainer::before {
-                    background-color: #534fa7;
-                }
-                &:before {
-                    right: -7px;
-                    width: 20px;
+                .send {
+                    color: $fontColor;
                     background-color: $purple;
-                    border-bottom-left-radius: 16px 14px;
+                    align-items: center;
+                    display: flex;
                     transition: background-color 0.3s ease;
+                    &.selectedContainer {
+                        background-color: rgba(127, 118, 255, 0.6);
+                        background-color: #534fa7;
+                    }
+                    &.selectedContainer::before {
+                        background-color: #534fa7;
+                    }
+                    &:before {
+                        right: -7px;
+                        width: 20px;
+                        background-color: $purple;
+                        border-bottom-left-radius: 16px 14px;
+                        transition: background-color 0.3s ease;
+                    }
+                    &:after {
+                       /*  right: -26px;
+                        width: 26px; */
+
+                        right: -15px;
+                        width: 15px;
+                        background-color: $itemColor;
+                        border-bottom-left-radius: 10px;
+                        transition: background-color 0.2s ease;
+                    }
                 }
-                &:after {
-                    right: -26px;
-                    width: 26px;
-                    background-color: $itemColor;
-                    border-bottom-left-radius: 10px;
-                }
-            }
-            .receive {
-                align-self: flex-start;
-                background-color: $turquise;
-                color: $itemColor;
-                align-items: center;
-                display: flex;
-                &:before {
-                    left: -7px;
-                    width: 20px;
+                .receive {
                     background-color: $turquise;
-                    border-bottom-right-radius: 16px 14px;
-                }
-                &:after {
-                    left: -26px;
-                    width: 26px;
-                    background-color: $itemColor;
-                    border-bottom-right-radius: 10px;
+                    color: $itemColor;
+                    align-items: center;
+                    display: flex;
+                    &:before {
+                        left: -7px;
+                        width: 20px;
+                        background-color: $turquise;
+                        border-bottom-right-radius: 16px 14px;
+                    }
+                    &:after {
+                        /* left: -26px;
+                        width: 26px; */
+
+                        left: -16px;
+                        width: 16px;
+                        background-color: $itemColor;
+                        border-bottom-right-radius: 10px;
+                    }
                 }
             }
+            
         }
         .welcomeMessage {
             position: absolute;
@@ -358,25 +404,6 @@
     }
 }
 
-/* .messageEnter {
-    transform: translateY(20px);
-}
-
-.messageEnterActive {
-    transform: translateY(0);
-    transition: transform 0.5s ease;
-}
-
-.messageExit {
-    transform: translateY(0);
-}
-
-.messageExitActive {
-    transform: translateY(-20px);
-    transition: transform 500ms;
-}
-
- */
 
 
 

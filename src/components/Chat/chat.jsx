@@ -37,6 +37,7 @@ const Chat = ({ onLogout }) => {
     const [isTyping, setIsTyping] = useState(false);
     const [typingStatuses, setTypingStatuses] = useState({});
     const [messages, setMessages] = useState([]);
+    const [showMessageFoundId, setShowMessageFoundId] = useState(null);
     
     const fetchFriends = async () => {
         const userId = Cookies.get('userId');
@@ -303,6 +304,7 @@ const Chat = ({ onLogout }) => {
                     setIsSearchOpen={setIsSearchOpen}
                     isTyping={isTyping}
                     messages={messages}
+                    setShowMessageFoundId={setShowMessageFoundId}
                 />
                 <div className={styles['chat-layout']}>
                     <div className={styles['chat-container']}>
@@ -317,6 +319,7 @@ const Chat = ({ onLogout }) => {
                             isSearchOpen={isSearchOpen}
                             messages={messages}
                             setMessages={setMessages}
+                            showMessageFoundId={showMessageFoundId}
                         />
                     </div>
                     <div className={`${styles['emoji-container']} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>

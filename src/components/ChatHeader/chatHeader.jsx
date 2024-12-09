@@ -328,13 +328,14 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
     };
 
     // wenn Upload Profilbild vorhanden ist
-    const renderUploadedProfilePic = (profilePic, username) => (
+    const renderUploadedProfilePic = (profilePic, username, onlineStatus ) => (
         <div className={styles.profilePicWrapper}>
             <img
                 src={`${BASE_URL}/uploads/${profilePic}`}
                 alt={username}
                 className={styles.profilePic}
             />
+            {getOnlineIndicator(onlineStatus)}
         </div>
     );
     
@@ -377,7 +378,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
        
         // wenn Upload Profilbild (Freund)
         if (user.profilePic) {
-            return renderUploadedProfilePic(user.profilePic, user.username);
+            return renderUploadedProfilePic(user.profilePic, user.username, onlineStatus);
         }
 
         // wenn Avatar Profilbild (Freund)

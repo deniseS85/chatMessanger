@@ -38,6 +38,7 @@ const Chat = ({ onLogout }) => {
     const [typingStatuses, setTypingStatuses] = useState({});
     const [messages, setMessages] = useState([]);
     const [showMessageFoundId, setShowMessageFoundId] = useState(null);
+    const [isCalendarVisible, setIsCalendarVisible] = useState(false);
     
     const fetchFriends = async () => {
         const userId = Cookies.get('userId');
@@ -321,6 +322,8 @@ const Chat = ({ onLogout }) => {
                             setMessages={setMessages}
                             showMessageFoundId={showMessageFoundId}
                             handleSearchMessagesStatus={handleSearchMessagesStatus}
+                            setIsCalendarVisible={setIsCalendarVisible}
+                            isCalendarVisible={isCalendarVisible}
                         />
                     </div>
                     <div className={`${styles['emoji-container']} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>
@@ -351,6 +354,10 @@ const Chat = ({ onLogout }) => {
                     fetchFriends={fetchFriends}
                 />
             ))}
+            <div 
+                className={`${styles.calenderBg} ${isCalendarVisible ? styles.visible : ""}`}
+                onClick={() => setIsCalendarVisible(false)}>
+            </div>
         </div>
     );
 };

@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './chatContainer.module.scss';
+import clsx from 'clsx';
 import DatePicker from 'react-datepicker';
 import { format } from "date-fns"; 
 import ChatInput from '../ChatInput/chatInput';
@@ -18,7 +19,7 @@ import { io } from 'socket.io-client';
 const socket = io(BASE_URL);
 
 
-function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser, hasSelectedMessages, setHasSelectedMessages, setSelectedEmoji, isSearchOpen, messages, setMessages, showMessageFoundId, handleSearchMessagesStatus }) {
+function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser, hasSelectedMessages, setHasSelectedMessages, setSelectedEmoji, isSearchOpen, messages, setMessages, showMessageFoundId, handleSearchMessagesStatus, setIsCalendarVisible, isCalendarVisible  }) {
     const messagesContainerRef = useRef(null);
     const messagesEndRef = useRef(null);
     const [inputHeightDiff, setInputHeightDiff] = useState(0);
@@ -28,7 +29,6 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
     const messageRefs = useRef({});
     const dateRefs = useRef({});
     const [messageHighlight, setMessageHighlight] = useState(null);
-    const [isCalendarVisible, setIsCalendarVisible] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
     const [displayDate, setDisplayDate] = useState(new Date());
 
@@ -418,7 +418,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
     }, [showMessageFoundId]); 
 
     const toggleCalendar = () => {
-        setIsCalendarVisible(!isCalendarVisible);
+        setIsCalendarVisible((prevState) => !prevState);
     };
 
     useEffect(() => {
@@ -462,47 +462,58 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         }
     };
 
+    const handleMessageClick = useCallback((messageId) => {
+        if (hasSelectedMessages) {
+            handleSelectMessage(messageId, !selectedMessages.includes(messageId));
+        }
+    }, [hasSelectedMessages, selectedMessages, handleSelectMessage]);
+
+    const sortedMessages = useMemo(() => {
+        if (!groupedMessages) return [];
+        return Object.entries(groupedMessages).map(([date, messagesForDate]) => {
+            return {
+                date,
+                messages: messagesForDate.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)),
+            };
+        });
+    }, [groupedMessages]);
+
     return (
         <div className={`${styles.chatContainer} ${!emojiPickerVisible ? styles['emoji-hidden'] : ''}`} >
             <div ref={messagesContainerRef} className={styles.messageContainer} data-chat-id={selectedUser ? selectedUser.id : 'no-user'}>
                 {selectedUser ? (
-                    Object.entries(groupedMessages).map(([date, messagesForDate]) => {
-                        const sortedMessagesForDate = messagesForDate.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-    
-                        return (
-                            <div key={date} className={styles.messageByDate}>
-                                <div
-                                    className={styles.dateSeparator}
-                                    data-date={date}
-                                    ref={(el) => { dateRefs.current[date] = el; }}
-                                >
-                                    {date}
-                                </div>
-                                {sortedMessagesForDate.map((message) => {
-                                    const time = formatTime(message.timestamp);
-                                    const isSendMessage = message.type === 'send';
-    
-                                    return (
+                    sortedMessages.map(({ date, messages }) => (
+                        <div key={date} className={styles.messageByDate}>
+                            <div className={styles.dateSeparator} data-date={date} ref={(el) => { dateRefs.current[date] = el; }}>
+                                {date}
+                            </div>
+                            {messages.map((message) => {
+                                const time = formatTime(message.timestamp);
+                                const isSendMessage = message.type === 'send';
+
+                                return (
                                     <div key={message.message_id} 
                                         data-message-id={message.message_id}
                                         className={`${styles.messageWrapper} 
                                             ${isSendMessage ? styles.send : styles.receive}
                                             ${messageHighlight === message.message_id ? styles.highlight : ''}
                                             ${hasSelectedMessages && isSendMessage ? styles.hoverMessage : ''}`}
-                                            onClick={() => hasSelectedMessages && handleSelectMessage(message.message_id, !selectedMessages.includes(message.message_id))}
+                                            onClick={() => handleMessageClick(message.message_id)}
                                         >
                                         <div
                                             data-message-id={message.message_id}
                                             ref={(el) => { messageRefs.current[message.message_id] = el; }}
-                                            className={`${styles.message}
-                                                        ${styles[message.type]}
-                                                        ${hasSelectedMessages && isSendMessage ? styles.selectMessageOption : ''}
-                                                        ${selectedMessages.includes(message.message_id) && isSendMessage ? styles.selectedContainer : ''}
-                                                        ${isSendMessage ? styles.sendPadding : ''}
-                                                        ${selectedMessages.includes(message.message_id) ? styles.selected : ''}
-                                                        ${!hasSelectedMessages && !isInitalAnimation ? styles.hideSelectMessageOption : ''}
-                                                        ${!hasSelectedMessages && isInitalAnimation ? styles.messageEnter : ''}
-                                                        ${hasSelectedMessages && isSendMessage ? styles.hoverMessage : ''}`}
+                                            className={clsx(
+                                                styles.message,
+                                                styles[message.type],
+                                                hasSelectedMessages && isSendMessage && styles.selectMessageOption,
+                                                selectedMessages.includes(message.message_id) && isSendMessage && styles.selectedContainer,
+                                                isSendMessage && styles.sendPadding,
+                                                selectedMessages.includes(message.message_id) && styles.selected,
+                                                !hasSelectedMessages && !isInitalAnimation && styles.hideSelectMessageOption,
+                                                !hasSelectedMessages && isInitalAnimation && styles.messageEnter,
+                                                hasSelectedMessages && isSendMessage && styles.hoverMessage
+                                            )}
                                         >
                                             {hasSelectedMessages && isSendMessage && (
                                                 <input
@@ -528,11 +539,10 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                                             )}
                                         </div>
                                     </div>
-                                    );
-                                })}
-                            </div>
-                        );
-                    })
+                                );
+                            })}
+                        </div>
+                    ))
                 ) : (
                     <div className={styles.welcomeMessage}>
                         <img src={welcomImage} alt="Welcome Image" />
@@ -573,7 +583,6 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                                     selected={displayDate}
                                     onChange={handleDateChange}
                                     inline
-                                    onClickOutside={() => setIsCalendarVisible(false)}
                                     dayClassName={(date) => {
                                         const formattedDate = format(date, "yyyy-MM-dd");
                                         return activeDates.includes(formattedDate) ? `day-${formattedDate}` : 'react-datepicker__day--disabled';

@@ -25,14 +25,8 @@ const App = () => {
         }
     }, []);
 
-
-    const handleLoginSuccess = () => {
-        setIsLoggedIn(true);
-    };
-
-    const handleLogout = () => {
-        setIsLoggedIn(false);
-    };
+    const handleLoginSuccess = () => setIsLoggedIn(true);
+    const handleLogout = () => setIsLoggedIn(false);
 
     return (
         <TransitionGroup>

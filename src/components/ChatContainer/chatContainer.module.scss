@@ -382,6 +382,9 @@
                     transform: scale(1.2);
                 }
             }
+            .calenderIcon {
+                z-index: 2;
+            }
             .deleteIcon {
                 width: 20px;
                 cursor: pointer;

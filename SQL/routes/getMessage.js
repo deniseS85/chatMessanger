@@ -31,7 +31,7 @@ router.get('/', (req, res) => {
             if (error) {
                 return res.status(500).json({ error: 'Fehler beim Abrufen der Nachrichten' });
             }
-            return res.status(200).json(messageResults || []);
+            return res.status(200).json({ chat_id, messages: messageResults || [] });
         });
     });
 });

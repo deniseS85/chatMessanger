@@ -39,6 +39,7 @@ const Chat = ({ onLogout }) => {
     const [messages, setMessages] = useState([]);
     const [showMessageFoundId, setShowMessageFoundId] = useState(null);
     const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+    const [deleteConfirmed, setDeleteConfirmed] = useState(false);
     
     const fetchFriends = async () => {
         const userId = Cookies.get('userId');
@@ -264,6 +265,10 @@ const Chat = ({ onLogout }) => {
         setHasSelectedMessages(false);
     };
 
+    const handleDeleteChatConfirmation = (status) => {
+       setDeleteConfirmed(status);
+    }
+
     return (
         <div className={`${styles.app} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>
             <div className={`${styles.sidebar} ${showOnlyProfilePics ? styles.showOnlyProfilePics : ''} ${isUserListOpen ? styles.expanded : ''}`}>
@@ -306,6 +311,7 @@ const Chat = ({ onLogout }) => {
                     isTyping={isTyping}
                     messages={messages}
                     setShowMessageFoundId={setShowMessageFoundId}
+                    handleDeleteChatConfirmation={handleDeleteChatConfirmation}
                 />
                 <div className={styles['chat-layout']}>
                     <div className={styles['chat-container']}>
@@ -324,6 +330,7 @@ const Chat = ({ onLogout }) => {
                             handleSearchMessagesStatus={handleSearchMessagesStatus}
                             setIsCalendarVisible={setIsCalendarVisible}
                             isCalendarVisible={isCalendarVisible}
+                            deleteConfirmed={deleteConfirmed}
                         />
                     </div>
                     <div className={`${styles['emoji-container']} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>
@@ -356,7 +363,7 @@ const Chat = ({ onLogout }) => {
             ))}
             <div 
                 className={`${styles.calenderBg} ${isCalendarVisible ? styles.visible : ""}`}
-                onClick={() => setIsCalendarVisible(false)}>
+                onClick={() => {setIsCalendarVisible(false); setIsSearchOpen(false)}}>
             </div>
         </div>
     );

@@ -19,7 +19,7 @@ import { io } from 'socket.io-client';
 const socket = io(BASE_URL);
 
 
-function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser, hasSelectedMessages, setHasSelectedMessages, setSelectedEmoji, isSearchOpen, messages, setMessages, showMessageFoundId, handleSearchMessagesStatus, setIsCalendarVisible, isCalendarVisible  }) {
+function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser, hasSelectedMessages, setHasSelectedMessages, setSelectedEmoji, isSearchOpen, messages, setMessages, showMessageFoundId, handleSearchMessagesStatus, setIsCalendarVisible, isCalendarVisible, deleteConfirmed  }) {
     const messagesContainerRef = useRef(null);
     const messagesEndRef = useRef(null);
     const [inputHeightDiff, setInputHeightDiff] = useState(0);
@@ -31,6 +31,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
     const [messageHighlight, setMessageHighlight] = useState(null);
     const [selectedDate, setSelectedDate] = useState(null);
     const [displayDate, setDisplayDate] = useState(new Date());
+    const [chatId, setChatId] = useState(null);
 
     const fetchMessages = async () => {
         const userId = Cookies.get('userId');
@@ -42,15 +43,22 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                     params: { userId, friendId }
                 });
 
-                const messagesWithType = response.data.map(message => ({
+                const { chat_id, messages } = response.data;
+
+                const messagesWithType = (messages || []).map(message => ({
                     ...message,
                     type: message.sender_id === Number(userId) ? 'send' : 'receive',
-                    message_id: message.message_id, 
+                    message_id: message.message_id,
                     timestamp: message.timestamp,
                     status: message.status || 'sent'
                 }));
 
                 setMessages(messagesWithType);
+
+                if (chat_id) {
+                    setChatId(chat_id);
+                }
+
             } catch (error) {
                 console.error('Fehler beim Abrufen der Nachrichten:', error);
             }
@@ -477,10 +485,45 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
             };
         });
     }, [groupedMessages]);
+    
+    useEffect(() => {
+        if (deleteConfirmed) {
+            deleteChatConfirmation();
+        }
+    }, [deleteConfirmed]);
+
+    const deleteChatConfirmation = async () => {
+        const friendId = selectedUser ? selectedUser.id : null; 
+
+        if (chatId) {
+            try {
+                const response = await axios.post(`${BASE_URL}/deleteChat`, { chatId });
+                
+                if (response.data.success) {
+                    socket.emit('deleteChat', { chatId, friendId }); 
+                    fetchMessages();
+                }
+            } catch(error) {
+                    console.error('Error deleting chat:', error);
+            } 
+        }
+    };
+
+    useEffect(() => {
+        const chatDeleted = (data) => {
+            fetchMessages();
+        };
+    
+        socket.on('chatDeleted', chatDeleted);
+    
+        return () => {
+            socket.off('chatDeleted', chatDeleted); 
+        };
+    }, [selectedUser]);
 
     return (
         <div className={`${styles.chatContainer} ${!emojiPickerVisible ? styles['emoji-hidden'] : ''}`} >
-            <div ref={messagesContainerRef} className={styles.messageContainer} data-chat-id={selectedUser ? selectedUser.id : 'no-user'}>
+            <div ref={messagesContainerRef} className={styles.messageContainer} data-chat-id={selectedUser ? chatId : 'no-chat'}>
                 {selectedUser ? (
                     sortedMessages.map(({ date, messages }) => (
                         <div key={date} className={styles.messageByDate}>

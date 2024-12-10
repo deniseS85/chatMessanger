@@ -18,7 +18,7 @@ import BASE_URL from '../../config_base_url';
 import { io } from 'socket.io-client';
 const socket = io(BASE_URL);
 
-function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser, setUsers, handleSelectMessagesStatus, handleSearchMessagesStatus, setHasSelectedMessages, isSearchOpen, setIsSearchOpen, isTyping, messages, setShowMessageFoundId }) {
+function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser, setUsers, handleSelectMessagesStatus, handleSearchMessagesStatus, setHasSelectedMessages, isSearchOpen, setIsSearchOpen, isTyping, messages, setShowMessageFoundId, handleDeleteChatConfirmation }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -144,6 +144,8 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
 
     const handleLogout = async () => {
         setIsMenuOpen(false);
+        setIsSearchOpen(false);
+        handleSelectMessagesStatus(false);
         const userId = Cookies.get('userId');
        
         if (userId) {
@@ -179,15 +181,36 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                 }
             });
         }
-    };
+    };   
+    
+    const deleteChatConfirmation = () => {
+        if (selectedUser) {
+            setIsMenuOpen(false);
+            setHasSelectedMessages(false);
+            setIsSearchOpen(false);
+            handleDeleteChatConfirmation(false);
 
-    const handleDeleteChat = () => {
-        setIsMenuOpen(false);
-        setHasSelectedMessages(false);
-        setIsSearchOpen(false);
-        console.log('Chat löschen');
-        // Chat löschen Logik hier
-    };
+            setNotification({
+                message: `Do you really want to delete the chat with<br> <span style="color:#2BB8EE; font-weight:bold">${selectedUser.username}</span>?`,
+                type: 'error',
+                isHtml: true,
+                onConfirm: () => {
+                    handleDeleteChatConfirmation(true);
+                },
+            });
+        } else {
+            setIsMenuOpen(false);
+            handleDeleteChatConfirmation(false);
+            setNotification({
+                message: 'Please open a chat first before deleting it.',
+                type: 'error',
+                isHtml: true,
+                onClose: () => {
+                    setNotification(null);
+                }
+            });
+        }
+    };   
 
     const handleSearchMessages = () => {
         if (selectedUser) {
@@ -272,7 +295,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
             const userId = Cookies.get('userId');
             
             setNotification({
-                message: `Do you really want to delete your contact with<br> <span style="color:#2BB8EE; font-weight:bold">${selectedUser.username}</span>?`,
+                message: `Do you really want to remove your contact with<br> <span style="color:#2BB8EE; font-weight:bold">${selectedUser.username}</span>?`,
                 type: 'error',
                 isHtml: true,
                 onConfirm: () => {
@@ -538,7 +561,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                 onMyProfile={showProfile}
                 onLogout={handleLogout}
                 onSelectMessages={handleSelectMessages}
-                onDeleteChat={handleDeleteChat}
+                onDeleteChat={deleteChatConfirmation}
                 onRemoveContact={handleRemoveContact}
                 onSearchMessages={handleSearchMessages}
                 menuRef={menuRef}

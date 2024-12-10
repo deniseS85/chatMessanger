@@ -32,7 +32,7 @@ const removeFriend = require('./routes/removeFriend');
 const sendMessage = require('./routes/sendMessage');
 const getMessage = require('./routes/getMessage');
 const deleteMessages = require('./routes/deleteMessages');
-
+const deleteChat = require('./routes/deleteChat');
 
 
 app.use('/login', loginRoute);
@@ -49,6 +49,7 @@ app.use('/removeFriend', removeFriend);
 app.use('/sendMessage', sendMessage);
 app.use('/getMessage', getMessage);
 app.use('/deleteMessages', deleteMessages);
+app.use('/deleteChat', deleteChat);
 
 deleteOldRejectedRequests();
 
@@ -132,15 +133,21 @@ io.on('connection', (socket) => {
     socket.on('typing', ({ status, userId, friendId }) => {
         socket.to(`user_${friendId}`).emit('typing', { status, userId, friendId });
     });
-    
 
+    // Chat löschen
+    socket.on('deleteChat', (data) => {
+        const { chatId, friendId } = data;
+        const friendSocketId = userSocketMap[friendId];
+
+        if (friendSocketId) {
+            io.to(friendSocketId).emit('chatDeleted', { chatId });
+        } 
+    });
+    
     socket.on('disconnect', () => {
         const userId = Object.keys(userSocketMap).find(key => userSocketMap[key] === socket.id);
         if (userId) {
-            // Broadcast, dass der Benutzer offline ist
             socket.broadcast.emit('userStatusChanged', { userId, status: 'offline' });
-    
-            // Benutzer aus der Map entfernen
             delete userSocketMap[userId];
             console.log(`Benutzer ${userId} wurde bei disconnect entfernt.`);
         }

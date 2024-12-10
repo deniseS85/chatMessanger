@@ -42,6 +42,13 @@ const Notification = ({ message, onClose, onConfirm }) => {
         };
     }, [handleClickOutside]);
 
+    const handleConfirm = () => {
+        if (onConfirm) {
+            onConfirm();
+        }
+        setIsVisible(false);
+    };
+
     const iconClass = message.type === 'success' ? styles.success : styles.error;
 
     return (
@@ -56,7 +63,7 @@ const Notification = ({ message, onClose, onConfirm }) => {
                 <div className={styles.actions}>
                     {onConfirm ? (
                         <>
-                            <button onClick={onConfirm} className={styles.confirmButton}>Accept</button>
+                            <button onClick={handleConfirm} className={styles.confirmButton}>Accept</button>
                             <button onClick={onClose} className={styles.cancelButton}>Cancel</button>
                         </>
                     ) : (

@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import DatePicker from 'react-datepicker';
 import { format } from "date-fns"; 
 import ChatInput from '../ChatInput/chatInput';
+import useChatDeletedListener from '../../hooks/useChatDeletedListener';
 import welcomImage from '../../assets/img/welcome-image.png';
 import sentIcon from '../../assets/img/sent-icon.png';
 import deliveredIcon from '../../assets/img/delivered-icon.png';
@@ -19,7 +20,7 @@ import { io } from 'socket.io-client';
 const socket = io(BASE_URL);
 
 
-function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser, hasSelectedMessages, setHasSelectedMessages, setSelectedEmoji, isSearchOpen, messages, setMessages, showMessageFoundId, handleSearchMessagesStatus, setIsCalendarVisible, isCalendarVisible, deleteConfirmed  }) {
+function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, selectedUser, setNotification, hasSelectedMessages, setHasSelectedMessages, setSelectedEmoji, isSearchOpen, messages, setMessages, showMessageFoundId, handleSearchMessagesStatus, setIsCalendarVisible, isCalendarVisible, deleteConfirmed, users, chatId, fetchMessages }) {
     const messagesContainerRef = useRef(null);
     const messagesEndRef = useRef(null);
     const [inputHeightDiff, setInputHeightDiff] = useState(0);
@@ -31,40 +32,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
     const [messageHighlight, setMessageHighlight] = useState(null);
     const [selectedDate, setSelectedDate] = useState(null);
     const [displayDate, setDisplayDate] = useState(new Date());
-    const [chatId, setChatId] = useState(null);
-
-    const fetchMessages = async () => {
-        const userId = Cookies.get('userId');
-        const friendId = selectedUser ? selectedUser.id : null;
-
-        if (friendId && userId) {
-            try {
-                const response = await axios.get(`${BASE_URL}/getMessage`, {
-                    params: { userId, friendId }
-                });
-
-                const { chat_id, messages } = response.data;
-
-                const messagesWithType = (messages || []).map(message => ({
-                    ...message,
-                    type: message.sender_id === Number(userId) ? 'send' : 'receive',
-                    message_id: message.message_id,
-                    timestamp: message.timestamp,
-                    status: message.status || 'sent'
-                }));
-
-                setMessages(messagesWithType);
-
-                if (chat_id) {
-                    setChatId(chat_id);
-                }
-
-            } catch (error) {
-                console.error('Fehler beim Abrufen der Nachrichten:', error);
-            }
-        }
-    };
-
+  
     useEffect(() => {
         const userId = Cookies.get('userId');
         
@@ -83,7 +51,6 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                 };
 
                 setMessages(prevMessages => [newMessage, ...prevMessages]);
-                /* console.log(`Nachricht empfangen von ${sender_id}: ${content}`); */
             }
         };
     
@@ -97,7 +64,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                 socket.off('messageReceived', messageListener);
             };
         }
-    }, [selectedUser]);
+    }, [selectedUser, setMessages, fetchMessages]);
 
     const addMessage = async (messageText) => {
         const userId = Cookies.get('userId');
@@ -138,7 +105,6 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                 message_id: messageId
             });
             
-            /* console.log(`Nachricht gesendet an ${friendId}: ${messageText}`); */
             await fetchMessages();
         } catch (error) {
             console.error('Fehler beim Speichern der Nachricht:', error);
@@ -491,39 +457,49 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
             deleteChatConfirmation();
         }
     }, [deleteConfirmed]);
+    
 
     const deleteChatConfirmation = async () => {
         const friendId = selectedUser ? selectedUser.id : null; 
+        const userId = Cookies.get('userId');
 
         if (chatId) {
             try {
                 const response = await axios.post(`${BASE_URL}/deleteChat`, { chatId });
                 
                 if (response.data.success) {
-                    socket.emit('deleteChat', { chatId, friendId }); 
+                    socket.emit('deleteChat', { chatId, friendId, userId, status: 'deleted' }); 
                     fetchMessages();
                 }
-            } catch(error) {
+            } catch (error) {
                     console.error('Error deleting chat:', error);
             } 
         }
     };
 
+    useChatDeletedListener(socket, chatId, users, setNotification, fetchMessages);
+
     useEffect(() => {
-        const chatDeleted = (data) => {
-            fetchMessages();
-        };
+        if (chatId) {
+            const savedNotification = sessionStorage.getItem('pendingChatDeletedNotification');
+            if (savedNotification) {
+                const notificationData = JSON.parse(savedNotification);
     
-        socket.on('chatDeleted', chatDeleted);
-    
-        return () => {
-            socket.off('chatDeleted', chatDeleted); 
-        };
-    }, [selectedUser]);
+                if (notificationData.chatId === chatId) {
+                    setNotification({
+                        message: notificationData.message,
+                        type: notificationData.type,
+                        isHtml: notificationData.isHtml
+                    });
+                    sessionStorage.removeItem('pendingChatDeletedNotification');
+                }
+            }
+        }
+    }, [chatId]);  
 
     return (
         <div className={`${styles.chatContainer} ${!emojiPickerVisible ? styles['emoji-hidden'] : ''}`} >
-            <div ref={messagesContainerRef} className={styles.messageContainer} data-chat-id={selectedUser ? chatId : 'no-chat'}>
+            <div ref={messagesContainerRef} className={styles.messageContainer} data-chat-id={selectedUser ? chatId : null}>
                 {selectedUser ? (
                     sortedMessages.map(({ date, messages }) => (
                         <div key={date} className={styles.messageByDate}>

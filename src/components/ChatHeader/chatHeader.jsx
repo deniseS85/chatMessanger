@@ -185,19 +185,32 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
     
     const deleteChatConfirmation = () => {
         if (selectedUser) {
-            setIsMenuOpen(false);
-            setHasSelectedMessages(false);
-            setIsSearchOpen(false);
-            handleDeleteChatConfirmation(false);
-
-            setNotification({
-                message: `Do you really want to delete the chat with<br> <span style="color:#2BB8EE; font-weight:bold">${selectedUser.username}</span>?`,
-                type: 'error',
-                isHtml: true,
-                onConfirm: () => {
-                    handleDeleteChatConfirmation(true);
-                },
-            });
+            if (messages && messages.length > 0) {
+                setIsMenuOpen(false);
+                setHasSelectedMessages(false);
+                setIsSearchOpen(false);
+                handleDeleteChatConfirmation(false);
+    
+                setNotification({
+                    message: `Do you really want to delete this chat with<br> <span style="color:#2BB8EE; font-weight:bold">${selectedUser.username}</span>?`,
+                    type: 'error',
+                    isHtml: true,
+                    onConfirm: () => {
+                        handleDeleteChatConfirmation(true);
+                    },
+                });
+            } else {
+                setIsMenuOpen(false);
+                handleDeleteChatConfirmation(false);
+                setNotification({
+                    message: 'No messages to delete for this chat.',
+                    type: 'error',
+                    isHtml: true,
+                    onClose: () => {
+                        setNotification(null);
+                    }
+                });
+            }
         } else {
             setIsMenuOpen(false);
             handleDeleteChatConfirmation(false);

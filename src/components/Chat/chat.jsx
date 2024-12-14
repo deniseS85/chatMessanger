@@ -5,6 +5,7 @@ import UserList from '../UserList/userList';
 import EmojiPickerComponent from '../EmojiPicker/emojiPicker';
 import AddNewContact from '../AddNewContact/addNewContact';
 import Notification from '../Notification/notification';
+import useChatDeletedListener from '../../hooks/useChatDeletedListener';
 import closeUserList from '../../assets/img/closeUser-icon.png';
 import openUserList from '../../assets/img/openUser-icon.png';
 import styles from './chat.module.scss';
@@ -40,6 +41,7 @@ const Chat = ({ onLogout }) => {
     const [showMessageFoundId, setShowMessageFoundId] = useState(null);
     const [isCalendarVisible, setIsCalendarVisible] = useState(false);
     const [deleteConfirmed, setDeleteConfirmed] = useState(false);
+    const [chatId, setChatId] = useState(null);
     
     const fetchFriends = async () => {
         const userId = Cookies.get('userId');
@@ -194,7 +196,6 @@ const Chat = ({ onLogout }) => {
 
         // Listener für das Entfernen eines Freundes
         const handleFriendRemoved = (data) => {
-            /* const { userId } = data; */
             fetchFriends();
         };
 
@@ -269,6 +270,39 @@ const Chat = ({ onLogout }) => {
        setDeleteConfirmed(status);
     }
 
+    const fetchMessages = useCallback(async () => {
+        const userId = Cookies.get('userId');
+        const friendId = selectedUser ? selectedUser.id : null;
+
+        if (friendId && userId) {
+            try {
+                const response = await axios.get(`${BASE_URL}/getMessage`, {
+                    params: { userId, friendId }
+                });
+
+                const { chat_id, messages } = response.data;
+
+                const messagesWithType = (messages || []).map(message => ({
+                    ...message,
+                    type: message.sender_id === Number(userId) ? 'send' : 'receive',
+                    message_id: message.message_id,
+                    timestamp: message.timestamp,
+                    status: message.status || 'sent'
+                }));
+
+                setMessages(messagesWithType);
+                setChatId(chat_id || null);
+
+            } catch (error) {
+                console.error('Fehler beim Abrufen der Nachrichten:', error);
+            }
+        } else {
+            setChatId(null);
+        }
+    }, [selectedUser]); 
+
+    useChatDeletedListener(socket, chatId, users, setNotification, fetchMessages);
+
     return (
         <div className={`${styles.app} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>
             <div className={`${styles.sidebar} ${showOnlyProfilePics ? styles.showOnlyProfilePics : ''} ${isUserListOpen ? styles.expanded : ''}`}>
@@ -319,7 +353,8 @@ const Chat = ({ onLogout }) => {
                             toggleEmojiPicker={toggleEmojiPicker}
                             emojiPickerVisible={emojiPickerVisible}
                             selectedEmoji={selectedEmoji}
-                            selectedUser={selectedUser} 
+                            selectedUser={selectedUser}
+                            setNotification={setNotification}
                             hasSelectedMessages={hasSelectedMessages} 
                             setHasSelectedMessages={handleCloseEditMode}
                             setSelectedEmoji={setSelectedEmoji}
@@ -331,6 +366,9 @@ const Chat = ({ onLogout }) => {
                             setIsCalendarVisible={setIsCalendarVisible}
                             isCalendarVisible={isCalendarVisible}
                             deleteConfirmed={deleteConfirmed}
+                            users={users}
+                            chatId={chatId}
+                            fetchMessages={fetchMessages}
                         />
                     </div>
                     <div className={`${styles['emoji-container']} ${emojiPickerVisible ? styles['emoji-visible'] : ''}`}>

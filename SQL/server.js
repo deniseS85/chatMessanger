@@ -119,10 +119,7 @@ io.on('connection', (socket) => {
         const { messageIds, userId, friendId } = data;
         const friendSocketId = userSocketMap[friendId];
 
-        console.log(`Empfangenes deleteMessages-Event von Benutzer ${userId}:`, data);
-
         if (friendSocketId) {
-            console.log(`Sende messagesDeleted an Freund (Socket ID: ${friendSocketId})`);
             io.to(friendSocketId).emit('messagesDeleted', { messageIds });
         }
 
@@ -136,12 +133,13 @@ io.on('connection', (socket) => {
 
     // Chat löschen
     socket.on('deleteChat', (data) => {
-        const { chatId, friendId } = data;
+        const { chatId, friendId, userId, status } = data;
         const friendSocketId = userSocketMap[friendId];
 
         if (friendSocketId) {
-            io.to(friendSocketId).emit('chatDeleted', { chatId });
-        } 
+            console.log(`Nachricht wurde von ${userId} gelöscht, Benachrichtigung gesendet an ${friendId}`);
+            io.to(friendSocketId).emit('chatDeleted', { chatId, friendId, userId, status });
+        }
     });
     
     socket.on('disconnect', () => {

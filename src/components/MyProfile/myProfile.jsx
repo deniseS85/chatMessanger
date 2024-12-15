@@ -268,18 +268,18 @@ const MyProfile = ({ onClose, isProfileOpen, updateUserData }) => {
                     )}
                     {isEditing ? (
                         <img
-                        src={cancelEditUserIcon}
-                        alt="Cancel"
-                        className={styles.closeIcon}
-                        onClick={handleCancelEdit}
-                    />
+                            src={cancelEditUserIcon}
+                            alt="Cancel"
+                            className={styles.closeIcon}
+                            onClick={handleCancelEdit}
+                        />
                     ) : (
                         <img
                             src={closeIcon}
                             alt="Back"
                             className={styles.closeIcon}
                             onClick={handleClose}
-                    />
+                        />
                     )}
                     
                 </div>

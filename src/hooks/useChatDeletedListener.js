@@ -15,7 +15,6 @@ const useChatDeletedListener = (socket, chatId, users, setNotification, fetchMes
                     });
                     fetchMessages();
                 } else {
-                    console.log('freund ist nicht im chat');
                     sessionStorage.setItem('pendingChatDeletedNotification', JSON.stringify({
                         chatId: data.chatId,
                         message: `This chat was deleted by <span style="color:#2BB8EE; font-weight:bold">${senderName}</span>.`,

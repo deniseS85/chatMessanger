@@ -1,0 +1,133 @@
+@import '../../index.scss';
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    &.visible {
+        opacity: 1;
+        visibility: visible;
+    }
+    .friendProfileContent {
+        background: $itemColor;
+        padding: 30px clamp(0.9375rem, 0.8929rem + 0.2232vw, 1.25rem);
+        width: clamp(18.75rem, 14.2857rem + 22.3214vw, 50rem);
+        height: auto;
+        color: $fontColor;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border-start-start-radius: 250px 120px;  /* oben links */
+        border-start-end-radius: 50px 40px; /* oben rechts */
+        border-end-start-radius: 40px 50px; /* unten links */
+        border-end-end-radius: 200px 100px;  /* unten rechts */
+        box-shadow: 0 0 3px $purple;
+        overflow-y: auto;
+        opacity: 0;
+        transform: scale(0.9);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        overflow: hidden;
+        &.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        @media (max-width: 428px) {
+            border-radius: 10px;
+            max-height: 80vh; 
+            padding: 20px;
+        }
+        .profileHeader {
+            display: flex;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            margin-bottom: 20px;
+            .closeIcon {
+                position: absolute;
+                right: 10px;
+                width: clamp(1.25rem, 1.2054rem + 0.2232vw, 1.5625rem);
+                height: clamp(1.25rem, 1.2054rem + 0.2232vw, 1.5625rem);
+                cursor: pointer;
+                transition: transform 0.3s;
+                &:hover {
+                    transform: scale(1.2);
+                }
+                @media (max-width: 428px) {
+                    right: 0;
+                }
+            }
+            .profileHeadline {
+                flex: 1;
+                font-size: clamp(1.25rem, 1.0714rem + 0.8929vw, 2.5rem);
+                color: $purple;
+                text-align: center;
+                font-weight: bold;
+            }
+        }
+    }
+    .profileInfo {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        .profileImg {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 2px solid $purple; 
+            margin-bottom: 15px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            @media (max-width: 428px) {
+                width: clamp(5rem, -2.4074rem + 37.037vw, 7.5rem);
+                height: clamp(5rem, -2.4074rem + 37.037vw, 7.5rem);
+            }
+            .profileImage {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 50%;
+            }
+            .defaultImage {
+                width: 100%;
+                height: 125%;
+                object-fit: cover;
+            }
+        }
+        .profileName {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .profileStatus {
+            font-size: 14px;
+        }
+    }
+    .contactContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: flex-start;
+        width: 100%;
+        .contactInfo {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 20px;
+            img {
+                width: 20px;
+                height: 20px;
+            }  
+        }
+    } 
+}

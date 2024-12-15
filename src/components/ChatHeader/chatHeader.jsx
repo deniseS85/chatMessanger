@@ -11,6 +11,7 @@ import searchIcon from '../../assets/img/search-icon.png';
 import closeIcon from '../../assets/img/close-icon.png';
 import DropdownMenu from '../DropdownMenu/dropdownMenu';
 import MyProfile from '../MyProfile/myProfile';
+import FriendProfile from '../FriendProfile/friendProfile';
 import NotificationsContainer from '../NotificationsContainer/notificationsContainer';
 import FriendRequestNotification from '../FriendRequestNotification/friendRequestNotification';
 import Avatar from 'react-nice-avatar';
@@ -21,6 +22,7 @@ const socket = io(BASE_URL);
 function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout, pendingRequestCount, pendingRequests, checkForRequests, fetchFriends, setNotification, setSelectedUser, setUsers, handleSelectMessagesStatus, handleSearchMessagesStatus, setHasSelectedMessages, isSearchOpen, setIsSearchOpen, isTyping, messages, setShowMessageFoundId, handleDeleteChatConfirmation }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [isFriendProfileOpen, setIsFriendProfileOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const navigate = useNavigate();
     const menuRef = useRef(null);
@@ -97,6 +99,17 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
 
     const closeProfile = () => {
         setIsProfileOpen(false);
+    };
+
+    const showFriendProfile = () => {
+        setIsMenuOpen(false);
+        setIsFriendProfileOpen(true);
+        setIsSearchOpen(false);
+        setHasSelectedMessages(false);
+    };
+
+    const closeFriendProfile = () => {
+        setIsFriendProfileOpen(false);
     };
 
     const fetchOfflineStatus = useCallback(async (userId) => {
@@ -442,7 +455,15 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
 
     return (
         <header className={`${styles.header} ${isSearchOpen ? styles.searchOpen : ''}`}>
-            <div className={`${styles.profileContainer} ${isSearchOpen ? styles.searchOpen : ''}`}>
+            <div 
+                className={`${styles.profileContainer} ${isSearchOpen ? styles.searchOpen : ''}`}
+                onClick={() => {
+                    if (!selectedUser) {
+                        showProfile();
+                    } else {
+                        showFriendProfile();
+                    }
+                }}>
                 <img 
                     src={backIcon}
                     alt='Back'
@@ -584,6 +605,13 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                     onClose={closeProfile} 
                     isProfileOpen={isProfileOpen}
                     updateUserData={setUserData}
+                />
+            )}
+            {isFriendProfileOpen && selectedUser && (
+                <FriendProfile 
+                    selectedUser={selectedUser}
+                    isFriendProfileOpen={isFriendProfileOpen}
+                    onClose={closeFriendProfile} 
                 />
             )}
             <NotificationsContainer

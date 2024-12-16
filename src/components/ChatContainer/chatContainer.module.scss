@@ -303,9 +303,6 @@
                         transition: background-color 0.3s ease;
                     }
                     &:after {
-                       /*  right: -26px;
-                        width: 26px; */
-
                         right: -15px;
                         width: 15px;
                         background-color: $itemColor;
@@ -325,9 +322,6 @@
                         border-bottom-right-radius: 16px 14px;
                     }
                     &:after {
-                        /* left: -26px;
-                        width: 26px; */
-
                         left: -16px;
                         width: 16px;
                         background-color: $itemColor;
@@ -351,6 +345,39 @@
             p {
                 font-size: clamp(1.125rem, 1.0179rem + 0.5357vw, 1.875rem);
                 text-align: center;
+            }
+        }
+        .scrollToBottomButton {
+            position: fixed;
+            bottom: 85px;
+            right: 30px;
+            width: clamp(2.5rem, 2.375rem + 0.625vw, 3.375rem);
+            height: clamp(2.5rem, 2.375rem + 0.625vw, 3.375rem);
+            background-color: #2d2d44;
+            border: 1px solid $itemColor;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
+            opacity: 0; 
+            transform: translateY(50px); 
+            transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+            @media (max-width: 428px) {
+                right: 17px;
+                bottom: 65px;
+            }
+            &.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            &:hover {
+                background-color: $purple;
+            }
+            img {
+                width: clamp(1.875rem, 1.7857rem + 0.4464vw, 2.5rem);
+                height: clamp(1.875rem, 1.7857rem + 0.4464vw, 2.5rem);
             }
         }
     }

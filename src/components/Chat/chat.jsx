@@ -81,10 +81,6 @@ const Chat = ({ onLogout }) => {
             socket.off('profileUpdated');
         };
     }, [selectedUser]);
-
-    useEffect(() => {
-        console.log('selectedUser:', selectedUser);
-    }, [selectedUser])
     
     const toggleEmojiPicker = () => {
         setEmojiPickerVisible(prev => !prev);

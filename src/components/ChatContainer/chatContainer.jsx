@@ -13,6 +13,7 @@ import readIcon from '../../assets/img/read-icon.png';
 import closeIcon from '../../assets/img/close-icon.png';
 import deleteIcon from '../../assets/img/delete-messages.png';
 import calenderIcon from '../../assets/img/calender.png';
+import scrollDownIcon from '../../assets/img/arrow-down.png';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import BASE_URL from '../../config_base_url';
@@ -32,7 +33,8 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
     const [messageHighlight, setMessageHighlight] = useState(null);
     const [selectedDate, setSelectedDate] = useState(null);
     const [displayDate, setDisplayDate] = useState(new Date());
-  
+    const [isOverflowing, setIsOverflowing] = useState(false);
+
     useEffect(() => {
         const userId = Cookies.get('userId');
         
@@ -127,6 +129,28 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
             });
         }
     };
+
+    useEffect(() => {
+        const container = messagesContainerRef.current;
+      
+        const toggleVisibility = () => {
+            if (container) {
+            const scrollTop = container.scrollTop;
+            setIsOverflowing(scrollTop < -35);
+            }
+        };
+      
+        if (container) {
+            container.addEventListener("scroll", toggleVisibility);
+        }
+      
+        return () => {
+            if (container) {
+                container.removeEventListener("scroll", toggleVisibility);
+            }
+        };
+      }, []);
+      
 
     const adjustTriangleHeight = () => {
         const messageElements = document.querySelectorAll(`.${styles.message}`);
@@ -570,6 +594,14 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                     </div>
                 )}
                 <div ref={messagesEndRef} />
+
+                <div 
+                    className={`${styles.scrollToBottomButton} ${isOverflowing ? styles.visible : ''}`}
+                    onClick={scrollToBottom}
+                >
+                    <img src={scrollDownIcon} alt="Scroll" />  
+                </div>
+                
             </div>
     
             {selectedUser && (

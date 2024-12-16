@@ -187,10 +187,10 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         }
     }, [hasSelectedMessages, selectedMessages.length]); 
 
-    const handleSelectMessage = (messageId, isChecked) => {
+    const handleSelectMessage = useCallback((messageId, isChecked) => {
         setSelectedMessages(prevState => {
             if (isChecked) {
-                if(!prevState.includes(messageId)) {
+                if (!prevState.includes(messageId)) {
                     return [...prevState, messageId];
                 }
                 return prevState;
@@ -198,97 +198,7 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
                 return prevState.filter(id => id !== messageId);
             }
         });
-    };
-
-    useEffect(() => {
-        const deleteMessengerSocket = ({ messageIds }) => {
-            const groupedMessagesCopy = { ...groupedMessages };
-
-            messageIds.forEach(messageId => {
-                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-                if (messageElement) {
-                    createDustEffect(messageElement);
-                }
-            });
-
-            Object.entries(groupedMessagesCopy).forEach(([date, messagesForDate]) => {
-                const remainingMessagesForDate = messagesForDate.filter(
-                    message => !messageIds.includes(message.message_id)
-                );
-    
-                if (remainingMessagesForDate.length === 0) {
-                    const dateElement = document.querySelector(`[data-date="${date}"]`);
-                    if (dateElement) {
-                        createDustEffect(dateElement);
-                    } 
-                }
-            });
-
-            setTimeout(() => {
-                setGroupedMessages(prevGroupedMessages => {
-                    const updatedGroupedMessages = { ...prevGroupedMessages };
-                    messageIds.forEach(messageId => {
-                        Object.keys(updatedGroupedMessages).forEach(date => {
-                            updatedGroupedMessages[date] = updatedGroupedMessages[date].filter(
-                                message => message.message_id !== messageId
-                            );
-                            if (updatedGroupedMessages[date].length === 0) {
-                                delete updatedGroupedMessages[date];
-                            }
-                        });
-                    });
-                    return updatedGroupedMessages;
-                });
-            }, 2000); 
-        };
-    
-        socket.on('messagesDeleted', deleteMessengerSocket);
-    
-        return () => {
-            socket.off('messagesDeleted', deleteMessengerSocket);
-        };
-    }, [groupedMessages]);
-    
-    
-    const handleDeleteMessages = async () => {
-        if (selectedMessages.length === 0) return;
-        const userId = Cookies.get('userId');
-        const friendId = selectedUser ? selectedUser.id : null;
-    
-        try {
-            const response = await axios.post(`${BASE_URL}/deleteMessages`, {
-                messageIds: selectedMessages,
-            });
-    
-            if (response.data.success) {
-                socket.emit('deleteMessages', { messageIds: selectedMessages, userId, friendId });
-
-                selectedMessages.forEach(messageId => {
-                    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-                    if (messageElement) {
-                      createDustEffect(messageElement);
-                    }
-                });
-
-                Object.entries(groupedMessages).forEach(([date, messagesForDate]) => {
-                    const remainingMessagesForDate = messagesForDate.filter(
-                        message => !selectedMessages.includes(message.message_id)
-                    );
-
-                    if (remainingMessagesForDate.length === 0) {
-                        const dateElement = document.querySelector(`[data-date="${date}"]`);
-                        if (dateElement) {
-                            createDustEffect(dateElement);
-                        }
-                    }
-                });
-                setSelectedMessages([]);
-                setHasSelectedMessages(false);
-            } 
-        } catch (error) {
-            console.error('Fehler beim Löschen der Nachrichten:', error);
-        }
-    };
+    }, []);
 
     const createDustEffect = (element) => {
         const isDateElement = element.hasAttribute("data-date");
@@ -358,6 +268,97 @@ function ChatContainer({ toggleEmojiPicker, emojiPickerVisible, selectedEmoji, s
         setTimeout(() => {
             fetchMessages(); 
         }, 2000); 
+    };
+
+
+    useEffect(() => {
+        const deleteMessengerSocket = ({ messageIds }) => {
+            const groupedMessagesCopy = { ...groupedMessages };
+
+            messageIds.forEach(messageId => {
+                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                if (messageElement) {
+                    createDustEffect(messageElement);
+                }
+            });
+
+            Object.entries(groupedMessagesCopy).forEach(([date, messagesForDate]) => {
+                const remainingMessagesForDate = messagesForDate.filter(
+                    message => !messageIds.includes(message.message_id)
+                );
+    
+                if (remainingMessagesForDate.length === 0) {
+                    const dateElement = document.querySelector(`[data-date="${date}"]`);
+                    if (dateElement) {
+                        createDustEffect(dateElement);
+                    } 
+                }
+            });
+
+            setTimeout(() => {
+                setGroupedMessages(prevGroupedMessages => {
+                    const updatedGroupedMessages = { ...prevGroupedMessages };
+                    messageIds.forEach(messageId => {
+                        Object.keys(updatedGroupedMessages).forEach(date => {
+                            updatedGroupedMessages[date] = updatedGroupedMessages[date].filter(
+                                message => message.message_id !== messageId
+                            );
+                            if (updatedGroupedMessages[date].length === 0) {
+                                delete updatedGroupedMessages[date];
+                            }
+                        });
+                    });
+                    return updatedGroupedMessages;
+                });
+            }, 2000); 
+        };
+    
+        socket.on('messagesDeleted', deleteMessengerSocket);
+    
+        return () => {
+            socket.off('messagesDeleted', deleteMessengerSocket);
+        };
+    }, [groupedMessages, createDustEffect]);
+    
+    
+    const handleDeleteMessages = async () => {
+        if (selectedMessages.length === 0) return;
+        const userId = Cookies.get('userId');
+        const friendId = selectedUser ? selectedUser.id : null;
+    
+        try {
+            const response = await axios.post(`${BASE_URL}/deleteMessages`, {
+                messageIds: selectedMessages,
+            });
+    
+            if (response.data.success) {
+                socket.emit('deleteMessages', { messageIds: selectedMessages, userId, friendId });
+
+                selectedMessages.forEach(messageId => {
+                    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                    if (messageElement) {
+                      createDustEffect(messageElement);
+                    }
+                });
+
+                Object.entries(groupedMessages).forEach(([date, messagesForDate]) => {
+                    const remainingMessagesForDate = messagesForDate.filter(
+                        message => !selectedMessages.includes(message.message_id)
+                    );
+
+                    if (remainingMessagesForDate.length === 0) {
+                        const dateElement = document.querySelector(`[data-date="${date}"]`);
+                        if (dateElement) {
+                            createDustEffect(dateElement);
+                        }
+                    }
+                });
+                setSelectedMessages([]);
+                setHasSelectedMessages(false);
+            } 
+        } catch (error) {
+            console.error('Fehler beim Löschen der Nachrichten:', error);
+        }
     };
 
     useEffect(() => {

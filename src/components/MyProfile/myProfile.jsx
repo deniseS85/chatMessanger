@@ -15,7 +15,8 @@ import Avatar from 'react-nice-avatar';
 import AvatarSelector from '../AvatarSelector/avatarSelector'; 
 import { formatPhoneNumberIntl } from 'react-phone-number-input';
 import BASE_URL from '../../config_base_url';
-
+import { io } from 'socket.io-client';
+const socket = io(BASE_URL);
 
 const MyProfile = ({ onClose, isProfileOpen, updateUserData }) => {
     const [isVisible, setIsVisible] = useState(false);
@@ -164,10 +165,18 @@ const MyProfile = ({ onClose, isProfileOpen, updateUserData }) => {
                     'Content-Type': 'multipart/form-data'
                 }
             });
+            
             setIsEditing(false);
             const response = await axios.get(`${BASE_URL}/users/${userId}`);
-            setUserData(response.data);
-            updateUserData(response.data);
+            const userData = response.data;
+
+            if (userData.profile_img && !userData.profilePic) {
+                userData.profilePic = userData.profile_img;
+            }
+
+            setUserData(userData);
+            updateUserData(userData);
+            socket.emit('profileUpdated', { updatedData: userData });
         } catch (error) {
             console.error('Error updating user data:', error);
         }

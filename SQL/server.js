@@ -141,6 +141,12 @@ io.on('connection', (socket) => {
             io.to(friendSocketId).emit('chatDeleted', { chatId, friendId, userId, status });
         }
     });
+
+    // Profil aktualisieren
+    socket.on('profileUpdated', (data) => {
+        const { updatedData } = data;
+        socket.broadcast.emit('profileUpdated', { updatedData });
+    });
     
     socket.on('disconnect', () => {
         const userId = Object.keys(userSocketMap).find(key => userSocketMap[key] === socket.id);

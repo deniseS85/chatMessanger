@@ -33,7 +33,7 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
     const [userData, setUserData] = useState(null);
     const inputRef = useRef(null);
     const [searchValue, setSearchValue] = useState('');
-    
+
     useEffect(() => {
         const fetchUserData = async () => {
             const userId = Cookies.get('userId');
@@ -44,7 +44,6 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
                 console.error('Error fetching user data:', error);
             }
         };
-    
         fetchUserData();
     }, []);
 
@@ -179,9 +178,22 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
 
     const handleSelectMessages = () => {
         if (selectedUser) {
-            setIsMenuOpen(false);
-            handleSelectMessagesStatus(true);
-            setIsSearchOpen(false);
+            if (messages && messages.length > 0) {
+                setIsMenuOpen(false);
+                handleSelectMessagesStatus(true);
+                setIsSearchOpen(false);
+            } else {
+                setIsMenuOpen(false);
+                handleSelectMessagesStatus(false);
+                setNotification({
+                    message: 'No messages to select.',
+                    type: 'error',
+                    isHtml: true,
+                    onClose: () => {
+                        setNotification(null);
+                    }
+                });
+            }
         } else {
             setIsMenuOpen(false);
             handleSelectMessagesStatus(false);
@@ -377,16 +389,20 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
     };
 
     // wenn Upload Profilbild vorhanden ist
-    const renderUploadedProfilePic = (profilePic, username, onlineStatus ) => (
-        <div className={styles.profilePicWrapper}>
-            <img
-                src={`${BASE_URL}/uploads/${profilePic}`}
-                alt={username}
-                className={styles.profilePic}
-            />
-            {getOnlineIndicator(onlineStatus)}
-        </div>
-    );
+    const renderUploadedProfilePic = (profilePic, username, onlineStatus) => {
+        const isDefaultProfilePic = profilePic === defaultProfilePic;
+    
+        return (
+            <div className={styles.profilePicWrapper}>
+                <img
+                    src={isDefaultProfilePic ? defaultProfilePic : `${BASE_URL}/uploads/${profilePic}`}
+                    alt={username || 'User'}
+                    className={styles.profilePic}
+                />
+                {getOnlineIndicator(onlineStatus)}
+            </div>
+        );
+    };
     
     // wenn Avatar Profilbild vorhanden ist
     const renderAvatar = (avatarConfig, onlineStatus) => (
@@ -397,16 +413,20 @@ function ChatHeader({ users, isUserListOpen, selectedUser, onBackClick, onLogout
     );
 
     // wenn Profilbild in userData (eigenes Profil) vorhanden ist
-    const renderLoginImg = (profileImg, onlineStatus) => (
-        <div className={styles.profilePicWrapper}>
-            <img
-                src={`${BASE_URL}/uploads/${profileImg}`}
-                alt="Profile"
-                className={styles.profilePic}
-            />
-            {getOnlineIndicator(onlineStatus)}
-        </div>
-    );
+    const renderLoginImg = (profileImg, onlineStatus) => {
+        const isDefaultProfileImg = profileImg === defaultProfilePic;
+    
+        return (
+            <div className={styles.profilePicWrapper}>
+                <img
+                    src={isDefaultProfileImg ? defaultProfilePic : `${BASE_URL}/uploads/${profileImg}`}
+                    alt="Profile"
+                    className={styles.profilePic}
+                />
+                {getOnlineIndicator(onlineStatus)}
+            </div>
+        );
+    };
 
     // Profilbild wird gesetzt
     const getProfileImage = (user = selectedUser || userData) => {

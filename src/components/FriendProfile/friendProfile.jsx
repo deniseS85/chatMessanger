@@ -8,6 +8,8 @@ import Avatar from 'react-nice-avatar';
 import { formatPhoneNumberIntl } from 'react-phone-number-input';
 import axios from 'axios';
 import BASE_URL from '../../config_base_url';
+/* import { io } from 'socket.io-client';
+const socket = io(BASE_URL); */
 
 const FriendProfile = ({ selectedUser, isFriendProfileOpen, onClose }) => {
     const [isVisible, setIsVisible] = useState(false);
@@ -30,7 +32,7 @@ const FriendProfile = ({ selectedUser, isFriendProfileOpen, onClose }) => {
             };
             fetchFriendData();
         }
-    }, [isFriendProfileOpen]);
+    }, [isFriendProfileOpen, selectedUser]);
 
     const handleClose = useCallback(() => {
         setIsVisible(false);

@@ -57,6 +57,35 @@ const Chat = ({ onLogout }) => {
         fetchFriends(); 
     }, []);
 
+    useEffect(() => {
+        socket.on('profileUpdated', (data) => {
+            const updatedData = data.updatedData; 
+
+            if (!updatedData.profile_img) {
+                updatedData.profilePic = null;
+            }
+            if (!updatedData.profilePic) {
+                updatedData.profile_img = null;
+            }
+
+            if (selectedUser && selectedUser.id === updatedData.id) {
+                setSelectedUser((prevUser) => ({
+                    ...prevUser,
+                    ...updatedData,
+                }));
+            } 
+            fetchFriends();
+        });
+    
+        return () => {
+            socket.off('profileUpdated');
+        };
+    }, [selectedUser]);
+
+    useEffect(() => {
+        console.log('selectedUser:', selectedUser);
+    }, [selectedUser])
+    
     const toggleEmojiPicker = () => {
         setEmojiPickerVisible(prev => !prev);
         setEmojiToggled(prev => !prev);
